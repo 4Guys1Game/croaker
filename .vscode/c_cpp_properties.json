@@ -1,0 +1,41 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compilerPath": "C:\\msys64\\mingw64\\bin\\gcc.exe",
+            "cStandard": "gnu17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "windows-gcc-x64"
+        },
+        {
+            "name": "AVR",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "C:/msys64/mingw64/avr/include",
+                "C:/msys64/mingw64/lib/gcc/avr/**",
+                "C:\\Users\\gerso\\Arduino\\include\\**"
+            ],
+            "defines": [
+                "__AVR_ATmega328P__"
+            ],
+            "compilerPath": "C:\\msys64\\mingw64\\bin\\avr-g++.exe",
+            "cStandard": "gnu11",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "windows-gcc-x64",
+            "compilerArgs": [
+                "-mmcu=atmega328p",
+                "-DF_CPU=16000000UL"
+            ],
+            "configurationProvider": "ms-vscode.cmake-tools"
+        }
+    ],
+    "version": 4
+}
