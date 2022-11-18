@@ -17,7 +17,7 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Install Unix
-      run: sudo apt install build-essential
+      run: sudo apt-get install make
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory.
