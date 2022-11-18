@@ -17,7 +17,7 @@ set(CMAKE_TOOLCHAIN_FILE ${ARDUINO_PATH}/etc/toolchain-avr.cmake)
 set(CMAKE_PROJECT_INCLUDE ${ARDUINO_PATH}/etc/extratargets-avr.cmake)
 
 # Project name (also the name of the target)
-project(croaker)
+project("croaker")
 
 include_directories(
     lib
