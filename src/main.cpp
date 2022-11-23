@@ -8,6 +8,7 @@
 
 // Header file needed to enable interrupts
  #include <avr/io.h>
+ #include <avr/eeprom.h>
  #include <util/delay.h>
  #include <avr/interrupt.h>
  #include <Wire.h>
@@ -40,6 +41,28 @@ volatile nunchuk_joystick_state Y_AXIS = MIDDLE;
 // Global variables containing the button states of the C and Z buttons
 volatile nunchuk_button_state C_BUTTON = RELEASED;
 volatile nunchuk_button_state Z_BUTTON = RELEASED;
+
+// An enum for the different places to read or write to/from on the EEPROM
+enum eeprom_location { NONE = EEAR0, HIGH_SCORE = EEAR1, OPPONENT_HIGH = EEAR2 };
+
+// An enum for setting EEPROM mode
+enum eeprom_read_or_write { READ, WRITE };
+
+volatile struct {
+	eeprom_read_or_write state;
+	eeprom_location address;
+	uint8_t value;
+} EEPROM_PROG = { READ, NONE, 0 };
+
+volatile uint8_t EEPROM_VALUE = 0;
+
+ISR(EE_READY_vect)
+{
+	if (EEPROM_PROG.address == NONE) return;
+	if (EEPROM_PROG.state == READ)
+		EEPROM_VALUE = eeprom_read_byte((uint8_t *)EEPROM_PROG.address);
+	eeprom_write_byte((uint8_t *)EEPROM_PROG.address, EEPROM_PROG.value);
+}
 
 // Update the X_AXIS, Y_AXIS, C_BUTTON and Z_BUTTON globals to reflect the state of the nunchuk
 void update_nunchuk_state(uint8_t address)
