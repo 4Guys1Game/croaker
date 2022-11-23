@@ -16,17 +16,20 @@
  #include <Nunchuk.h>
 
 // Baudrate for Serial communication
-#define BAUDRATE        9600
+#define BAUDRATE        		   9600
 
 // The Wire address of the Nunchuk
-#define NUNCHUK_ADDRESS 0x52
+#define NUNCHUK_ADDRESS 		   0x52
 
 // The value of the Nunchuk joystick when it is not pointed
-#define MIDDLE_Y        136
-#define MIDDLE_X        125
+#define MIDDLE_Y        		   136
+#define MIDDLE_X        		   125
 
 // The offset used to make sure the joystick is not too sensitive
-#define OFFSET          15
+#define OFFSET          		   15
+
+#define load_value(address) 	   eeprom_read_byte((uint8_t *)address)
+#define save_value(address, value) eeprom_write_byte((uint8_t *)address, value)
 
 // An enum with the possible joystick states
 enum nunchuk_joystick_state { UP, DOWN, MIDDLE, LEFT, RIGHT};
@@ -44,25 +47,6 @@ volatile nunchuk_button_state Z_BUTTON = RELEASED;
 
 // An enum for the different places to read or write to/from on the EEPROM
 enum eeprom_location { NONE = EEAR0, HIGH_SCORE = EEAR1, OPPONENT_HIGH = EEAR2 };
-
-// An enum for setting EEPROM mode
-enum eeprom_read_or_write { READ, WRITE };
-
-volatile struct {
-	eeprom_read_or_write state;
-	eeprom_location address;
-	uint8_t value;
-} EEPROM_PROG = { READ, NONE, 0 };
-
-volatile uint8_t EEPROM_VALUE = 0;
-
-ISR(EE_READY_vect)
-{
-	if (EEPROM_PROG.address == NONE) return;
-	if (EEPROM_PROG.state == READ)
-		EEPROM_VALUE = eeprom_read_byte((uint8_t *)EEPROM_PROG.address);
-	eeprom_write_byte((uint8_t *)EEPROM_PROG.address, EEPROM_PROG.value);
-}
 
 // Update the X_AXIS, Y_AXIS, C_BUTTON and Z_BUTTON globals to reflect the state of the nunchuk
 void update_nunchuk_state(uint8_t address)
@@ -93,6 +77,13 @@ bool initialize_nunchuk(uint8_t address)
     return Nunchuk.begin(NUNCHUK_ADDRESS);
 }
 
+void update_eeprom()
+{
+	uint8_t val = load_value(HIGH_SCORE) + 1;
+	save_value(HIGH_SCORE, val);
+	Serial.println(val);
+}
+
 int main(void)
 {
     // Enable interrupts
@@ -109,6 +100,8 @@ int main(void)
     {
         // Update the Nunchuk global variables
         update_nunchuk_state(NUNCHUK_ADDRESS);
+		update_eeprom();
+		Serial.flush();
     }
 
     // This is never reached.
