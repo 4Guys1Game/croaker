@@ -30,6 +30,13 @@
 // @see VECTOR2_TO_PTR
 #define VECTOR2_TO_COLOR(base, pos, size) ((uint16_t)*VECTOR2_TO_PTR(base, pos, size))
 
+// Typecast const uint8_t[] into ImageBytes, which is a costless convertion
+#define GET_IMAGE(img_name) ((ImageBytes)(&img_name))
+
+// Simplistic image re-definitions
+typedef uint8_t* ImageBytes;
+typedef uint16_t ImageLength;
+
 // A simple vector2 struct
 typedef struct Vector2 {
 	uint16_t x;
@@ -40,17 +47,16 @@ typedef struct Vector2 {
 #define DRAWABLE_BASE(inherit) \
 	Vector2 position; \
 	Vector2 size; \
-	void (*draw)(inherit *); \
 
 // Image struct
 typedef struct DrawableImage {
 	DRAWABLE_BASE(DrawableImage)
-	uint16_t* img;
+	ImageBytes img;
 } DrawableImage;
 
 typedef struct DrawableImageRect {
 	DRAWABLE_BASE(DrawableImageRect)
-	uint16_t* img;
+	ImageBytes img;
 	Vector2 rect_position;
 	Vector2 rect_size;
 } DrawableImageRect;
@@ -59,5 +65,7 @@ typedef struct DrawableImageRect {
 extern Adafruit_ILI9341 tft;
 
 void init_gfx();
+
+void draw_image(DrawableImage *img, ImageLength len);
 
 #endif
