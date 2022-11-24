@@ -46,14 +46,14 @@ void draw_bitmap_opt_P(ImageBytes opt_bitmap, ImageLength opt_bitmap_size, Vecto
 {
 	// Retrieve the color palette
 	uint16_t color_palette[] = {
-		(opt_bitmap[0] << 8) + opt_bitmap[1],
-		(opt_bitmap[2] << 8) + opt_bitmap[3],
-		(opt_bitmap[4] << 8) + opt_bitmap[5],
-		(opt_bitmap[6] << 8) + opt_bitmap[7],
-		(opt_bitmap[8] << 8) + opt_bitmap[9],
-		(opt_bitmap[10] << 8) + opt_bitmap[11],
-		(opt_bitmap[12] << 8) + opt_bitmap[13],
-		(opt_bitmap[14] << 8) + opt_bitmap[15],
+		(pgm_read_byte(opt_bitmap + 0) << 8) + pgm_read_byte(opt_bitmap + 1),
+		(pgm_read_byte(opt_bitmap + 2) << 8) + pgm_read_byte(opt_bitmap + 3),
+		(pgm_read_byte(opt_bitmap + 4) << 8) + pgm_read_byte(opt_bitmap + 5),
+		(pgm_read_byte(opt_bitmap + 6) << 8) + pgm_read_byte(opt_bitmap + 7),
+		(pgm_read_byte(opt_bitmap + 8) << 8) + pgm_read_byte(opt_bitmap + 9),
+		(pgm_read_byte(opt_bitmap + 10) << 8) + pgm_read_byte(opt_bitmap + 11),
+		(pgm_read_byte(opt_bitmap + 12) << 8) + pgm_read_byte(opt_bitmap + 13),
+		(pgm_read_byte(opt_bitmap + 14) << 8) + pgm_read_byte(opt_bitmap + 15),
 	};
 
 	// Start a write message
@@ -62,7 +62,7 @@ void draw_bitmap_opt_P(ImageBytes opt_bitmap, ImageLength opt_bitmap_size, Vecto
 
 	for (uint16_t idx = 16; idx < opt_bitmap_size; idx++)
 	{
-		register uint8_t byte = pgm_read_byte(&(opt_bitmap[idx]));
+		register uint8_t byte = pgm_read_byte(opt_bitmap + idx);
 		// Case 1: RANGE_BYTE
 		if (byte & (1 << BYTE_TYPE_OFFSET))
 		{
@@ -101,7 +101,12 @@ void init_gfx()
 	tft.begin(); // Initialize the tft
 }
 
-void draw_image(DrawableImage *img, ImageLength len)
+void draw_image(BasicImage *img)
 {
-	draw_bitmap_opt_P(img->img, len, &img->position, &img->size);
+	draw_bitmap_opt_P(
+		img->raw->data,
+		img->raw->len,
+		&img->position,
+		&img->raw->size
+	);
 }

@@ -30,42 +30,34 @@
 // @see VECTOR2_TO_PTR
 #define VECTOR2_TO_COLOR(base, pos, size) ((uint16_t)*VECTOR2_TO_PTR(base, pos, size))
 
-// Typecast const uint8_t[] into ImageBytes, which is a costless convertion
-#define GET_IMAGE(img_name) ((ImageBytes)(&img_name))
-
-// Simplistic image re-definitions
-typedef uint8_t* ImageBytes;
-typedef uint16_t ImageLength;
-
-// A simple vector2 struct
-typedef struct Vector2 {
-	uint16_t x;
-	uint16_t y;
-} Vector2;
+// An image construction macro
+#define NEW_IMAGE(type, var_name, x, y, image_name) \
+type var_name = { \
+	Vector2 { x, y }, \
+	&image_name \
+}; \
 
 // A base struct for all drawable things
-#define DRAWABLE_BASE(inherit) \
+#define __IMAGE_BASE__ \
 	Vector2 position; \
-	Vector2 size; \
+	RawImage *raw; \
 
 // Image struct
-typedef struct DrawableImage {
-	DRAWABLE_BASE(DrawableImage)
-	ImageBytes img;
-} DrawableImage;
+typedef struct {
+	__IMAGE_BASE__
+} BasicImage;
 
-typedef struct DrawableImageRect {
-	DRAWABLE_BASE(DrawableImageRect)
-	ImageBytes img;
+typedef struct {
+	__IMAGE_BASE__
 	Vector2 rect_position;
 	Vector2 rect_size;
-} DrawableImageRect;
+} ImageSegment;
 
 // The screen, it's not adviced to modify the screen directly, but rather use the functions defined here
 extern Adafruit_ILI9341 tft;
 
 void init_gfx();
 
-void draw_image(DrawableImage *img, ImageLength len);
+void draw_image(BasicImage *img);
 
 #endif
