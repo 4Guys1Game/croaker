@@ -30,34 +30,63 @@
 // @see VECTOR2_TO_PTR
 #define VECTOR2_TO_COLOR(base, pos, size) ((uint16_t)*VECTOR2_TO_PTR(base, pos, size))
 
+// Set a tile of a tilemap to a specific image
+// This define REQUIRES new_tile to be a pointer
+#define SET_TILE(tilemap, vec, new_tile)    \
+	tilemap[vec.y * 12 + vec.x] = new_tile; \
+	draw_tile(tilemap, vec);
+
 // An image construction macro
 #define NEW_IMAGE(type, var_name, x, y, image_name) \
-type var_name = { \
-	Vector2 { x, y }, \
-	&image_name \
-}; \
+	type var_name = {                               \
+		Vector2{x, y},                              \
+		&image_name};
 
 // A base struct for all drawable things
 #define __IMAGE_BASE__ \
-	Vector2 position; \
-	RawImage *raw; \
+	Vector2 position;  \
+	RawImage *raw;
 
 // Image struct
-typedef struct {
+typedef struct
+{
 	__IMAGE_BASE__
 } BasicImage;
 
-typedef struct {
+typedef struct
+{
 	__IMAGE_BASE__
 	Vector2 rect_position;
 	Vector2 rect_size;
 } ImageSegment;
 
+// We only use tilemaps covering the entire screen, so we know each tile contains 20x20 pixels
+// We also know each tilemap has 12x16 tiles
+typedef RawImage *TileMap[];
+
 // The screen, it's not adviced to modify the screen directly, but rather use the functions defined here
 extern Adafruit_ILI9341 tft;
 
+extern TileMap background;
+
 void init_gfx();
 
+// Draws the tiles behind this image
+void draw_behind(BasicImage *img);
+void move_image(BasicImage *img, Vector2 *new_position);
+
+// Draw a single image
 void draw_image(BasicImage *img);
+// Draw a single image, but the first color will be transparent
+void draw_image_mask(BasicImage *img);
+
+// Draw an entire tilemap
+void draw_tilemap(TileMap map);
+// Draw an entire tilemap, but the first color will be transparent
+void draw_tilemap_mask(TileMap map);
+// Draw a single tile of a tilemap
+void draw_tile(TileMap map, Vector2 pos);
+// Draw a single tile of a tilemap, but the first color will be transparent
+void draw_tile_mask(TileMap map, Vector2 pos);
 
 #endif
