@@ -1,3 +1,4 @@
 CMakeLists.txt
 /.vscode
 /build
+/images/*.opt
