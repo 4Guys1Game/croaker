@@ -144,6 +144,8 @@ void init_spi()
 		spi_send_command_args(cmd, addr, numArgs);
 		addr += numArgs;
 		if (x & 0x80)
+		{
 			_delay_ms(150);
+		}
 	}
 }
