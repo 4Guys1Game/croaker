@@ -2,12 +2,10 @@
 #ifndef __GFX_LIB__
 #define __GFX_LIB__
 
-#include <SPI.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_ILI9341.h>
-
-// Images
 #include <avr/pgmspace.h>
+
+#include "display_driver.h"
+// Images
 #include "images.h"
 
 // ILI screen resolution
@@ -64,12 +62,13 @@ typedef struct
 // We also know each tilemap has 12x16 tiles
 typedef RawImage *TileMap[];
 
-// The screen, it's not adviced to modify the screen directly, but rather use the functions defined here
-extern Adafruit_ILI9341 tft;
 
 extern TileMap background;
 
 void init_gfx();
+
+// This function must be wrapped with spi_begin_write() and spi_end_write()
+void set_address_window(Vector2 *position, Vector2 *size);
 
 // Draws the tiles behind this image
 void draw_behind(BasicImage *img);

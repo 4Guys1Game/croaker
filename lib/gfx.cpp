@@ -8,11 +8,18 @@
 #define RANGE_COL_OFFSET 0
 #define RANGE_RANGE_OFFSET 3
 
-// For the Adafruit shield, these are the default.
-#define TFT_DC 9
-#define TFT_CS 10
+void set_address_window(Vector2 *position, Vector2 *size)
+{
+	spi_send_command(CMD_COLUMN_ADDRESS_SET);
+	spi_write16(position->x);
+	spi_write16(position->x + size->x - 1);
 
-Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
+	spi_send_command(CMD_PAGE_ADDRESS_SET);
+	spi_write16(position->y);
+	spi_write16(position->y + size->y - 1);
+
+	spi_send_command(CMD_MEMORY_WRITE);
+}
 
 void draw_bitmap_P(ImageBytes image, ImageLength image_len, Vector2 *position, Vector2 *size)
 {
@@ -29,8 +36,8 @@ void draw_bitmap_P(ImageBytes image, ImageLength image_len, Vector2 *position, V
 	};
 
 	// Start a write message
-	tft.startWrite();
-	tft.setAddrWindow(position->x, position->y, size->x, size->y);
+	spi_begin_write();
+	set_address_window(position, size);
 
 	for (uint16_t idx = 16; idx < image_len; idx++)
 	{
@@ -43,7 +50,7 @@ void draw_bitmap_P(ImageBytes image, ImageLength image_len, Vector2 *position, V
 			// Save on creating an extra variable by reusing the range var
 			for (range + 1; range > 0; range--)
 			{
-				tft.SPI_WRITE16(color_palette[col_idx]);
+				spi_write16(color_palette[col_idx]);
 			}
 		}
 		// Case 2: COLOR_BYTE
@@ -52,19 +59,19 @@ void draw_bitmap_P(ImageBytes image, ImageLength image_len, Vector2 *position, V
 			// Retrieve the colors & write to screen
 			uint8_t col_idx_1 = (byte & (0b111 << COLOR_FIRST_COL_OFFSET)) >> COLOR_FIRST_COL_OFFSET;
 			uint8_t col_idx_2 = (byte & (0b111 << COLOR_SECOND_COL_OFFSET)) >> COLOR_SECOND_COL_OFFSET;
-			tft.SPI_WRITE16(color_palette[col_idx_1]);
-			tft.SPI_WRITE16(color_palette[col_idx_2]);
+			spi_write16(color_palette[col_idx_1]);
+			spi_write16(color_palette[col_idx_2]);
 			// If the copy bit is set, write again
 			if (byte & (1 << COLOR_COPY_OFFSET))
 			{
-				tft.SPI_WRITE16(color_palette[col_idx_1]);
-				tft.SPI_WRITE16(color_palette[col_idx_2]);
+				spi_write16(color_palette[col_idx_1]);
+				spi_write16(color_palette[col_idx_2]);
 			}
 		}
 	}
 
 	// Send the transmittion
-	tft.endWrite();
+	spi_end_write();
 }
 
 void draw_bitmap_mask_P(ImageBytes image, ImageLength image_len, Vector2 *position, Vector2 *size)
@@ -93,10 +100,11 @@ void draw_bitmap_mask_P(ImageBytes image, ImageLength image_len, Vector2 *positi
 	};
 
 	// Start a write message
-	tft.startWrite();
-	tft.setAddrWindow(position->x, position->y, size->x, size->y);
+	spi_begin_write();
+	set_address_window(position, size);
 
 	Vector2 cursor = Vector2{position->x, position->y};
+	Vector2 addr_size = Vector2{1, 1};
 
 	for (uint16_t idx = 16; idx < image_len; idx++)
 	{
@@ -112,8 +120,9 @@ void draw_bitmap_mask_P(ImageBytes image, ImageLength image_len, Vector2 *positi
 			{
 				for (range + 1; range > 0; range--)
 				{
-					tft.setAddrWindow(cursor.x, cursor.y, 1, 1);
-					tft.SPI_WRITE16(color_palette[col_idx]);
+
+					set_address_window(&cursor, &addr_size);
+					spi_write16(color_palette[col_idx]);
 					incr_cursor;
 				}
 			}
@@ -133,14 +142,14 @@ void draw_bitmap_mask_P(ImageBytes image, ImageLength image_len, Vector2 *positi
 			uint8_t col_idx_2 = (byte & (0b111 << COLOR_SECOND_COL_OFFSET)) >> COLOR_SECOND_COL_OFFSET;
 			if (col_idx_1 != 0)
 			{
-				tft.setAddrWindow(cursor.x, cursor.y, 1, 1);
-				tft.SPI_WRITE16(color_palette[col_idx_1]);
+				set_address_window(&cursor, &addr_size);
+				spi_write16(color_palette[col_idx_1]);
 			}
 			incr_cursor;
 			if (col_idx_2 != 0)
 			{
-				tft.setAddrWindow(cursor.x, cursor.y, 1, 1);
-				tft.SPI_WRITE16(color_palette[col_idx_2]);
+				set_address_window(&cursor, &addr_size);
+				spi_write16(color_palette[col_idx_2]);
 			}
 			incr_cursor;
 			// If the copy bit is set, write again
@@ -148,14 +157,14 @@ void draw_bitmap_mask_P(ImageBytes image, ImageLength image_len, Vector2 *positi
 			{
 				if (col_idx_1 != 0)
 				{
-					tft.setAddrWindow(cursor.x, cursor.y, 1, 1);
-					tft.SPI_WRITE16(color_palette[col_idx_1]);
+					set_address_window(&cursor, &addr_size);
+					spi_write16(color_palette[col_idx_1]);
 				}
 				incr_cursor;
 				if (col_idx_2 != 0)
 				{
-					tft.setAddrWindow(cursor.x, cursor.y, 1, 1);
-					tft.SPI_WRITE16(color_palette[col_idx_2]);
+					set_address_window(&cursor, &addr_size);
+					spi_write16(color_palette[col_idx_2]);
 				}
 				incr_cursor;
 			}
@@ -163,7 +172,7 @@ void draw_bitmap_mask_P(ImageBytes image, ImageLength image_len, Vector2 *positi
 	}
 
 	// Send the transmittion
-	tft.endWrite();
+	spi_end_write();
 }
 
 // Init the background
@@ -191,7 +200,7 @@ TileMap background = {
 
 void init_gfx()
 {
-	tft.begin(); // Initialize the tft
+	init_spi(); // Initialize the tft
 }
 
 void draw_image(BasicImage *img)
