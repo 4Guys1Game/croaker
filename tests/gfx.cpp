@@ -5,7 +5,7 @@
 // Bouncing around the screen, leaving behind a trail of pixels
 void bounce()
 {
-	NEW_IMAGE(BasicImage, frogge_img, 5, 5, image_road_middle);
+	NEW_IMAGE(frogge_img, 5, 5, image_road_middle);
 
 	int8_t speed_x = 1;
 	int8_t speed_y = 1;
@@ -25,7 +25,7 @@ void bounce()
 // A sprite instantly teleporting between two places, without leaving behind debris
 void sprite()
 {
-	NEW_IMAGE(BasicImage, frogge, 100, 120, image_frogge);
+	NEW_IMAGE(frogge, 100, 120, image_frogge);
 
 	Vector2 one = {100, 120};
 	Vector2 two = {40, 80};
