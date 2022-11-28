@@ -6,8 +6,8 @@
     #define __AVR_ATmega328P__
 #endif
 
-// Header file needed to enable interrupts
  #include <avr/io.h>
+ #include <avr/eeprom.h>
  #include <util/delay.h>
  #include <avr/interrupt.h>
  #include <Wire.h>
@@ -15,17 +15,21 @@
  #include <Nunchuk.h>
 
 // Baudrate for Serial communication
-#define BAUDRATE        9600
+#define BAUDRATE 9600
 
 // The Wire address of the Nunchuk
 #define NUNCHUK_ADDRESS 0x52
 
-// The value of the Nunchuk joystick when it is not pointed
-#define MIDDLE_Y        136
-#define MIDDLE_X        125
+// The value of the Nunchuk joystick when it is not pointed anywhere
+#define MIDDLE_Y 		136
+#define MIDDLE_X 		125
 
 // The offset used to make sure the joystick is not too sensitive
-#define OFFSET          15
+#define OFFSET 	 		15
+
+// Functions for reading and writing values to the EEPROM.
+#define load_value(address) 	   eeprom_read_byte((uint8_t *)address)
+#define save_value(address, value) eeprom_write_byte((uint8_t *)address, value)
 
 // An enum with the possible joystick states
 enum nunchuk_joystick_state { UP, DOWN, MIDDLE, LEFT, RIGHT};
@@ -40,6 +44,9 @@ volatile nunchuk_joystick_state Y_AXIS = MIDDLE;
 // Global variables containing the button states of the C and Z buttons
 volatile nunchuk_button_state C_BUTTON = RELEASED;
 volatile nunchuk_button_state Z_BUTTON = RELEASED;
+
+// An enum for the different addresses to read or write to/from on the EEPROM
+enum eeprom_location { HIGH_SCORE = EEAR0, OPPONENT_HIGH_SCORE = EEAR0 };
 
 // Update the X_AXIS, Y_AXIS, C_BUTTON and Z_BUTTON globals to reflect the state of the nunchuk
 void update_nunchuk_state(uint8_t address)
@@ -70,6 +77,14 @@ bool initialize_nunchuk(uint8_t address)
     return Nunchuk.begin(NUNCHUK_ADDRESS);
 }
 
+void update_eeprom()
+{
+	uint8_t val = load_value(HIGH_SCORE) + 1;
+	save_value(HIGH_SCORE, val);
+	Serial.println(val);
+	Serial.flush();
+}
+
 int main(void)
 {
     // Enable interrupts
@@ -82,10 +97,13 @@ int main(void)
     if (!initialize_nunchuk(NUNCHUK_ADDRESS)) return 1;
 
     // Repeat forever
-    while (1) 
+    while (1)
     {
         // Update the Nunchuk global variables
         update_nunchuk_state(NUNCHUK_ADDRESS);
+		
+		// Update and print the value in the EEPROM.
+		update_eeprom();
     }
 
     // This is never reached.
