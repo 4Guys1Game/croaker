@@ -330,7 +330,7 @@ void draw_font_image_P(ImageBytes image, Vector2 *position, Vector2 *size)
 	spi_end_write();
 }
 
-void draw_string(Vector2 position, char* string)
+void draw_string(Vector2 position, char *string)
 {
 	while (*string)
 	{

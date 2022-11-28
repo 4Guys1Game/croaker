@@ -91,9 +91,9 @@ void init_spi()
 	SPCR |= (1 << SPE) | (1 << MSTR);
 	// Set clock divider to 2
 	SPSR |= (1 << SPI2X);
-	// // Set bit order (MSBFirst)
+	// Set bit order (MSBFirst)
 	SPCR &= ~(1 << DORD);
-	// // Set data mode (mode 0)
+	// Set data mode (mode 0)
 	SPCR &= ~((1 << CPOL) | (1 << CPHA));
 	// Enable the internal pull-ups of SS
 	PORTB |= (1 << PB1) | (1 << PB2);
