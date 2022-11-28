@@ -1,31 +1,44 @@
-// /*
-//  * A frogger implementation for Arduino.
-//  */
-
+/*
+ * A frogger implementation for Arduino
+ */
 // keep intellisense satisfied
 #ifndef __AVR_ATmega328P__
 #define __AVR_ATmega328P__
 #endif
 
-// // Header file needed to enable interrupts.
-#include <avr/interrupt.h>
-#include <util/delay.h>
+ #include <avr/io.h>
+ #include <avr/eeprom.h>
+ #include <avr/interrupt.h>
+ #include <HardwareSerial.h>
+ #include <nunchuck_value.h>
 
-// Local libs
-#include "global_time.h"
-#include "gfx.h"
-#include "convertion.h"
+// Baudrate for Serial communication
+#define BAUDRATE 9600
+
+// The Wire address of the Nunchuk
+#define NUNCHUK_ADDRESS 0x52
+
+// Functions for reading and writing values to the EEPROM.
+#define load_value(address) 	   eeprom_read_byte((uint8_t *)address)
+#define save_value(address, value) eeprom_write_byte((uint8_t *)address, value)
+
+// An enum for the different addresses to read or write to/from on the EEPROM
+enum eeprom_location { HIGH_SCORE = EEAR0, OPPONENT_HIGH_SCORE = EEAR0 };
 
 int main(void)
 {
-	sei(); // Enable global interrupts
-	setup_global_timer(); // Enable global timer
-	init_gfx(); // Enable the gfx library
+    // Enable interrupts
+    sei();
 
-	tft.fillScreen(ILI9341_BLACK);
-	while (1) {
-		tft.fillScreen(ILI9341_CYAN);
-		tft.fillScreen(ILI9341_RED);
-	}
-	return (0);
+    // Begin Serial communication
+    Serial.begin(BAUDRATE);
+
+    // Initialize the connection with the nunchuk and stop if it is not found
+    if (!init_nunchuk(NUNCHUK_ADDRESS)) return 1;
+    
+    // Repeat forever
+    while (1) {}
+
+    // This is never reached.
+    return 0;
 }
