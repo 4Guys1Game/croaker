@@ -35,9 +35,9 @@
 	draw_tile(tilemap, vec);
 
 // An image construction macro
-#define NEW_IMAGE(type, var_name, x, y, image_name) \
-	type var_name = {                               \
-		Vector2{x, y},                              \
+#define NEW_IMAGE(var_name, x, y, image_name) \
+	BasicImage var_name = {                   \
+		Vector2{x, y},                        \
 		&image_name};
 
 // A base struct for all drawable things
@@ -51,19 +51,15 @@ typedef struct
 	__IMAGE_BASE__
 } BasicImage;
 
-typedef struct
-{
-	__IMAGE_BASE__
-	Vector2 rect_position;
-	Vector2 rect_size;
-} ImageSegment;
-
 // We only use tilemaps covering the entire screen, so we know each tile contains 20x20 pixels
 // We also know each tilemap has 12x16 tiles
 typedef RawImage *TileMap[];
 
-
 extern TileMap background;
+// The background is index 0
+// The foreground is index 1
+// Possibly use union?
+extern uint16_t text_color[2];
 
 void init_gfx();
 
@@ -87,5 +83,8 @@ void draw_tilemap_mask(TileMap map);
 void draw_tile(TileMap map, Vector2 pos);
 // Draw a single tile of a tilemap, but the first color will be transparent
 void draw_tile_mask(TileMap map, Vector2 pos);
+
+void draw_string(Vector2 position, char *string);
+void draw_char(Vector2 *position, char c);
 
 #endif

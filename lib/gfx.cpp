@@ -8,6 +8,10 @@
 #define RANGE_COL_OFFSET 0
 #define RANGE_RANGE_OFFSET 3
 
+uint16_t text_color[] = {
+	RGB_TO_COLOR(0, 0, 0),
+	RGB_TO_COLOR(31, 63, 31)};
+
 void set_address_window(Vector2 *position, Vector2 *size)
 {
 	spi_send_command(CMD_COLUMN_ADDRESS_SET);
@@ -76,7 +80,7 @@ void draw_bitmap_P(ImageBytes image, ImageLength image_len, Vector2 *position, V
 
 void draw_bitmap_mask_P(ImageBytes image, ImageLength image_len, Vector2 *position, Vector2 *size)
 {
-#define incr_cursor                            \
+#define INCR_CURSOR                            \
 	cursor.x++;                                \
 	if (cursor.x == position->x + size->x)     \
 	{                                          \
@@ -123,14 +127,14 @@ void draw_bitmap_mask_P(ImageBytes image, ImageLength image_len, Vector2 *positi
 
 					set_address_window(&cursor, &addr_size);
 					spi_write16(color_palette[col_idx]);
-					incr_cursor;
+					INCR_CURSOR;
 				}
 			}
 			else
 			{
 				for (range + 1; range > 0; range--)
 				{
-					incr_cursor;
+					INCR_CURSOR;
 				}
 			}
 		}
@@ -145,13 +149,13 @@ void draw_bitmap_mask_P(ImageBytes image, ImageLength image_len, Vector2 *positi
 				set_address_window(&cursor, &addr_size);
 				spi_write16(color_palette[col_idx_1]);
 			}
-			incr_cursor;
+			INCR_CURSOR;
 			if (col_idx_2 != 0)
 			{
 				set_address_window(&cursor, &addr_size);
 				spi_write16(color_palette[col_idx_2]);
 			}
-			incr_cursor;
+			INCR_CURSOR;
 			// If the copy bit is set, write again
 			if (byte & (1 << COLOR_COPY_OFFSET))
 			{
@@ -160,13 +164,13 @@ void draw_bitmap_mask_P(ImageBytes image, ImageLength image_len, Vector2 *positi
 					set_address_window(&cursor, &addr_size);
 					spi_write16(color_palette[col_idx_1]);
 				}
-				incr_cursor;
+				INCR_CURSOR;
 				if (col_idx_2 != 0)
 				{
 					set_address_window(&cursor, &addr_size);
 					spi_write16(color_palette[col_idx_2]);
 				}
-				incr_cursor;
+				INCR_CURSOR;
 			}
 		}
 	}
@@ -174,29 +178,6 @@ void draw_bitmap_mask_P(ImageBytes image, ImageLength image_len, Vector2 *positi
 	// Send the transmittion
 	spi_end_write();
 }
-
-// Init the background
-TileMap background = {
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	&image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, 
-	&image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, 
-
-	&image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, 
-	&image_sand_grass, &image_sand_grass, &image_sand_grass, &image_sand_grass, &image_sand_grass, &image_sand_grass, &image_sand_grass, &image_sand_grass, &image_sand_grass, &image_sand_grass, &image_sand_grass, &image_sand_grass, 		
-	&image_lake_sand, &image_lake_sand, &image_lake_sand, &image_lake_sand, &image_lake_sand, &image_lake_sand, &image_lake_sand, &image_lake_sand, &image_lake_sand, &image_lake_sand, &image_lake_sand, &image_lake_sand, 
-	&image_lake, &image_lake, &image_lake, &image_lake, &image_lake, &image_lake, &image_lake, &image_lake, &image_lake, &image_lake, &image_lake, &image_lake, 
-
-	&image_lake, &image_lake, &image_lake, &image_lake, &image_lake, &image_lake, &image_lake, &image_lake, &image_lake, &image_lake, &image_lake, &image_lake, 
-	&image_lake, &image_lake, &image_lake, &image_lake, &image_lake, &image_lake, &image_lake, &image_lake, &image_lake, &image_lake, &image_lake, &image_lake, 
-	&image_grass_lake, &image_grass_lake, &image_grass_lake, &image_grass_lake, &image_grass_lake, &image_grass_lake, &image_grass_lake, &image_grass_lake, &image_grass_lake, &image_grass_lake, &image_grass_lake, &image_grass_lake, 
-	&image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, &image_grass, 
-
-	&image_road_grass, &image_road_grass, &image_road_grass, &image_road_grass, &image_road_grass, &image_road_grass, &image_road_grass, &image_road_grass, &image_road_grass, &image_road_grass, &image_road_grass, &image_road_grass,
-	&image_road_middle, &image_road_middle, &image_road_middle, &image_road_middle, &image_road_middle, &image_road_middle, &image_road_middle, &image_road_middle, &image_road_middle, &image_road_middle, &image_road_middle, &image_road_middle, 
-	&image_road_middle, &image_road_middle, &image_road_middle, &image_road_middle, &image_road_middle, &image_road_middle, &image_road_middle, &image_road_middle, &image_road_middle, &image_road_middle, &image_road_middle, &image_road_middle, 
-	&image_sidewalk_road, &image_sidewalk_road, &image_sidewalk_road, &image_sidewalk_road, &image_sidewalk_road, &image_sidewalk_road, &image_sidewalk_road, &image_sidewalk_road, &image_sidewalk_road, &image_sidewalk_road, &image_sidewalk_road, &image_sidewalk_road, 
-};
 
 void init_gfx()
 {
@@ -225,22 +206,21 @@ void draw_behind(BasicImage *img)
 {
 	uint8_t begin_x = img->position.x / 20;
 	uint8_t begin_y = img->position.y / 20;
-	uint8_t end_x = begin_x + img->raw->size.x / 20;
-	uint8_t end_y = begin_y + img->raw->size.y / 20;
+	uint8_t end_x = (img->position.x + img->raw->size.x) / 20;
+	uint8_t end_y = (img->position.y + img->raw->size.y) / 20;
 	Vector2 size = {20, 20};
-	
+
 	for (uint8_t x = begin_x; x < end_x; x++)
 	{
 		for (uint8_t y = begin_y; y < end_y; y++)
 		{
 			Vector2 position = {x * 20, y * 20};
-			RawImage* image = background[ y * 12 + x ];
+			RawImage *image = background[y * 12 + x];
 			draw_bitmap_P(
 				image->data,
 				image->len,
 				&position,
-				&size
-			);
+				&size);
 		}
 	}
 }
@@ -284,7 +264,7 @@ void draw_tilemap_mask(TileMap map)
 void draw_tile(TileMap map, Vector2 pos)
 {
 	Vector2 size = {20, 20};
-	RawImage* raw = map[ pos.y * 12 + pos.x ];
+	RawImage *raw = map[pos.y * 12 + pos.x];
 	pos.x *= 20;
 	pos.y *= 20;
 	draw_bitmap_P(
@@ -297,7 +277,7 @@ void draw_tile(TileMap map, Vector2 pos)
 void draw_tile_mask(TileMap map, Vector2 pos)
 {
 	Vector2 size = {20, 20};
-	RawImage* raw = map[ pos.y * 12 + pos.x ];
+	RawImage *raw = map[pos.y * 12 + pos.x];
 	pos.x *= 20;
 	pos.y *= 20;
 	draw_bitmap_mask_P(
@@ -305,4 +285,126 @@ void draw_tile_mask(TileMap map, Vector2 pos)
 		raw->len,
 		&pos,
 		&size);
+}
+
+void draw_font_image_P(ImageBytes image, Vector2 *position, Vector2 *size)
+{
+	uint8_t image_len = pgm_read_byte(image) + 1;
+
+	// Start a write message
+	spi_begin_write();
+	set_address_window(position, size);
+
+	for (uint16_t idx = 1; idx < image_len; idx++)
+	{
+		register uint8_t byte = pgm_read_byte(image + idx);
+		// Case 1: RANGE_BYTE
+		if (byte & (1 << BYTE_TYPE_OFFSET))
+		{
+			uint8_t range = (byte & (0b1111 << RANGE_RANGE_OFFSET)) >> RANGE_RANGE_OFFSET;
+			uint8_t col_idx = (byte & (0b111 << RANGE_COL_OFFSET)) >> RANGE_COL_OFFSET;
+			// Save on creating an extra variable by reusing the range var
+			for (range + 1; range > 0; range--)
+			{
+				spi_write16(text_color[col_idx]);
+			}
+		}
+		// Case 2: COLOR_BYTE
+		else
+		{
+			// Retrieve the colors & write to screen
+			uint8_t col_idx_1 = (byte & (0b111 << COLOR_FIRST_COL_OFFSET)) >> COLOR_FIRST_COL_OFFSET;
+			uint8_t col_idx_2 = (byte & (0b111 << COLOR_SECOND_COL_OFFSET)) >> COLOR_SECOND_COL_OFFSET;
+			spi_write16(text_color[col_idx_1]);
+			spi_write16(text_color[col_idx_2]);
+			// If the copy bit is set, write again
+			if (byte & (1 << COLOR_COPY_OFFSET))
+			{
+				spi_write16(text_color[col_idx_1]);
+				spi_write16(text_color[col_idx_2]);
+			}
+		}
+	}
+
+	// Send the transmittion
+	spi_end_write();
+}
+
+void draw_string(Vector2 position, char* string)
+{
+	while (*string)
+	{
+		draw_char(&position, *string);
+		position.x += 10;
+		string++;
+	}
+}
+
+void draw_char(Vector2 *position, char chr)
+{
+#define FONT_SWITCH_CASE(idx, letter)                                            \
+	case idx:                                                                    \
+		draw_font_image_P((ImageBytes)__raw_font_##letter##_p, position, &size); \
+		break;
+
+	if (chr >= '0' && chr <= '9')
+	{
+		chr -= '0';
+	}
+	else if (chr >= 'a' && chr <= 'z')
+	{
+		chr = chr - 'a' + 10;
+	}
+	else if (chr >= 'A' && chr <= 'Z')
+	{
+		chr = chr - 'A' + 10;
+	}
+	else
+	{
+		// Don't draw anything if it's not a character we can draw
+		return;
+	}
+	Vector2 size = {10, 14};
+
+	switch (chr)
+	{
+		FONT_SWITCH_CASE(0, 0)
+		FONT_SWITCH_CASE(1, 1)
+		FONT_SWITCH_CASE(2, 2)
+		FONT_SWITCH_CASE(3, 3)
+		FONT_SWITCH_CASE(4, 4)
+		FONT_SWITCH_CASE(5, 5)
+		FONT_SWITCH_CASE(6, 6)
+		FONT_SWITCH_CASE(7, 7)
+		FONT_SWITCH_CASE(8, 8)
+		FONT_SWITCH_CASE(9, 9)
+		FONT_SWITCH_CASE(10, a)
+		FONT_SWITCH_CASE(11, b)
+		FONT_SWITCH_CASE(12, c)
+		FONT_SWITCH_CASE(13, d)
+		FONT_SWITCH_CASE(14, e)
+		FONT_SWITCH_CASE(15, f)
+		FONT_SWITCH_CASE(16, g)
+		FONT_SWITCH_CASE(17, h)
+		FONT_SWITCH_CASE(18, i)
+		FONT_SWITCH_CASE(19, j)
+		FONT_SWITCH_CASE(20, k)
+		FONT_SWITCH_CASE(21, l)
+		FONT_SWITCH_CASE(22, m)
+		FONT_SWITCH_CASE(23, n)
+		FONT_SWITCH_CASE(24, o)
+		FONT_SWITCH_CASE(25, p)
+		FONT_SWITCH_CASE(26, q)
+		FONT_SWITCH_CASE(27, r)
+		FONT_SWITCH_CASE(28, s)
+		FONT_SWITCH_CASE(29, t)
+		FONT_SWITCH_CASE(30, u)
+		FONT_SWITCH_CASE(31, v)
+		FONT_SWITCH_CASE(32, w)
+		FONT_SWITCH_CASE(33, x)
+		FONT_SWITCH_CASE(34, x)
+		FONT_SWITCH_CASE(35, z)
+	default:
+		break;
+	}
 }
