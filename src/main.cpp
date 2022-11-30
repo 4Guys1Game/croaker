@@ -44,11 +44,11 @@ int main(void)
 	sei();
 
 	// Begin Serial communication
-	// Serial.begin(BAUDRATE);
+	Serial.begin(BAUDRATE);
 
 
 	// Initialize the connection with the nunchuk and stop if it is not found
-	// if (!init_nunchuk(NUNCHUK_ADDRESS)) return 1;
+	if (!init_nunchuk(NUNCHUK_ADDRESS)) return 1;
 
 	// Draw the background
 	draw_tilemap(background);
@@ -85,6 +85,16 @@ int main(void)
 		{
 			next_message = global_time + 500;
 			ir_send_message(2);
+            Serial.print("Nunchuk: Y:");
+            nunchuk_joystick_state yval = get_joystick_state(Y);
+            nunchuk_joystick_state xval = get_joystick_state(X);
+            Serial.print(yval == UP ? "Up" : yval == DOWN ? "Down" : "Middle");
+            Serial.print(" X:");
+            Serial.print(xval == LEFT ? "Left" : xval == RIGHT ? "Right" : "Middle");
+            Serial.print(" C:");
+            Serial.print(get_button_state(C) == PRESSED ? "Pressed" : "Released");
+            Serial.print(" Z:");
+            Serial.println(get_button_state(Z) == PRESSED ? "Pressed" : "Released");
 		}
 
 		// Update the IR
