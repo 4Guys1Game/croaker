@@ -17,6 +17,9 @@
 #include "gfx.h"
 #include "ir.h"
 
+#define MOVEMENT_SPEED 20
+#define MOVEMENT_INTERVAL 150
+
 // Baudrate for Serial communication
 #define BAUDRATE 9600
 
@@ -53,48 +56,43 @@ int main(void)
 	// Draw the background
 	draw_tilemap(background);
 	uint32_t next_message = 0;
-	uint32_t next_move = 0;
+	uint32_t next_move_tick = 0;
 
 	Vector2 start_pos = {4 * 20, 15 * 20};
-	Vector2 end_pos = {6 * 20, 10 * 20};
+	// Vector2 end_pos = {6 * 20, 10 * 20};
 	NEW_IMAGE(main_character, start_pos.x, start_pos.y, image_frogge);
 
 	uint8_t is_at_end = false;
 
+	draw_image_mask(&main_character);
+
 	// Main game loop
 	while (1)
 	{
+		nunchuk_joystick_state y_val = get_joystick_state(Y);
+		nunchuk_joystick_state x_val = get_joystick_state(X);
 
-		if (global_time >= next_move)
+		if (global_time >= next_move_tick)
 		{
-			if (is_at_end)
+			next_move_tick = global_time + MOVEMENT_INTERVAL;
+
+			uint16_t prev_x = start_pos.x;
+			uint16_t prev_y = start_pos.y;
+			start_pos.x += (x_val == LEFT) ? (start_pos.x == 0 ? 0 : -MOVEMENT_SPEED) : (x_val == RIGHT) ? (start_pos.x == 220 ? 0 : MOVEMENT_SPEED) : 0;
+			start_pos.y += (y_val == UP) ? (start_pos.y == 40 ? 0 : -MOVEMENT_SPEED) : (y_val == DOWN) ? (start_pos.y == 300 ? 0 : MOVEMENT_SPEED) : 0;
+			
+			if (prev_x != start_pos.x || prev_y != start_pos.y)
 			{
-				is_at_end = false;
 				move_image(&main_character, &start_pos);
 			}
-			else
-			{
-				is_at_end = true;
-				move_image(&main_character, &end_pos);
-			}
-			next_move = global_time + 250;
 		}
+
 
 		// Constantly send IR messages
 		if (global_time >= next_message)
 		{
 			next_message = global_time + 500;
 			ir_send_message(2);
-            Serial.print("Nunchuk: Y:");
-            nunchuk_joystick_state yval = get_joystick_state(Y);
-            nunchuk_joystick_state xval = get_joystick_state(X);
-            Serial.print(yval == UP ? "Up" : yval == DOWN ? "Down" : "Middle");
-            Serial.print(" X:");
-            Serial.print(xval == LEFT ? "Left" : xval == RIGHT ? "Right" : "Middle");
-            Serial.print(" C:");
-            Serial.print(get_button_state(C) == PRESSED ? "Pressed" : "Released");
-            Serial.print(" Z:");
-            Serial.println(get_button_state(Z) == PRESSED ? "Pressed" : "Released");
 		}
 
 		// Update the IR

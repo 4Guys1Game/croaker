@@ -206,13 +206,13 @@ void draw_behind(BasicImage *img)
 {
 	uint8_t begin_x = img->position.x / 20;
 	uint8_t begin_y = img->position.y / 20;
-	uint8_t end_x = (img->position.x + img->raw->size.x) / 20;
-	uint8_t end_y = (img->position.y + img->raw->size.y) / 20;
+	uint8_t end_x = (img->position.x + img->raw->size.x - 1) / 20;
+	uint8_t end_y = (img->position.y + img->raw->size.y - 1) / 20;
 	Vector2 size = {20, 20};
 
-	for (uint8_t x = begin_x; x < end_x; x++)
+	for (uint8_t x = begin_x; x <= end_x; x++)
 	{
-		for (uint8_t y = begin_y; y < end_y; y++)
+		for (uint8_t y = begin_y; y <= end_y; y++)
 		{
 			Vector2 position = {x * 20, y * 20};
 			RawImage *image = background[y * 12 + x];
