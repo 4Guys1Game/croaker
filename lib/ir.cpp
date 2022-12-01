@@ -50,14 +50,16 @@ void ir_send_message(IRPacket data)
 	// 0x01 if uneven
 	// 0x00 if even
 	uint8_t parity = 0x00;
+	// Add the bits from the data to the parity value
 	for (uint8_t idx = 0; idx < 5; idx++)
 	{
-		parity += (data & (1 << idx));
+		parity += (data & (1 << idx)) >> idx;
 	}
+	// Do a modulo 2 to determine of parity is even or uneven
 	parity %= 2;
 
 	// Config data
-	packet = 0xc0 | ((data & 0x1f) << 2) | parity;
+	packet = 0xc0 | ((data & 0x1f) << 1) | parity;
 	packet_index = 8;
 	packet_sent = 0;
 	next_half_pulse = global_time;
@@ -67,9 +69,10 @@ void ir_heartbeat()
 {
 	if (global_time >= next_half_pulse)
 	{
+		// Go through every bit of the packet
 		if (packet_index > 0)
 		{
-			// If we're in the low part of the pulse
+			// If we're in the second part of the pulse, where it always has to be low
 			if (second_half_of_pulse)
 			{
 				// Set to low if it wasn't already
@@ -82,7 +85,7 @@ void ir_heartbeat()
 			}
 			else
 			{
-				// Set high if we're a one, else low
+				// Set to high if the bit is a 1, set to low if the bit is a 0
 				if (packet & (1 << (packet_index - 1)))
 				{
 					ir_set_high();
