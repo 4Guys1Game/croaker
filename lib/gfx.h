@@ -40,20 +40,19 @@
 		Vector2{x, y},                        \
 		&image_name};
 
-// A base struct for all drawable things
-#define __IMAGE_BASE__ \
-	Vector2 position;  \
-	RawImage *raw;
-
 // Image struct
 typedef struct
 {
-	__IMAGE_BASE__
+	Vector2 position;
+	RawImage *raw;
 } BasicImage;
 
 // We only use tilemaps covering the entire screen, so we know each tile contains 20x20 pixels
 // We also know each tilemap has 12x16 tiles
-typedef RawImage *TileMap[];
+typedef struct {
+	uint8_t tiles[12 * 16 / 2];
+	RawImage *sprites[15];
+} TileMap;
 
 extern TileMap background;
 // The background is index 0
@@ -76,13 +75,9 @@ void draw_image(BasicImage *img);
 void draw_image_mask(BasicImage *img);
 
 // Draw an entire tilemap
-void draw_tilemap(TileMap map);
-// Draw an entire tilemap, but the first color will be transparent
-void draw_tilemap_mask(TileMap map);
+void draw_tilemap(TileMap *map);
 // Draw a single tile of a tilemap
-void draw_tile(TileMap map, Vector2 pos);
-// Draw a single tile of a tilemap, but the first color will be transparent
-void draw_tile_mask(TileMap map, Vector2 pos);
+static inline void draw_tile(TileMap *map, Vector2 pos);
 
 void draw_string(Vector2 position, char *string);
 void draw_char(Vector2 *position, char c);
