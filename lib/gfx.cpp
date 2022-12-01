@@ -215,13 +215,6 @@ void draw_behind(BasicImage *img)
 		for (uint8_t y = begin_y; y <= end_y; y++)
 		{
 			draw_tile(&background, {x, y});
-
-			// RawImage *image = background[y * 12 + x];
-			// draw_bitmap_P(
-			// 	image->data,
-			// 	image->len,
-			// 	&position,
-			// 	&size);
 		}
 	}
 }
@@ -268,8 +261,7 @@ void draw_tilemap(TileMap *map)
 	}
 }
 
-// This takes a uint8_t and not a Vector2 to reduce memory usage
-void draw_tile(TileMap *map, Vector2 pos)
+inline void draw_tile(TileMap *map, Vector2 pos)
 {
 	Vector2 size = {20, 20};
 	uint16_t index = pos.y * 6 + pos.x / 2;
