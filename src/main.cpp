@@ -9,7 +9,6 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <HardwareSerial.h>
-#include <nunchuck_value.h>
 #include <avr/delay.h>
 
 #include "prelude.h"
@@ -17,6 +16,7 @@
 #include "gfx.h"
 #include "ir.h"
 #include "conversion.h"
+#include "nunchuk_value.h"
 
 #define MOVEMENT_SPEED 20
 #define MOVEMENT_INTERVAL 150
