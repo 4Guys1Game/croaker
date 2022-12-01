@@ -66,6 +66,11 @@ int main(void)
 
 	draw_image_mask(&main_character);
 
+	draw_string({20, 20}, "Hello World");
+	draw_string({20, 40}, "0123456789");
+	draw_string({20, 60}, "abcdefghijklm");
+	draw_string({20, 80}, "nopqrstuvwxyz");
+
 	// Main game loop
 	while (1)
 	{
