@@ -15,6 +15,7 @@ enum nunchuk_joystick_state { UP, DOWN, MIDDLE, LEFT, RIGHT};
 enum nunchuk_button_state   { RELEASED, PRESSED };
 
 bool init_nunchuk(uint8_t address);
+bool calibrate_nunchuk();
 bool is_connected();
 nunchuk_joystick_state get_joystick_state(nunchuk_read_joystick x_or_y);
 nunchuk_button_state get_button_state(nunchuk_read_button x_or_y);
