@@ -1,4 +1,4 @@
-#include "nunchuck_value.h"
+#include "nunchuk_value.h"
 #include <Nunchuk.h>
 #include <Wire.h>
 
