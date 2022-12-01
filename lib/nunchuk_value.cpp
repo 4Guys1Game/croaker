@@ -25,12 +25,17 @@ bool init_nunchuk(uint8_t address)
     return Nunchuk.begin(address) ? calibrate_nunchuk() : false;
 }
 
+// Calibrate the middle values of the nunchuk
 bool calibrate_nunchuk()
 {
+    // Check if the nunchuk is connected
     if (!IS_CONNECTED())
         return false;
+    
+    // Set the middle values
     middle_y = Nunchuk.state.joy_y_axis;
     middle_x = Nunchuk.state.joy_x_axis;
+    
     return true;
 }
 
