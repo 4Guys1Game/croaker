@@ -40,15 +40,11 @@
 		Vector2{x, y},                        \
 		&image_name};
 
-// A base struct for all drawable things
-#define __IMAGE_BASE__ \
-	Vector2 position;  \
-	RawImage *raw;
-
 // Image struct
 typedef struct
 {
-	__IMAGE_BASE__
+	Vector2 position;
+	RawImage *raw;
 } BasicImage;
 
 // We only use tilemaps covering the entire screen, so we know each tile contains 20x20 pixels
