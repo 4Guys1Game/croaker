@@ -54,7 +54,7 @@ int main(void)
 	if (!init_nunchuk(NUNCHUK_ADDRESS)) return 1;
 
 	// Draw the background
-	draw_tilemap(background);
+	draw_tilemap(&background);
 	uint32_t next_message = 0;
 	uint32_t next_move_tick = 0;
 

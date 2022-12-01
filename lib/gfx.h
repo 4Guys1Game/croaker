@@ -50,8 +50,8 @@ typedef struct
 // We only use tilemaps covering the entire screen, so we know each tile contains 20x20 pixels
 // We also know each tilemap has 12x16 tiles
 typedef struct {
-	uint8_t *tiles;
-	RawImage **sprites;
+	uint8_t tiles[12 * 16 / 2];
+	RawImage *sprites[15];
 } TileMap;
 
 extern TileMap background;
@@ -75,7 +75,7 @@ void draw_image(BasicImage *img);
 void draw_image_mask(BasicImage *img);
 
 // Draw an entire tilemap
-void draw_tilemap(TileMap map);
+void draw_tilemap(TileMap *map);
 // Draw a single tile of a tilemap
 void draw_tile(TileMap *map, Vector2 pos);
 
