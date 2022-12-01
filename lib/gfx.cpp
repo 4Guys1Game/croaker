@@ -233,31 +233,23 @@ void move_image(BasicImage *img, Vector2 *new_pos)
 	draw_image_mask(img);
 }
 
-#define DRAW_TILEMAP(func)                      \
-	Vector2 position = {0, 0};                  \
-	Vector2 size = {20, 20};                    \
-	for (uint8_t idx = 0; idx < 12 * 16; idx++) \
-	{                                           \
-		if (map[idx])                           \
-		{                                       \
-			position.x = (idx % 12) * 20;       \
-			position.y = (idx / 12) * 20;       \
-			func(                               \
-				map[idx]->data,                 \
-				map[idx]->len,                  \
-				&position,                      \
-				&size);                         \
-		}                                       \
-	}
-
 void draw_tilemap(TileMap map)
 {
-	DRAW_TILEMAP(draw_bitmap_P)
-}
-
-void draw_tilemap_mask(TileMap map)
-{
-	DRAW_TILEMAP(draw_bitmap_mask_P)
+	Vector2 position = {0, 0};                  
+	Vector2 size = {20, 20};                    
+	for (uint8_t idx = 0; idx < 12 * 16; idx++) 
+	{                                           
+		if (map[idx])                           
+		{                                       
+			position.x = (idx % 12) * 20;       
+			position.y = (idx / 12) * 20;       
+			draw_bitmap_mask_P(                               
+				map[idx]->data,                 
+				map[idx]->len,                  
+				&position,                      
+				&size);                         
+		}                                       
+	}
 }
 
 // This takes a uint8_t and not a Vector2 to reduce memory usage
@@ -268,19 +260,6 @@ void draw_tile(TileMap map, Vector2 pos)
 	pos.x *= 20;
 	pos.y *= 20;
 	draw_bitmap_P(
-		raw->data,
-		raw->len,
-		&pos,
-		&size);
-}
-
-void draw_tile_mask(TileMap map, Vector2 pos)
-{
-	Vector2 size = {20, 20};
-	RawImage *raw = map[pos.y * 12 + pos.x];
-	pos.x *= 20;
-	pos.y *= 20;
-	draw_bitmap_mask_P(
 		raw->data,
 		raw->len,
 		&pos,
