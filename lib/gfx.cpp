@@ -402,7 +402,7 @@ void draw_char(Vector2 *position, char chr)
 		FONT_SWITCH_CASE(31, v)
 		FONT_SWITCH_CASE(32, w)
 		FONT_SWITCH_CASE(33, x)
-		FONT_SWITCH_CASE(34, x)
+		FONT_SWITCH_CASE(34, y)
 		FONT_SWITCH_CASE(35, z)
 	default:
 		break;
