@@ -7,15 +7,16 @@
 #endif
 
 #include <avr/io.h>
-#include <avr/eeprom.h>
 #include <avr/interrupt.h>
 #include <HardwareSerial.h>
 #include <nunchuck_value.h>
 #include <avr/delay.h>
 
+#include "prelude.h"
 #include "global_time.h"
 #include "gfx.h"
 #include "ir.h"
+#include "conversion.h"
 
 #define MOVEMENT_SPEED 20
 #define MOVEMENT_INTERVAL 150
@@ -25,17 +26,6 @@
 
 // The Wire address of the Nunchuk
 #define NUNCHUK_ADDRESS 0x52
-
-// Functions for reading and writing values to the EEPROM.
-#define load_value(address) eeprom_read_byte((uint8_t *)address)
-#define save_value(address, value) eeprom_write_byte((uint8_t *)address, value)
-
-// An enum for the different addresses to read or write to/from on the EEPROM
-enum eeprom_location
-{
-	HIGH_SCORE = EEAR0,
-	OPPONENT_HIGH_SCORE = EEAR0
-};
 
 int main(void)
 {
