@@ -24,13 +24,6 @@
 		Vector2{x, y},                        \
 		&image_name};
 
-// Image struct
-typedef struct
-{
-	Vector2 position;
-	RawImage *raw;
-} BasicImage;
-
 // We only use tilemaps covering the entire screen, so we know each tile contains 20x20 pixels
 // We also know each tilemap has 12x16 tiles
 typedef struct {

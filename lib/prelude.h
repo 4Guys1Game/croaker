@@ -15,6 +15,26 @@ typedef struct
 	int16_t y;
 } Vector2;
 
+// A raw image data struct
+typedef struct
+{
+	ImageBytes data;
+	ImageLength len;
+	Vector2 size;
+} RawImage;
+
+// Image struct
+typedef struct
+{
+	Vector2 position;
+	RawImage *raw;
+} BasicImage;
+
+typedef struct {
+	Vector2 spawn;
+	BasicImage image;
+} Player;
+
 #define SCREEN_WIDTH 240
 #define SCREEN_HEIGHT 320
 
