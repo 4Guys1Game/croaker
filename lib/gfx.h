@@ -18,22 +18,6 @@
 // @param b Blue color, valid range: [0..31]
 #define RGB_TO_COLOR(r, g, b) ((uint16_t)(r * 2048 + g * 32 + b))
 
-// Translate a pos with a size to a 1D array pointer
-// @param base The pointer to the start of the array
-// @param pos The position in the array (expressed in x/y)
-// @param size The size of the array (expressed in width/height). THIS ASSUMES A POINTER.
-#define VECTOR2_TO_PTR(base, pos, size) (base + (pos.x + pos.y * (size)->x))
-
-// Same as VECTOR2_TO_PTR but it returns the color associated with the pointer.
-// @see VECTOR2_TO_PTR
-#define VECTOR2_TO_COLOR(base, pos, size) ((uint16_t)*VECTOR2_TO_PTR(base, pos, size))
-
-// Set a tile of a tilemap to a specific image
-// This define REQUIRES new_tile to be a pointer
-#define SET_TILE(tilemap, vec, new_tile)    \
-	tilemap[vec.y * 12 + vec.x] = new_tile; \
-	draw_tile(tilemap, vec);
-
 // An image construction macro
 #define NEW_IMAGE(var_name, x, y, image_name) \
 	BasicImage var_name = {                   \
