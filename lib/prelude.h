@@ -5,14 +5,31 @@
 #include <stdint.h>
 
 // Simplistic image definitions
-typedef uint8_t* ImageBytes;
+typedef uint8_t *ImageBytes;
 typedef uint16_t ImageLength;
 
 // A simple vector2 struct
 typedef struct
 {
-	uint16_t x;
-	uint16_t y;
+	int16_t x;
+	int16_t y;
 } Vector2;
+
+#define SCREEN_WIDTH 240
+#define SCREEN_HEIGHT 320
+
+#define SCREEN_MAX_TILE_X (SCREEN_WIDTH - 20)
+#define SCREEN_MAX_TILE_Y (SCREEN_HEIGHT - 20)
+#define SCREEN_MIN_TILE_X 0
+#define SCREEN_MIN_TILE_Y 40
+
+#define CLAMP(x, min, max) ((x) < (min) ? (min) : (x) > (max) ? (max) : (x))
+#define CLAMP_SCREEN_X(x) CLAMP(x, SCREEN_MIN_TILE_X, SCREEN_MAX_TILE_X)
+#define CLAMP_SCREEN_Y(y) CLAMP(y, SCREEN_MIN_TILE_Y, SCREEN_MAX_TILE_Y)
+#define CLAMP_SCREEN(vec)              \
+	{                                  \
+		vec.x = CLAMP_SCREEN_X(vec.x); \
+		vec.y = CLAMP_SCREEN_X(vec.y); \
+	}
 
 #endif
