@@ -57,7 +57,7 @@ void ir_send_message(IRPacket data)
 	parity %= 2;
 
 	// Config data
-	packet = 0xc0 | ((data & 0x1f) << 2) | parity;
+	packet = 0xc0 | ((data & 0x1f) << 1) | parity;
 	packet_index = 8;
 	packet_sent = 0;
 	next_half_pulse = global_time;
