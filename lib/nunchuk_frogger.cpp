@@ -38,10 +38,10 @@ nunchuk_state state = {MIDDLE, MIDDLE, RELEASED, RELEASED};
 char id[2 * IDLEN + 3];
 
 // Prototypes
-bool _get_id(uint8_t address);
-uint8_t _read(uint8_t address, uint8_t offset, uint8_t len);
-bool _calibrate(uint8_t address);
-bool _update_nunchuk_state(uint8_t address, bool calibrate = false);
+bool get_id(uint8_t address);
+uint8_t read(uint8_t address, uint8_t offset, uint8_t len);
+bool calibrate(uint8_t address);
+bool update_nunchuk_state(uint8_t address, bool calibrate = false);
 
 // Initialize connection to Nunchuk
 bool init_nunchuk(uint8_t address)
@@ -56,14 +56,14 @@ bool init_nunchuk(uint8_t address)
     Wire.write(0x00);
     Wire.endTransmission(true);
 
-    return _calibrate(address);
+    return calibrate(address);
 }
 
 // Read the value of the Nunchuk
 nunchuk_state get_nunchuk_state(uint8_t address)
 {
     // Check first to see if the Nunchuk is still connected and reset state if not
-    if (!_update_nunchuk_state(address))
+    if (!update_nunchuk_state(address))
         state = {MIDDLE, MIDDLE, RELEASED, RELEASED};
 
     // Return the state
@@ -75,10 +75,10 @@ nunchuk_state get_nunchuk_state(uint8_t address)
 // Byte 0: SX[7:0]
 // Byte 1: SY[7:0]
 // Byte 5: BC, BZ
-bool _update_nunchuk_state(uint8_t address, bool calibrate)
+inline bool update_nunchuk_state(uint8_t address, bool calibrate)
 {
     // Get the state from the provided address
-    if (_read(address, NCSTATE, STATELEN) != STATELEN)
+    if (read(address, NCSTATE, STATELEN) != STATELEN)
         return (false);
 
     uint8_t x_val = buffer[0];
@@ -107,19 +107,19 @@ bool _update_nunchuk_state(uint8_t address, bool calibrate)
 }
 
 // A function used for calibrating the Nunchuk
-bool _calibrate(uint8_t address)
+inline bool calibrate(uint8_t address)
 {
-    if (!_get_id(address))
+    if (!get_id(address))
         return false;
 
-    return _update_nunchuk_state(address, true);
+    return update_nunchuk_state(address, true);
 }
 
 // Get the id of a connected Nunchuk
-bool _get_id(uint8_t address)
+inline bool get_id(uint8_t address)
 {
     // Try to read data from the Nunchuk
-    if (_read(address, NCID, IDLEN) != IDLEN)
+    if (read(address, NCID, IDLEN) != IDLEN)
         return false;
 
     // Create the id
@@ -136,7 +136,7 @@ bool _get_id(uint8_t address)
 }
 
 // Read from the Nunchuk
-uint8_t _read(uint8_t address, uint8_t offset, uint8_t len)
+inline uint8_t read(uint8_t address, uint8_t offset, uint8_t len)
 {
     uint8_t n = 0;
 
