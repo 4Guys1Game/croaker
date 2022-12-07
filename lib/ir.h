@@ -6,11 +6,13 @@
 #define FREQ_VAL_56KHZ 71
 
 // A message only containing 5 bits
-typedef uint8_t IRPacket;
+typedef uint8_t IRData;
 
 extern uint8_t packet_sent;
 
-void ir_send_message(IRPacket data);
+IRData ir_get_latest_data_packet();
+
+void ir_send_message(IRData data);
 
 // Initializes the pins for generating IR signals
 // You have to give a frequency to configure it properly

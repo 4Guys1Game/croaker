@@ -92,6 +92,11 @@ int main(void)
 
 		// Update the IR
 		ir_heartbeat();
+
+		IRData received_packet = ir_get_latest_data_packet();
+		if(received_packet != 0){
+			Serial.println(received_packet);
+		}
 	}
 
 	// This is never reached.
