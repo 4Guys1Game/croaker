@@ -45,4 +45,26 @@ TileMap background = {
 	}
 };
 
+TileMap background2 = {
+	{
+		__BG_ROW(0)
+		__BG_ROW(0)
+		__BG_ROW(0)
+		__BG_ROW(0)
+
+		__BG_ROW(0)
+		__BG_ROW(0)
+		__BG_ROW(0)
+		__BG_ROW(0)
+
+		__BG_ROW(0)
+		__BG_ROW(0)
+		__BG_ROW(0)
+		__BG_ROW(0)
+	},
+	{
+		&image_road_middle,
+	}
+};
+
 #endif
