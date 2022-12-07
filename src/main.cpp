@@ -8,7 +8,6 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <HardwareSerial.h>
 #include <avr/delay.h>
 
 #include "prelude.h"
@@ -16,7 +15,7 @@
 #include "gfx.h"
 #include "ir.h"
 #include "conversion.h"
-#include "nunchuk_value.h"
+#include "nunchuk_frogger.h"
 
 #define MOVEMENT_SPEED 20
 #define MOVEMENT_INTERVAL 150
@@ -29,18 +28,12 @@
 
 int main(void)
 {
-	// Init
+	sei();
+
+	// Initialize required functionalities
 	setup_global_timer();
 	init_gfx();
 	init_ir(FREQ_VAL_38KHZ);
-
-	sei();
-
-	// Begin Serial communication
-	Serial.begin(BAUDRATE);
-
-
-	// Initialize the connection with the nunchuk and stop if it is not found
 	init_nunchuk(NUNCHUK_ADDRESS);
 
 	// Draw the background
@@ -64,8 +57,9 @@ int main(void)
 	// Main game loop
 	while (1)
 	{
-		nunchuk_joystick_state y_val = get_joystick_state(Y);
-		nunchuk_joystick_state x_val = get_joystick_state(X);
+		nunchuk_state nunchuk = get_nunchuk_state(NUNCHUK_ADDRESS);
+		nunchuk_joystick_state y_val = nunchuk.nunchuk_y;
+		nunchuk_joystick_state x_val = nunchuk.nunchuk_x;
 
 		if (global_time >= next_move_tick)
 		{
