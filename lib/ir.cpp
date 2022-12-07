@@ -6,8 +6,6 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
-#include <HardwareSerial.h> // REMOVE ME
-
 #include "global_time.h"
 #include "ir.h"
 
@@ -91,14 +89,14 @@ void ir_check_input(){
 void ir_receive_pulse(){
     GET_IR_BIT;
 
-	// shift the existing bits in the buffer by 1 to the left. This sets the newest least significant bit to 0
+	// Shift the existing bits in the buffer by 1 to the left. This sets the newest least significant bit to 0
 	ir_receive_buffer <<= 1;
 
-	// set the new least significant bit to the new value
+	// Set the new least significant bit to the new value
 	ir_receive_buffer |= !(ir_status) << 0;
 
-	// check if the buffer & 1111010101010101 (F555 in hexadecimal) is equal to 1010000000000000 (A000 in hexadecimal)
-	// with this we know if the start bit was set correctly and that every pulse (which is 2 bits) ends with a 0
+	// Check if the buffer & 1111010101010101 (F555 in hexadecimal) is equal to 1010000000000000 (A000 in hexadecimal)
+	// With this we know if the start bit was set correctly and that every pulse (which is 2 bits) ends with a 0
 	if((ir_receive_buffer & 0xF555) == 0xA000){
 		ir_check_input();
 	}
@@ -147,19 +145,16 @@ uint8_t ir_create_packet(IRData data){
 
 void ir_send_message(IRData data)
 {
+	// Create the packet
 	packet = ir_create_packet(data);
 	packet_index = 8;
 	packet_sent = 0;
-	next_half_pulse = global_time;
 }
 
 void ir_heartbeat()
 {
 	if ((global_time + 1) >= next_half_pulse)
 	{
-		//Go do the receiving part of IR
-		ir_receive_pulse();
-		next_half_pulse = global_time + HALF_PULSE_WIDTH_MS;
 		// Go through every bit of the packet
 		if (packet_index > 0)
 		{
@@ -197,6 +192,7 @@ void ir_heartbeat()
 			packet_sent = 1;
 		}
 		next_half_pulse = global_time + HALF_PULSE_WIDTH_MS;
+		// Go receive the pulse from the other game console
 		ir_receive_pulse();
 	}
 }
