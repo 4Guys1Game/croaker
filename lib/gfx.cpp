@@ -214,13 +214,7 @@ void draw_behind(BasicImage *img)
 	{
 		for (uint8_t y = begin_y; y <= end_y; y++)
 		{
-			Vector2 position = {x * 20, y * 20};
-			RawImage *image = background[y * 12 + x];
-			draw_bitmap_P(
-				image->data,
-				image->len,
-				&position,
-				&size);
+			draw_tile(&background, {x, y});
 		}
 	}
 }
@@ -233,54 +227,49 @@ void move_image(BasicImage *img, Vector2 *new_pos)
 	draw_image_mask(img);
 }
 
-#define DRAW_TILEMAP(func)                      \
-	Vector2 position = {0, 0};                  \
-	Vector2 size = {20, 20};                    \
-	for (uint8_t idx = 0; idx < 12 * 16; idx++) \
-	{                                           \
-		if (map[idx])                           \
-		{                                       \
-			position.x = (idx % 12) * 20;       \
-			position.y = (idx / 12) * 20;       \
-			func(                               \
-				map[idx]->data,                 \
-				map[idx]->len,                  \
-				&position,                      \
-				&size);                         \
-		}                                       \
+void draw_tilemap(TileMap *map)
+{
+	Vector2 position = {0, 0};
+	Vector2 size = {20, 20};
+	for (uint8_t idx = 0; idx < 12 * 16 / 2; idx++)
+	{
+		uint8_t tile1_id = (map->tiles[idx] & 0xf0) >> 4;
+
+		if (tile1_id)
+		{
+			position.x = ((idx * 2) % 12) * 20;
+			position.y = ((idx * 2) / 12) * 20;
+			RawImage *texture = map->sprites[tile1_id - 1];
+			draw_bitmap_P(
+				texture->data,
+				texture->len,
+				&position,
+				&size);
+		}
+		uint8_t tile2_id = map->tiles[idx] & 0x0f;
+		if (tile2_id)
+		{
+			position.x = ((idx * 2 + 1) % 12) * 20;
+			position.y = ((idx * 2 + 1) / 12) * 20;
+			RawImage *texture = map->sprites[tile2_id - 1];
+			draw_bitmap_P(
+				texture->data,
+				texture->len,
+				&position,
+				&size);
+		}
 	}
-
-void draw_tilemap(TileMap map)
-{
-	DRAW_TILEMAP(draw_bitmap_P)
 }
 
-void draw_tilemap_mask(TileMap map)
-{
-	DRAW_TILEMAP(draw_bitmap_mask_P)
-}
-
-// This takes a uint8_t and not a Vector2 to reduce memory usage
-void draw_tile(TileMap map, Vector2 pos)
+inline void draw_tile(TileMap *map, Vector2 pos)
 {
 	Vector2 size = {20, 20};
-	RawImage *raw = map[pos.y * 12 + pos.x];
+	uint16_t index = pos.y * 6 + pos.x / 2;
+	uint8_t tile_id = (pos.x % 2) ? (map->tiles[index] & 0x0f) : ((map->tiles[index] & 0xf0) >> 4);
+	RawImage *raw = map->sprites[tile_id - 1];
 	pos.x *= 20;
 	pos.y *= 20;
 	draw_bitmap_P(
-		raw->data,
-		raw->len,
-		&pos,
-		&size);
-}
-
-void draw_tile_mask(TileMap map, Vector2 pos)
-{
-	Vector2 size = {20, 20};
-	RawImage *raw = map[pos.y * 12 + pos.x];
-	pos.x *= 20;
-	pos.y *= 20;
-	draw_bitmap_mask_P(
 		raw->data,
 		raw->len,
 		&pos,
