@@ -38,7 +38,7 @@ int main(void)
 
 	// Begin Serial communication
 	Serial.begin(BAUDRATE);
-
+	
 
 	// Initialize the connection with the nunchuk and stop if it is not found
 	if (!init_nunchuk(NUNCHUK_ADDRESS)) return 1;

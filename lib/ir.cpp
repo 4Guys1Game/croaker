@@ -128,8 +128,7 @@ void ir_set_low()
 	TCNT0 = 0;
 }
 
-void ir_send_message(IRData data)
-{
+uint8_t ir_create_packet(IRData data){
 	// Calculate the parity
 	// 0x01 if uneven
 	// 0x00 if even
@@ -144,6 +143,11 @@ void ir_send_message(IRData data)
 
 	// Config data
 	packet = 0xc0 | ((data & 0x1f) << 1) | parity;
+}
+
+void ir_send_message(IRData data)
+{
+	packet = ir_create_packet(data);
 	packet_index = 8;
 	packet_sent = 0;
 	next_half_pulse = global_time;
