@@ -60,6 +60,9 @@ extern TileMap background;
 // Possibly use union?
 extern uint16_t text_color[2];
 
+extern TileMap background2;
+extern uint16_t text_color[2];
+
 void init_gfx();
 
 // This function must be wrapped with spi_begin_write() and spi_end_write()
@@ -76,6 +79,8 @@ void draw_image_mask(BasicImage *img);
 
 // Draw an entire tilemap
 void draw_tilemap(TileMap *map);
+// Draw an entire moving tilemap
+void draw_movingtilemap(TileMap *map);
 // Draw a single tile of a tilemap
 static inline void draw_tile(TileMap *map, Vector2 pos);
 

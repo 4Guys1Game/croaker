@@ -48,6 +48,8 @@ int main(void)
 	uint32_t next_message = 0;
 	uint32_t next_move_tick = 0;
 
+	draw_movingtilemap(&background2);
+
 	Vector2 start_pos = {4 * 20, 15 * 20};
 	// Vector2 end_pos = {6 * 20, 10 * 20};
 	NEW_IMAGE(main_character, start_pos.x, start_pos.y, image_frogge);

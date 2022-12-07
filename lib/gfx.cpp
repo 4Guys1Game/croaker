@@ -261,6 +261,40 @@ void draw_tilemap(TileMap *map)
 	}
 }
 
+void draw_movingtilemap(TileMap *map)
+{
+	Vector2 position = {0, 0};
+	Vector2 size = {20, 20};
+	for (uint8_t idx = 0; idx < 12 * 16 / 2; idx++)
+	{
+		uint8_t tile1_id = (map->tiles[idx] & 0xf0) >> 4;
+
+		if (tile1_id)
+		{
+			position.x = ((idx * 2) % 12) * 20;
+			position.y = ((idx * 2) / 12) * 20;
+			RawImage *texture = map->sprites[tile1_id - 1];
+			draw_bitmap_P(
+				texture->data,
+				texture->len,
+				&position,
+				&size);
+		}
+		uint8_t tile2_id = map->tiles[idx] & 0x0f;
+		if (tile2_id)
+		{
+			position.x = ((idx * 2 + 1) % 12) * 20;
+			position.y = ((idx * 2 + 1) / 12) * 20;
+			RawImage *texture = map->sprites[tile2_id - 1];
+			draw_bitmap_P(
+				texture->data,
+				texture->len,
+				&position,
+				&size);
+		}
+	}
+}
+
 inline void draw_tile(TileMap *map, Vector2 pos)
 {
 	Vector2 size = {20, 20};
