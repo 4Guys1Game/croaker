@@ -93,9 +93,11 @@ int main(void)
 		// Update the IR
 		ir_heartbeat();
 
-		IRData received_packet = ir_get_latest_data_packet();
-		if(received_packet != 0){
-			Serial.println(received_packet);
+		// Get the latest available data
+		IRData received_data = ir_get_latest_data_packet();
+		// Check if the data isn't invalid
+		if(received_data != 0){
+			// Continue here with the received data
 		}
 	}
 
