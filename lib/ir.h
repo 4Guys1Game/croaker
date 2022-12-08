@@ -13,7 +13,7 @@ IRData convert_packet_to_irdata(uint8_t packet);
 
 IRData ir_get_latest_data_packet();
 
-uint8_t ir_create_packet(IRData data);
+uint16_t ir_create_packet(IRData data);
 
 void ir_send_message(IRData data);
 
