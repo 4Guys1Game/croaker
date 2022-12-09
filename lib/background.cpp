@@ -45,7 +45,7 @@ TileMap background = {
 	}
 };
 
-TileMap background2 = {
+TileMap foreground = {
 	{
 		__BG_ROW(0)
 		__BG_ROW(0)

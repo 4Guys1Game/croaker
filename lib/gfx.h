@@ -60,10 +60,12 @@ extern TileMap background;
 // Possibly use union?
 extern uint16_t text_color[2];
 
-extern TileMap background2;
+extern TileMap foreground;
 extern uint16_t text_color[2];
 
 void init_gfx();
+
+void set_tile(TileMap *map, Vector2 pos, uint8_t new_id);
 
 // This function must be wrapped with spi_begin_write() and spi_end_write()
 void set_address_window(Vector2 *position, Vector2 *size);
