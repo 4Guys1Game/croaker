@@ -84,7 +84,7 @@ void draw_tilemap(TileMap *map);
 // Draw an entire moving tilemap
 void draw_movingtilemap(TileMap *map);
 // Draw a single tile of a tilemap
-static inline void draw_tile(TileMap *map, Vector2 pos);
+void draw_tile(TileMap *map, Vector2 pos);
 
 void draw_string(Vector2 position, char *string);
 void draw_char(Vector2 *position, char c);

@@ -277,7 +277,7 @@ void set_tile(TileMap *map, Vector2 pos, uint8_t new_id)
 	}
 }
 
-inline void draw_tile(TileMap *map, Vector2 pos)
+void draw_tile(TileMap *map, Vector2 pos)
 {
 	Vector2 size = {20, 20};
 	uint16_t index = pos.y * 6 + pos.x / 2;
