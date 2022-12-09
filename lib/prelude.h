@@ -3,6 +3,7 @@
 #define __PRELUDE__
 
 #include <stdint.h>
+#include <avr/eeprom.h>
 
 // Simplistic image definitions
 typedef uint8_t *ImageBytes;

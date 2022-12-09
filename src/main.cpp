@@ -7,15 +7,15 @@
 #endif
 
 #include <avr/io.h>
-#include <avr/eeprom.h>
 #include <avr/interrupt.h>
-#include <HardwareSerial.h>
-#include <nunchuck_value.h>
 #include <avr/delay.h>
 
+#include "prelude.h"
 #include "global_time.h"
 #include "collision.h"
 #include "ir.h"
+#include "conversion.h"
+#include "nunchuk_frogger.h"
 
 // Baudrate for Serial communication
 #define BAUDRATE 9600
@@ -51,21 +51,16 @@ Player players[] = {
 	}
 };
 
+
 int main(void)
 {
-	// Init
-	setup_global_timer();
-	init_gfx();
-	init_ir(FREQ_VAL_56KHZ);
-
 	sei();
 
-	// Begin Serial communication
-	Serial.begin(BAUDRATE);
-
-
-	// Initialize the connection with the nunchuk and stop if it is not found
-	if (!init_nunchuk(NUNCHUK_ADDRESS)) return 1;
+	// Initialize required functionalities
+	setup_global_timer();
+	init_gfx();
+	init_ir(FREQ_VAL_38KHZ);
+	init_nunchuk(NUNCHUK_ADDRESS);
 
 	// Draw the background
 	draw_tilemap(&background);
@@ -84,8 +79,9 @@ int main(void)
 	// Main game loop
 	while (1)
 	{
-		nunchuk_joystick_state y_val = get_joystick_state(Y);
-		nunchuk_joystick_state x_val = get_joystick_state(X);
+		nunchuk_state nunchuk = get_nunchuk_state(NUNCHUK_ADDRESS);
+		nunchuk_joystick_state y_val = nunchuk.nunchuk_y;
+		nunchuk_joystick_state x_val = nunchuk.nunchuk_x;
 
 		if (global_time >= next_move_tick)
 		{
@@ -116,6 +112,13 @@ int main(void)
 
 		// Update the IR
 		ir_heartbeat();
+
+		// Get the latest available data
+		IRData received_data = ir_get_latest_data_packet();
+		// Check if the data isn't invalid
+		if(received_data != 0){
+			// Continue here with the received data
+		}
 	}
 
 	// This is never reached.
