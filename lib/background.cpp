@@ -64,6 +64,8 @@ TileMap foreground = {
 	},
 	{
 		&image_road_middle,
+		&image_car_front,
+		&image_car_back
 	}
 };
 

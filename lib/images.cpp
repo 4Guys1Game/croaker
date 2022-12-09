@@ -55,3 +55,15 @@ RawImage image_sidewalk_road {
 	70,
 	Vector2 { 20, 20 }
 };
+// AUTO GENERATED IMAGE, PUT ME IN images.cpp
+RawImage image_car_front {
+	GET_IMAGE(car_front),
+	135,
+	Vector2 { 20, 20 }
+};
+// AUTO GENERATED IMAGE, PUT ME IN images.cpp
+RawImage image_car_back {
+	GET_IMAGE(car_back),
+	154,
+	Vector2 { 20, 20 }
+};
