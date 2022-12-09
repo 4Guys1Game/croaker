@@ -61,8 +61,8 @@ int main(void)
 	draw_string({20, 60}, "abcdefghijklm");
 	draw_string({20, 80}, "nopqrstuvwxyz");
 
-	set_tile(&background, {8, 8}, 2);
-	draw_tilemap(&background);
+	set_tile(&foreground, {8, 8}, 2);
+	draw_tilemap(&foreground);
 
 	// Main game loop
 	while (1)
