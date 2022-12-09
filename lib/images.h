@@ -5,7 +5,7 @@
 #include <avr/pgmspace.h>
 #include "prelude.h"
 
-// Typecast const uint8_t[] into ImageBytes, which is a costless convertion
+// Typecast const uint8_t[] into ImageBytes, which is a costless conversion
 #define GET_IMAGE(img_name) ((ImageBytes)(__raw_ ## img_name ## _p))
 
 // AUTO-GENERATED IMAGE CONVERTED FROM: frogge.bmp

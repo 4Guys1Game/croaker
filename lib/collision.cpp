@@ -1,13 +1,13 @@
 
 #include "collision.h"
 
-#include <HardwareSerial.h> // REMOVE ME
-
 ImageBytes blacklist[] = {
 	GET_IMAGE(road_middle),
 	(ImageBytes)__raw_road_middle_p,
-	0};
+	0
+};
 
+// Compare a tilemap to a raw image, intended only to be used in this file
 uint8_t compare_tile(TileMap *map, Vector2 *tile_pos, RawImage *compare_to)
 {
 	uint16_t index = tile_pos->y * 6 + tile_pos->x / 2;
