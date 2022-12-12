@@ -42,7 +42,7 @@ IRData convert_packet_to_irdata(uint16_t packet){
 
 // Get the current data packet
 // Returns an array of two IRData values, the first is for the x coordinate, the second one is for the y coordinate
-IRData * ir_get_latest_data_packet(IRData *coordinates){
+IRData *ir_get_latest_data_packet(IRData *coordinates){
 	if(received_ir_packet != 0){
 	// Get the packet and turn it into only the data with the convert_packet_to_irdata function
 	IRData packet_to_return = convert_packet_to_irdata(received_ir_packet);
