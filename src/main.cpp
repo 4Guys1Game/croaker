@@ -23,6 +23,9 @@
 // The Wire address of the Nunchuk
 #define NUNCHUK_ADDRESS 0x52
 
+// The speed of all moving things on the map which aren't player controlled
+#define MOVEABLE_MOVE_SPEED 350
+
 // Functions for reading and writing values to the EEPROM.
 #define load_value(address) eeprom_read_byte((uint8_t *)address)
 #define save_value(address, value) eeprom_write_byte((uint8_t *)address, value)
@@ -51,6 +54,41 @@ Player players[] = {
 	}
 };
 
+uint8_t simulation_x = 0;
+
+uint8_t inline get_simulation_x(int8_t tile_offset)
+{
+	return ((SCREEN_WIDTH_TILE - simulation_x + 1) + tile_offset) % SCREEN_WIDTH_TILE;
+}
+
+void simulate_moveables()
+{
+	// Update the simulation
+	simulation_x = (simulation_x + 1) % SCREEN_WIDTH_TILE;
+
+	Vector2 vec = Vector2 {
+		get_simulation_x(2),
+		9
+	};
+	set_tile(&foreground, vec, 2);
+	draw_tile(&foreground, vec);
+	vec.x = get_simulation_x(1);
+	set_tile(&foreground, vec, 1);
+	draw_tile(&foreground, vec);
+	vec.x = get_simulation_x(3);
+	set_tile(&foreground, vec, 0);
+	draw_tile(&background, vec);
+
+	vec.x = get_simulation_x(8 + 2);
+	set_tile(&foreground, vec, 2);
+	draw_tile(&foreground, vec);
+	vec.x = get_simulation_x(8 + 1);
+	set_tile(&foreground, vec, 1);
+	draw_tile(&foreground, vec);
+	vec.x = get_simulation_x(8 + 3);
+	set_tile(&foreground, vec, 0);
+	draw_tile(&background, vec);
+}
 
 int main(void)
 {
@@ -62,11 +100,14 @@ int main(void)
 	init_ir(FREQ_VAL_38KHZ);
 	init_nunchuk(NUNCHUK_ADDRESS);
 
-	// Draw the background
+	// Draw the background & foreground
 	draw_tilemap(&background);
 	draw_tilemap(&foreground);
+
+	// Init the game timers
 	uint32_t next_message = 0;
 	uint32_t next_move_tick = 0;
+	uint32_t next_moveables_tick = 0;
 
 	uint8_t is_at_end = false;
 
@@ -77,16 +118,20 @@ int main(void)
 	draw_string({20, 60}, "abcdefghijklm");
 	draw_string({20, 80}, "nopqrstuvwxyz");
 
-	set_tile(&foreground, {8, 8}, 1);
-	draw_tile(&foreground, {8, 8});
-	// draw_tilemap(&foreground);
-
 	// Main game loop
 	while (1)
 	{
 		nunchuk_state nunchuk = get_nunchuk_state(NUNCHUK_ADDRESS);
 		nunchuk_joystick_state y_val = nunchuk.nunchuk_y;
 		nunchuk_joystick_state x_val = nunchuk.nunchuk_x;
+
+		if (global_time >= next_moveables_tick)
+		{
+			next_moveables_tick = global_time + MOVEABLE_MOVE_SPEED;
+			simulate_moveables();
+			// Force collision detection by moving the player 0 tiles
+			move_player(&players[0], {0, 0});
+		}
 
 		if (global_time >= next_move_tick)
 		{
