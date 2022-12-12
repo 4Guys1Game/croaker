@@ -61,33 +61,34 @@ uint8_t inline get_simulation_x(int8_t tile_offset)
 	return ((SCREEN_WIDTH_TILE - simulation_x + 1) + tile_offset) % SCREEN_WIDTH_TILE;
 }
 
+void inline simulate_single_car(Vector2 *tile_position, uint8_t offset)
+{
+	tile_position->x = get_simulation_x(offset + 2);
+	set_tile(&foreground, *tile_position, 2);
+	draw_tile(&foreground, *tile_position);
+	tile_position->x = get_simulation_x(offset + 1);
+	set_tile(&foreground, *tile_position, 1);
+	draw_tile(&foreground, *tile_position);
+	tile_position->x = get_simulation_x(offset + 3);
+	set_tile(&foreground, *tile_position, 0);
+	draw_tile(&background, *tile_position);
+}
+
 void simulate_moveables()
 {
 	// Update the simulation
 	simulation_x = (simulation_x + 1) % SCREEN_WIDTH_TILE;
 
-	Vector2 vec = Vector2 {
-		get_simulation_x(2),
-		9
-	};
-	set_tile(&foreground, vec, 2);
-	draw_tile(&foreground, vec);
-	vec.x = get_simulation_x(1);
-	set_tile(&foreground, vec, 1);
-	draw_tile(&foreground, vec);
-	vec.x = get_simulation_x(3);
-	set_tile(&foreground, vec, 0);
-	draw_tile(&background, vec);
-
-	vec.x = get_simulation_x(8 + 2);
-	set_tile(&foreground, vec, 2);
-	draw_tile(&foreground, vec);
-	vec.x = get_simulation_x(8 + 1);
-	set_tile(&foreground, vec, 1);
-	draw_tile(&foreground, vec);
-	vec.x = get_simulation_x(8 + 3);
-	set_tile(&foreground, vec, 0);
-	draw_tile(&background, vec);
+	Vector2 vec = { 0, 9 };
+	simulate_single_car(&vec, 0);
+	simulate_single_car(&vec, 8);
+	vec.y++;
+	simulate_single_car(&vec, 4);
+	vec.y++;
+	simulate_single_car(&vec, 5);
+	vec.y++;
+	simulate_single_car(&vec, 1);
+	simulate_single_car(&vec, 10);
 }
 
 int main(void)
