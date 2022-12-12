@@ -37,34 +37,39 @@ IRData convert_packet_to_irdata(uint16_t packet){
 	packet >>= 1;
 	// Use a mask to set the 2 message start bits (which are now moved to the right by 1) to 0, meaning only the data remains
 	packet &= 0b0000000011111111;
-	IRData packetData = packet;
-	// Return the data
-	return packetData;
+	return packet;
 } 
 
 // Get the current data packet
-IRData ir_get_latest_data_packet(){
+// Returns an array of two IRData values, the first is for the x coordinate, the second one is for the y coordinate
+IRData * ir_get_latest_data_packet(IRData *coordinates){
+	if(received_ir_packet != 0){
 	// Get the packet and turn it into only the data with the convert_packet_to_irdata function
-	uint16_t packet_to_return = convert_packet_to_irdata(received_ir_packet);
+	IRData packet_to_return = convert_packet_to_irdata(received_ir_packet);
+	// Set the x coordinate in the array by bit shifting 4 to the right, only leaving the first 4 bits
+	coordinates[0] = packet_to_return >> 4;
+	// Set the y coordinate in the array by masking the value with 00001111, meaning only the last 4 bits remain
+	coordinates[1] = packet_to_return & 0b00001111;
+
 	// Reset received_ir_packet so no duplicate packets can be sent 
 	received_ir_packet = 0;
-	return packet_to_return;
+	}
 }
 
 // Convert the 16 bits of received data into an 8bit packet that gets used in the program
 void ir_convert_received_data_to_packet(){
 	// Create the packet
-	uint16_t packet = 0;
-	// Loop through the 24 bits of data, starting from position 1 and incrementing by 2 because those positions hold the actual data
-	for (uint32_t idx = 1; idx < 25; idx += 2)
+	uint16_t packet_to_return = 0;
+	// Loop through the 22 bits of data, starting from position 1 and incrementing by 2 because those positions hold the actual data
+	for (uint32_t idx = 1; idx < 22; idx += 2)
 	{
 		// Check if the data on that bit isn't 0
-		if((ir_receive_buffer & (1 << idx)) != 0){
+		if((ir_receive_buffer & ((uint32_t)1 << idx)) != 0){
 			// Add the bit to the packet in the correct place by dividing the index in 2
-			packet |= 1 << (idx / 2);
+			packet_to_return |= 1 << (idx / 2);
 		}
 	}
-	received_ir_packet = packet;
+	received_ir_packet = packet_to_return;
 	// Reset the buffer for receiving data
 	ir_receive_buffer = 0;
 }
@@ -74,7 +79,7 @@ void ir_check_input(){
 	// Calculate what the parity bit should be based on the provided data
 	uint8_t parity = 0x00;
 	// Add the bits from the data to the parity value
-	for (uint8_t idx = 5; idx < 14; idx+= 2)
+	for (uint16_t idx = 3; idx < 19; idx+= 2)
 	{
 		parity += (ir_receive_buffer & (1 << idx)) >> idx;
 	}
@@ -96,6 +101,7 @@ void ir_receive_pulse(){
 	// Set the new least significant bit to the new value
 	ir_receive_buffer |= !(ir_status) << 0;
 
+	//Serial.println(ir_receive_buffer, BIN);
 	// Check if the buffer & 00000000001111010101010101010101 (3D5555 in hexadecimal) is equal to 00000000001010000000000000000000 (280000 in hexadecimal)
 	// With this we know if the start bit was set correctly and that every pulse (which is 2 bits) ends with a 0
 	if((ir_receive_buffer & 0x3D5555) == 0x280000){
@@ -142,6 +148,7 @@ uint16_t ir_create_packet(IRData data){
 
 	// Config data
 	packet = 0x600 | ((data & 0xFF) << 1) | parity;
+	return packet;
 }
 
 void ir_send_message(IRData data)
