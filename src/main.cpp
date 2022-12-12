@@ -76,6 +76,9 @@ int main(void)
 	draw_string({20, 60}, "abcdefghijklm");
 	draw_string({20, 80}, "nopqrstuvwxyz");
 
+	// Array for positions of the other player
+	Vector2 second_player_coords;
+
 	// Main game loop
 	while (1)
 	{
@@ -91,6 +94,10 @@ int main(void)
 				(x_val == LEFT) ? (int16_t)-1 : (x_val == RIGHT) ? (int16_t)1 : (int16_t)0,
 				(y_val == UP) ? (int16_t)-1 : (y_val == DOWN) ? (int16_t)1 : (int16_t)0
 			});
+
+			// Move the position of the enemy frog by using the received coordinates
+			move_image_check(&players[1].image, &second_player_coords);
+
 			// uint16_t prev_x = player_pos.x;
 			// uint16_t prev_y = player_pos.y;
 			// player_pos.x += (x_val == LEFT) ? (player_pos.x == 0 ? 0 : -MOVEMENT_SPEED) : (x_val == RIGHT) ? (player_pos.x == 220 ? 0 : MOVEMENT_SPEED) : 0;
@@ -113,10 +120,8 @@ int main(void)
 		// Update the IR
 		ir_heartbeat();
 
-		// Get the latest available data using an array of 2 coordinates
-		IRData received_data[2];
-		ir_get_latest_data_packet(received_data);
-		// Continue here with the received data
+		// Get the latest available data using a vector2 to write to
+		ir_get_latest_data_packet(&second_player_coords);
 	}
 
 	// This is never reached.
