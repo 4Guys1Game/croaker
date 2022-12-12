@@ -63,7 +63,6 @@ TileMap foreground = {
 		__BG_ROW(0)
 	},
 	{
-		&image_road_middle,
 		&image_car_front,
 		&image_car_back
 	}
