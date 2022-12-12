@@ -64,6 +64,7 @@ int main(void)
 
 	// Draw the background
 	draw_tilemap(&background);
+	draw_tilemap(&foreground);
 	uint32_t next_message = 0;
 	uint32_t next_move_tick = 0;
 

@@ -1,9 +1,9 @@
 
 #include "collision.h"
 
-ImageBytes blacklist[] = {
-	GET_IMAGE(road_middle),
-	(ImageBytes)__raw_road_middle_p,
+RawImage* blacklist[] = {
+	&image_car_front,
+	&image_car_back,
 	0
 };
 
@@ -22,10 +22,15 @@ uint8_t is_position_standable(Vector2 position)
 {
 	position.x /= 20;
 	position.y /= 20;
-	if (compare_tile(&background, &position, &image_road_middle))
+	RawImage **ptr = blacklist;
+	while (*ptr != 0)
 	{
-		return 0;
-	};
+		if (compare_tile(&foreground, &position, *ptr))
+		{
+			return 0;
+		};
+		ptr++;
+	}
 	return 1;
 }
 
