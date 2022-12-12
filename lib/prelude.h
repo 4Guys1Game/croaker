@@ -6,25 +6,51 @@
 #include <avr/eeprom.h>
 
 // Simplistic image definitions
-typedef uint8_t* ImageBytes;
+typedef uint8_t *ImageBytes;
 typedef uint16_t ImageLength;
 
 // A simple vector2 struct
 typedef struct
 {
-	uint16_t x;
-	uint16_t y;
+	int16_t x;
+	int16_t y;
 } Vector2;
 
-// Functions for reading and writing values to the EEPROM.
-#define LOAD_VALUE_FROM_EEPROM(address) 	   eeprom_read_byte((uint8_t *)address)
-#define SAVE_VALUE_TO_EEPROM(address, value)   eeprom_write_byte((uint8_t *)address, value)
-
-// An enum for the different addresses to read or write to/from on the EEPROM
-enum eeprom_location
+// A raw image data struct
+typedef struct
 {
-	HIGH_SCORE = EEAR0,
-	OPPONENT_HIGH_SCORE = EEAR0
-};
+	ImageBytes data;
+	ImageLength len;
+	Vector2 size;
+} RawImage;
+
+// Image struct
+typedef struct
+{
+	Vector2 position;
+	RawImage *raw;
+} BasicImage;
+
+typedef struct {
+	Vector2 spawn;
+	BasicImage image;
+} Player;
+
+#define SCREEN_WIDTH 240
+#define SCREEN_HEIGHT 320
+
+#define SCREEN_MAX_TILE_X (SCREEN_WIDTH - 20)
+#define SCREEN_MAX_TILE_Y (SCREEN_HEIGHT - 20)
+#define SCREEN_MIN_TILE_X 0
+#define SCREEN_MIN_TILE_Y 40
+
+#define CLAMP(x, min, max) ((x) < (min) ? (min) : (x) > (max) ? (max) : (x))
+#define CLAMP_SCREEN_X(x) CLAMP(x, SCREEN_MIN_TILE_X, SCREEN_MAX_TILE_X)
+#define CLAMP_SCREEN_Y(y) CLAMP(y, SCREEN_MIN_TILE_Y, SCREEN_MAX_TILE_Y)
+#define CLAMP_SCREEN(vec)              \
+	{                                  \
+		vec.x = CLAMP_SCREEN_X(vec.x); \
+		vec.y = CLAMP_SCREEN_X(vec.y); \
+	}
 
 #endif
