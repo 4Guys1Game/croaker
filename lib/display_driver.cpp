@@ -98,7 +98,6 @@ void init_spi()
 	// Enable the internal pull-ups of SS
 	PORTB |= (1 << PB1) | (1 << PB2);
 	// Make sure the correct pins are set to output (CLK, MOSI, SS)
-	// idk what PB1 does
 	DDRB |= (1 << PB1) | (1 << PB2) | (1 << PB3) | (1 << PB5);
 
 	// Force a software reset

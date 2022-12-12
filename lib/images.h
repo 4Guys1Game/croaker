@@ -5,17 +5,8 @@
 #include <avr/pgmspace.h>
 #include "prelude.h"
 
-// Typecast const uint8_t[] into ImageBytes, which is a costless convertion
+// Typecast const uint8_t[] into ImageBytes, which is a costless conversion
 #define GET_IMAGE(img_name) ((ImageBytes)(__raw_ ## img_name ## _p))
-
-// A raw image data struct
-typedef struct
-{
-	ImageBytes data;
-	ImageLength len;
-	Vector2 size;
-} RawImage;
-
 
 // AUTO-GENERATED IMAGE CONVERTED FROM: frogge.bmp
 // AUTO GENERATED IMAGE, PUT ME IN images.h
