@@ -8,9 +8,19 @@ RawImage* foreground_blacklist[] = {
 	0
 };
 
+// All the tiles which keep the player safe in the foreground
+RawImage* foreground_whitelist[] = {
+	&image_log_back,
+	&image_log_middle,
+	&image_log_front,
+	0
+};
+
 // All the tiles which make the player respawn in the background
 RawImage* background_blacklist[] = {
 	&image_lake,
+	&image_grass_lake,
+	&image_lake_sand,
 	0
 };
 
@@ -33,8 +43,18 @@ uint8_t is_position_standable(Vector2 position)
 	// Convert pixel space into tile space 
 	position.x /= 20;
 	position.y /= 20;
+	// Check the foreground for save tiles
+	RawImage **ptr = foreground_whitelist;
+	while (*ptr != 0)
+	{
+		if (compare_tile(&foreground, &position, *ptr))
+		{
+			return 1;
+		};
+		ptr++;
+	}
 	// Check the foreground for illegal tiles
-	RawImage **ptr = foreground_blacklist;
+	ptr = foreground_blacklist;
 	while (*ptr != 0)
 	{
 		if (compare_tile(&foreground, &position, *ptr))

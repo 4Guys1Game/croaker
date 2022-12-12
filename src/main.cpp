@@ -38,21 +38,12 @@ enum eeprom_location
 };
 
 Player players[] = {
-	{
-		{ 4 * 20, 15 * 20 },
-		{
-			{ 4 * 20, 15 * 20 },
-			&image_frogge
-		}
-	},
-	{
-		{ 6 * 20, 15 * 20 },
-		{
-			{ 6 * 20, 15 * 20 },
-			&image_frogge
-		}
-	}
-};
+	{{4 * 20, 15 * 20},
+	 {{4 * 20, 15 * 20},
+	  &image_frogge}},
+	{{6 * 20, 15 * 20},
+	 {{6 * 20, 15 * 20},
+	  &image_frogge}}};
 
 uint8_t simulation_x = 0;
 
@@ -74,12 +65,32 @@ void inline simulate_single_car(Vector2 *tile_position, uint8_t offset)
 	draw_tile(&background, *tile_position);
 }
 
+void inline simulate_single_log(Vector2 *tile_position, uint8_t middle_length, uint8_t offset)
+{
+	tile_position->x = get_simulation_x(offset + middle_length + 1);
+	set_tile(&foreground, *tile_position, 5);
+	draw_tile(&foreground, *tile_position);
+	tile_position->x = get_simulation_x(offset);
+	set_tile(&foreground, *tile_position, 3);
+	draw_tile(&foreground, *tile_position);
+	tile_position->x = get_simulation_x(offset + middle_length + 2);
+	set_tile(&foreground, *tile_position, 0);
+	draw_tile(&background, *tile_position);
+	uint8_t target = offset + middle_length;
+	for (offset; offset < target; offset++)
+	{
+		tile_position->x = get_simulation_x(offset + 1);
+		set_tile(&foreground, *tile_position, 4);
+		draw_tile(&foreground, *tile_position);
+	}
+}
+
 void simulate_moveables()
 {
 	// Update the simulation
 	simulation_x = (simulation_x + 1) % SCREEN_WIDTH_TILE;
 
-	Vector2 vec = { 0, 9 };
+	Vector2 vec = {0, 9};
 	simulate_single_car(&vec, 0);
 	simulate_single_car(&vec, 8);
 	vec.y++;
@@ -89,6 +100,15 @@ void simulate_moveables()
 	vec.y++;
 	simulate_single_car(&vec, 1);
 	simulate_single_car(&vec, 10);
+
+	vec.y = 7;
+	simulate_single_log(&vec, 0, 0);
+	vec.y--;
+	simulate_single_log(&vec, 1, 0);
+	vec.y--;
+	simulate_single_log(&vec, 2, 0);
+	vec.y--;
+	simulate_single_log(&vec, 4, 0);
 }
 
 int main(void)
@@ -138,12 +158,11 @@ int main(void)
 		{
 			next_move_tick = global_time + MOVEMENT_INTERVAL;
 
-			move_player(&players[0], {
-				(x_val == LEFT) ? (int16_t)-1 : (x_val == RIGHT) ? (int16_t)1 : (int16_t)0,
-				(y_val == UP) ? (int16_t)-1 : (y_val == DOWN) ? (int16_t)1 : (int16_t)0
-			});
+			move_player(&players[0], {(x_val == LEFT) ? (int16_t)-1 : (x_val == RIGHT) ? (int16_t)1
+																					   : (int16_t)0,
+									  (y_val == UP) ? (int16_t)-1 : (y_val == DOWN) ? (int16_t)1
+																					: (int16_t)0});
 		}
-
 
 		// Constantly send IR messages
 		if (global_time >= next_message)
@@ -158,7 +177,8 @@ int main(void)
 		// Get the latest available data
 		IRData received_data = ir_get_latest_data_packet();
 		// Check if the data isn't invalid
-		if(received_data != 0){
+		if (received_data != 0)
+		{
 			// Continue here with the received data
 		}
 	}
