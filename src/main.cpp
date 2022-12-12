@@ -113,12 +113,10 @@ int main(void)
 		// Update the IR
 		ir_heartbeat();
 
-		// Get the latest available data
-		IRData received_data = ir_get_latest_data_packet();
-		// Check if the data isn't invalid
-		if(received_data != 0){
-			// Continue here with the received data
-		}
+		// Get the latest available data using an array of 2 coordinates
+		IRData received_data[2];
+		ir_get_latest_data_packet(received_data);
+		// Continue here with the received data
 	}
 
 	// This is never reached.

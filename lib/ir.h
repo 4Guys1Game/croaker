@@ -9,11 +9,11 @@ typedef uint8_t IRData;
 
 extern uint8_t packet_sent;
 
-IRData convert_packet_to_irdata(uint8_t packet);
+IRData convert_packet_to_irdata(uint16_t packet);
 
-IRData ir_get_latest_data_packet();
+IRData *ir_get_latest_data_packet(IRData *coordinates);
 
-uint8_t ir_create_packet(IRData data);
+uint16_t ir_create_packet(IRData data);
 
 void ir_send_message(IRData data);
 
