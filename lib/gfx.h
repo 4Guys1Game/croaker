@@ -62,6 +62,8 @@ void draw_tilemap(TileMap *map);
 void draw_movingtilemap(TileMap *map);
 // Draw a single tile of a tilemap
 void draw_tile(TileMap *map, Vector2 pos);
+// The same as draw_tile, but it doesn't draw tiles with id 0 (=no texture)
+void draw_tile_checked(TileMap *map, Vector2 pos);
 
 void draw_string(Vector2 position, char *string);
 void draw_char(Vector2 *position, char c);
