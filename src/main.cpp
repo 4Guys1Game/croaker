@@ -141,15 +141,6 @@ int main(void)
 				(x_val == LEFT) ? (int16_t)-1 : (x_val == RIGHT) ? (int16_t)1 : (int16_t)0,
 				(y_val == UP) ? (int16_t)-1 : (y_val == DOWN) ? (int16_t)1 : (int16_t)0
 			});
-			// uint16_t prev_x = player_pos.x;
-			// uint16_t prev_y = player_pos.y;
-			// player_pos.x += (x_val == LEFT) ? (player_pos.x == 0 ? 0 : -MOVEMENT_SPEED) : (x_val == RIGHT) ? (player_pos.x == 220 ? 0 : MOVEMENT_SPEED) : 0;
-			// player_pos.y += (y_val == UP) ? (player_pos.y == 40 ? 0 : -MOVEMENT_SPEED) : (y_val == DOWN) ? (player_pos.y == 300 ? 0 : MOVEMENT_SPEED) : 0;
-			
-			// if (prev_x != player_pos.x || prev_y != player_pos.y)
-			// {
-			// 	move_image(&main_character, &player_pos);
-			// }
 		}
 
 
