@@ -45,4 +45,30 @@ TileMap background = {
 	}
 };
 
+TileMap foreground = {
+	{
+		__BG_ROW(0)
+		__BG_ROW(0)
+		__BG_ROW(0)
+		__BG_ROW(0)
+
+		__BG_ROW(0)
+		__BG_ROW(0)
+		__BG_ROW(0)
+		__BG_ROW(0)
+
+		__BG_ROW(0)
+		__BG_ROW(0)
+		__BG_ROW(0)
+		__BG_ROW(0)
+	},
+	{
+		&image_car_front,
+		&image_car_back,
+		&image_log_front,
+		&image_log_middle,
+		&image_log_back
+	}
+};
+
 #endif

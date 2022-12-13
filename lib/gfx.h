@@ -37,7 +37,12 @@ extern TileMap background;
 // Possibly use union?
 extern uint16_t text_color[2];
 
+extern TileMap foreground;
+extern uint16_t text_color[2];
+
 void init_gfx();
+
+void set_tile(TileMap *map, Vector2 pos, uint8_t new_id);
 
 // This function must be wrapped with spi_begin_write() and spi_end_write()
 void set_address_window(Vector2 *position, Vector2 *size);
@@ -55,8 +60,12 @@ void draw_image_mask(BasicImage *img);
 
 // Draw an entire tilemap
 void draw_tilemap(TileMap *map);
+// Draw an entire moving tilemap
+void draw_movingtilemap(TileMap *map);
 // Draw a single tile of a tilemap
-static inline void draw_tile(TileMap *map, Vector2 pos);
+void draw_tile(TileMap *map, Vector2 pos);
+// The same as draw_tile, but it doesn't draw tiles with id 0 (=no texture)
+void draw_tile_checked(TileMap *map, Vector2 pos);
 
 void draw_string(Vector2 position, char *string);
 void draw_char(Vector2 *position, char c);

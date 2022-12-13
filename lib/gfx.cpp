@@ -215,6 +215,7 @@ void draw_behind(BasicImage *img)
 		for (uint8_t y = begin_y; y <= end_y; y++)
 		{
 			draw_tile(&background, {x, y});
+			draw_tile_checked(&foreground, {x, y});
 		}
 	}
 }
@@ -272,11 +273,46 @@ void draw_tilemap(TileMap *map)
 	}
 }
 
-inline void draw_tile(TileMap *map, Vector2 pos)
+void set_tile(TileMap *map, Vector2 pos, uint8_t new_id)
+{
+	Vector2 size = {20, 20};
+	uint16_t index = pos.y * 6 + pos.x / 2;
+	if(pos.x % 2)
+	{
+		map->tiles[index] &= ~0x0f;
+		map->tiles[index] |= new_id & 0x0f;
+	}
+	else
+	{
+		map->tiles[index] &= ~0xf0;
+		map->tiles[index] |= new_id << 4;
+	}
+}
+
+void draw_tile(TileMap *map, Vector2 pos)
 {
 	Vector2 size = {20, 20};
 	uint16_t index = pos.y * 6 + pos.x / 2;
 	uint8_t tile_id = (pos.x % 2) ? (map->tiles[index] & 0x0f) : ((map->tiles[index] & 0xf0) >> 4);
+	RawImage *raw = map->sprites[tile_id - 1];
+	pos.x *= 20;
+	pos.y *= 20;
+	draw_bitmap_P(
+		raw->data,
+		raw->len,
+		&pos,
+		&size);
+}
+
+void draw_tile_checked(TileMap *map, Vector2 pos)
+{
+	Vector2 size = {20, 20};
+	uint16_t index = pos.y * 6 + pos.x / 2;
+	uint8_t tile_id = (pos.x % 2) ? (map->tiles[index] & 0x0f) : ((map->tiles[index] & 0xf0) >> 4);
+	if (tile_id == 0)
+	{
+		return;
+	}
 	RawImage *raw = map->sprites[tile_id - 1];
 	pos.x *= 20;
 	pos.y *= 20;
