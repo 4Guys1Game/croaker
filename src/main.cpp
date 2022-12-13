@@ -143,6 +143,9 @@ int main(void)
 	draw_string({20, 60}, "abcdefghijklm");
 	draw_string({20, 80}, "nopqrstuvwxyz");
 
+	// Array for positions of the other player
+	Vector2 second_player_coords;
+
 	// Main game loop
 	while (1)
 	{
@@ -160,29 +163,27 @@ int main(void)
 		{
 			next_move_tick = global_time + MOVEMENT_INTERVAL;
 
-			move_player(&players[0], {(x_val == LEFT) ? (int16_t)-1 : (x_val == RIGHT) ? (int16_t)1
-																					   : (int16_t)0,
-									  (y_val == UP) ? (int16_t)-1 : (y_val == DOWN) ? (int16_t)1
-																					: (int16_t)0});
+			move_player(&players[0], {
+				(x_val == LEFT) ? (int16_t)-1 : (x_val == RIGHT) ? (int16_t)1 : (int16_t)0,
+				(y_val == UP) ? (int16_t)-1 : (y_val == DOWN) ? (int16_t)1 : (int16_t)0
+			});
+
+			// Move the position of the enemy frog by using the received coordinates
+			move_image_check(&players[1].image, &second_player_coords);
 		}
 
 		// Constantly send IR messages
 		if (global_time >= next_message)
 		{
 			next_message = global_time + 500;
-			ir_send_message(15);
+			ir_send_message(players[0].image.position);
 		}
 
 		// Update the IR
 		ir_heartbeat();
 
-		// Get the latest available data
-		IRData received_data = ir_get_latest_data_packet();
-		// Check if the data isn't invalid
-		if (received_data != 0)
-		{
-			// Continue here with the received data
-		}
+		// Get the latest available data using a vector2 to write to
+		ir_get_latest_data_packet(&second_player_coords);
 	}
 
 	// This is never reached.

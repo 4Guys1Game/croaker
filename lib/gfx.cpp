@@ -228,6 +228,17 @@ void move_image(BasicImage *img, Vector2 *new_pos)
 	draw_image_mask(img);
 }
 
+void move_image_check(BasicImage *img, Vector2 *new_pos)
+{
+	if (new_pos->x != img->position.x || new_pos->y != img->position.y)
+	{
+		draw_behind(img);
+		img->position.x = new_pos->x;
+		img->position.y = new_pos->y;
+		draw_image_mask(img);
+	}
+}
+
 void draw_tilemap(TileMap *map)
 {
 	Vector2 position = {0, 0};
