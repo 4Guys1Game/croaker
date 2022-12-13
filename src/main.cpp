@@ -102,13 +102,17 @@ void simulate_moveables()
 	simulate_single_car(&vec, 10);
 
 	vec.y = 7;
-	simulate_single_log(&vec, 0, 0);
+	simulate_single_log(&vec, 3, 0);
+	simulate_single_log(&vec, 2, 7);
 	vec.y--;
-	simulate_single_log(&vec, 1, 0);
+	simulate_single_log(&vec, 8, 2);
 	vec.y--;
-	simulate_single_log(&vec, 2, 0);
+	simulate_single_log(&vec, 2, 5);
+	simulate_single_log(&vec, 4, 10);
 	vec.y--;
-	simulate_single_log(&vec, 4, 0);
+	simulate_single_log(&vec, 0, 2);
+	simulate_single_log(&vec, 0, 6);
+	simulate_single_log(&vec, 0, 10);
 }
 
 int main(void)
@@ -128,7 +132,7 @@ int main(void)
 	// Init the game timers
 	uint32_t next_message = 0;
 	uint32_t next_move_tick = 0;
-	uint32_t next_moveables_tick = 0;
+	uint32_t next_moveable_tick = 0;
 
 	uint8_t is_at_end = false;
 
@@ -146,12 +150,10 @@ int main(void)
 		nunchuk_joystick_state y_val = nunchuk.nunchuk_y;
 		nunchuk_joystick_state x_val = nunchuk.nunchuk_x;
 
-		if (global_time >= next_moveables_tick)
+		if (global_time >= next_moveable_tick)
 		{
-			next_moveables_tick = global_time + MOVEABLE_MOVE_SPEED;
+			next_moveable_tick = global_time + MOVEABLE_MOVE_SPEED;
 			simulate_moveables();
-			// Force collision detection by moving the player 0 tiles
-			move_player(&players[0], {0, 0});
 		}
 
 		if (global_time >= next_move_tick)
