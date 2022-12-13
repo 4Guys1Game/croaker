@@ -9,7 +9,7 @@
 #include "global_time.h"
 #include "ir.h"
 
-#define HALF_PULSE_WIDTH_MS 10
+#define HALF_PULSE_WIDTH_MS 5
 
 // Buffer for receiving data in the 24 bits necessary
 volatile uint32_t ir_receive_buffer = 0;
@@ -42,14 +42,17 @@ IRData convert_packet_to_irdata(uint16_t packet){
 
 // Get the current data packet
 // Returns an array of two IRData values, the first is for the x coordinate, the second one is for the y coordinate
-IRData *ir_get_latest_data_packet(IRData *coordinates){
+void *ir_get_latest_data_packet(Vector2 *coordinates){
 	if(received_ir_packet != 0){
 	// Get the packet and turn it into only the data with the convert_packet_to_irdata function
 	IRData packet_to_return = convert_packet_to_irdata(received_ir_packet);
 	// Set the x coordinate in the array by bit shifting 4 to the right, only leaving the first 4 bits
-	coordinates[0] = packet_to_return >> 4;
+	// Afterwards multiply the value by 20 to get the actual pixel value of the position
+	coordinates->x = (packet_to_return % 12) * 20;
 	// Set the y coordinate in the array by masking the value with 00001111, meaning only the last 4 bits remain
-	coordinates[1] = packet_to_return & 0b00001111;
+	// Afterwards multiply the value by 20 to get the actual pixel value of the position
+	// Because of the bar at the top, we must do an offset on the y value
+	coordinates->y = (packet_to_return / 12) * 20 + SCREEN_MIN_TILE_Y;
 
 	// Reset received_ir_packet so no duplicate packets can be sent 
 	received_ir_packet = 0;
@@ -133,7 +136,9 @@ void ir_set_low()
 	TCNT0 = 0;
 }
 
-uint16_t ir_create_packet(IRData data){
+uint16_t ir_create_packet(Vector2 position){
+
+	uint8_t data = (position.x / 20) + (position.y / 20) * 12;
 	// Calculate the parity
 	// 0x01 if uneven
 	// 0x00 if even
@@ -151,10 +156,10 @@ uint16_t ir_create_packet(IRData data){
 	return packet;
 }
 
-void ir_send_message(IRData data)
+void ir_send_message(Vector2 position)
 {
 	// Create the packet
-	packet = ir_create_packet(data);
+	packet = ir_create_packet(position);
 	packet_index = 11;
 	packet_sent = 0;
 }
