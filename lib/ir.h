@@ -17,7 +17,7 @@ void *ir_get_latest_data_packet(Vector2 *coordinates);
 
 uint16_t ir_create_packet(IRData data);
 
-void ir_send_message(IRData data);
+void ir_send_message(Vector2 position);
 
 // Initializes the pins for generating IR signals
 // You have to give a frequency to configure it properly

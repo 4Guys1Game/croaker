@@ -48,11 +48,11 @@ void *ir_get_latest_data_packet(Vector2 *coordinates){
 	IRData packet_to_return = convert_packet_to_irdata(received_ir_packet);
 	// Set the x coordinate in the array by bit shifting 4 to the right, only leaving the first 4 bits
 	// Afterwards multiply the value by 20 to get the actual pixel value of the position
-	coordinates->x = (packet_to_return >> 4) * 20;
+	coordinates->x = packet_to_return % 12;
 	// Set the y coordinate in the array by masking the value with 00001111, meaning only the last 4 bits remain
 	// Afterwards multiply the value by 20 to get the actual pixel value of the position
 	// Because of the bar at the top, we must do an offset on the y value
-	coordinates->y = ((packet_to_return & 0b00001111) * 20) + SCREEN_MIN_TILE_Y;
+	coordinates->y = packet_to_return / 12;
 
 	// Reset received_ir_packet so no duplicate packets can be sent 
 	received_ir_packet = 0;
@@ -136,7 +136,9 @@ void ir_set_low()
 	TCNT0 = 0;
 }
 
-uint16_t ir_create_packet(IRData data){
+uint16_t ir_create_packet(Vector2 position){
+
+	uint8_t data = (position.x / 20) + (position.y / 20) * 12;
 	// Calculate the parity
 	// 0x01 if uneven
 	// 0x00 if even
@@ -154,10 +156,10 @@ uint16_t ir_create_packet(IRData data){
 	return packet;
 }
 
-void ir_send_message(IRData data)
+void ir_send_message(Vector2 position)
 {
 	// Create the packet
-	packet = ir_create_packet(data);
+	packet = ir_create_packet(position);
 	packet_index = 11;
 	packet_sent = 0;
 }

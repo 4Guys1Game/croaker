@@ -114,7 +114,7 @@ int main(void)
 		if (global_time >= next_message)
 		{
 			next_message = global_time + 500;
-			ir_send_message(15);
+			ir_send_message(players[0].image.position);
 		}
 
 		// Update the IR
