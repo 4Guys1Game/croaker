@@ -9,7 +9,7 @@
 #include "global_time.h"
 #include "ir.h"
 
-#define HALF_PULSE_WIDTH_MS 10
+#define HALF_PULSE_WIDTH_MS 5
 
 // Buffer for receiving data in the 24 bits necessary
 volatile uint32_t ir_receive_buffer = 0;
