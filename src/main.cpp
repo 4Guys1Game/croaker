@@ -38,21 +38,12 @@ enum eeprom_location
 };
 
 Player players[] = {
-	{
-		{ 4 * 20, 15 * 20 },
-		{
-			{ 4 * 20, 15 * 20 },
-			&image_frogge
-		}
-	},
-	{
-		{ 6 * 20, 15 * 20 },
-		{
-			{ 6 * 20, 15 * 20 },
-			&image_frogge
-		}
-	}
-};
+	{{4 * 20, 15 * 20},
+	 {{4 * 20, 15 * 20},
+	  &image_frogge}},
+	{{6 * 20, 15 * 20},
+	 {{6 * 20, 15 * 20},
+	  &image_frogge}}};
 
 uint8_t simulation_x = 0;
 
@@ -74,12 +65,32 @@ void inline simulate_single_car(Vector2 *tile_position, uint8_t offset)
 	draw_tile(&background, *tile_position);
 }
 
+void inline simulate_single_log(Vector2 *tile_position, uint8_t middle_length, uint8_t offset)
+{
+	tile_position->x = get_simulation_x(offset + middle_length + 1);
+	set_tile(&foreground, *tile_position, 5);
+	draw_tile(&foreground, *tile_position);
+	tile_position->x = get_simulation_x(offset);
+	set_tile(&foreground, *tile_position, 3);
+	draw_tile(&foreground, *tile_position);
+	tile_position->x = get_simulation_x(offset + middle_length + 2);
+	set_tile(&foreground, *tile_position, 0);
+	draw_tile(&background, *tile_position);
+	uint8_t target = offset + middle_length;
+	for (offset; offset < target; offset++)
+	{
+		tile_position->x = get_simulation_x(offset + 1);
+		set_tile(&foreground, *tile_position, 4);
+		draw_tile(&foreground, *tile_position);
+	}
+}
+
 void simulate_moveables()
 {
 	// Update the simulation
 	simulation_x = (simulation_x + 1) % SCREEN_WIDTH_TILE;
 
-	Vector2 vec = { 0, 9 };
+	Vector2 vec = {0, 9};
 	simulate_single_car(&vec, 0);
 	simulate_single_car(&vec, 8);
 	vec.y++;
@@ -89,6 +100,19 @@ void simulate_moveables()
 	vec.y++;
 	simulate_single_car(&vec, 1);
 	simulate_single_car(&vec, 10);
+
+	vec.y = 7;
+	simulate_single_log(&vec, 3, 0);
+	simulate_single_log(&vec, 2, 7);
+	vec.y--;
+	simulate_single_log(&vec, 8, 2);
+	vec.y--;
+	simulate_single_log(&vec, 2, 5);
+	simulate_single_log(&vec, 4, 10);
+	vec.y--;
+	simulate_single_log(&vec, 0, 2);
+	simulate_single_log(&vec, 0, 6);
+	simulate_single_log(&vec, 0, 10);
 }
 
 int main(void)
@@ -108,7 +132,7 @@ int main(void)
 	// Init the game timers
 	uint32_t next_message = 0;
 	uint32_t next_move_tick = 0;
-	uint32_t next_moveables_tick = 0;
+	uint32_t next_moveable_tick = 0;
 
 	uint8_t is_at_end = false;
 
@@ -119,6 +143,9 @@ int main(void)
 	draw_string({20, 60}, "abcdefghijklm");
 	draw_string({20, 80}, "nopqrstuvwxyz");
 
+	// Array for positions of the other player
+	Vector2 second_player_coords;
+
 	// Main game loop
 	while (1)
 	{
@@ -126,12 +153,10 @@ int main(void)
 		nunchuk_joystick_state y_val = nunchuk.nunchuk_y;
 		nunchuk_joystick_state x_val = nunchuk.nunchuk_x;
 
-		if (global_time >= next_moveables_tick)
+		if (global_time >= next_moveable_tick)
 		{
-			next_moveables_tick = global_time + MOVEABLE_MOVE_SPEED;
+			next_moveable_tick = global_time + MOVEABLE_MOVE_SPEED;
 			simulate_moveables();
-			// Force collision detection by moving the player 0 tiles
-			move_player(&players[0], {0, 0});
 		}
 
 		if (global_time >= next_move_tick)
@@ -142,25 +167,23 @@ int main(void)
 				(x_val == LEFT) ? (int16_t)-1 : (x_val == RIGHT) ? (int16_t)1 : (int16_t)0,
 				(y_val == UP) ? (int16_t)-1 : (y_val == DOWN) ? (int16_t)1 : (int16_t)0
 			});
-		}
 
+			// Move the position of the enemy frog by using the received coordinates
+			move_image_check(&players[1].image, &second_player_coords);
+		}
 
 		// Constantly send IR messages
 		if (global_time >= next_message)
 		{
 			next_message = global_time + 500;
-			ir_send_message(15);
+			ir_send_message(players[0].image.position);
 		}
 
 		// Update the IR
 		ir_heartbeat();
 
-		// Get the latest available data
-		IRData received_data = ir_get_latest_data_packet();
-		// Check if the data isn't invalid
-		if(received_data != 0){
-			// Continue here with the received data
-		}
+		// Get the latest available data using a vector2 to write to
+		ir_get_latest_data_packet(&second_player_coords);
 	}
 
 	// This is never reached.
