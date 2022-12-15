@@ -41,7 +41,7 @@ TileMap background = {
 		&image_grass_lake,
 		&image_road_grass,
 		&image_road_middle,
-		&image_sidewalk_road,
+		&image_grass_road,
 	}
 };
 

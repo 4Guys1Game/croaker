@@ -91,3 +91,9 @@ RawImage image_log_front {
 	102,
 	Vector2 { 20, 20 }
 };
+// AUTO GENERATED IMAGE, PUT ME IN images.cpp
+RawImage image_croaker_logo {
+	GET_IMAGE(croaker_logo),
+	1048,
+	Vector2 { 171, 44 }
+};
