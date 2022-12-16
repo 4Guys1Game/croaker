@@ -133,15 +133,26 @@ int main(void)
 	uint32_t next_message = 0;
 	uint32_t next_move_tick = 0;
 	uint32_t next_moveable_tick = 0;
+	uint32_t next_second = 0;
 
 	uint8_t is_at_end = false;
 
 	draw_image_mask(&players[0].image);
 
-	draw_string({20, 20}, "Hello World");
-	draw_string({20, 40}, "0123456789");
-	draw_string({20, 60}, "abcdefghijklm");
-	draw_string({20, 80}, "nopqrstuvwxyz");
+
+	Vector2 topbar_begin = {0, 0};
+	Vector2 topbar_end = {240, 40};
+
+	draw_rect(&topbar_begin, &topbar_end, text_color[0]);
+	draw_string({10, 2}, "Highscore");
+	{
+		uint8_t highscore = load_value(eeprom_location::HIGH_SCORE);
+		char score_buffer[4];
+		uint8_to_string(score_buffer, highscore);
+		draw_string({20 + 10 * 10, 2}, score_buffer);
+	}
+	draw_string({10, 22}, "Current Time");
+	draw_string({20 + 12 * 10, 22}, "00000");
 
 	// Array for positions of the other player
 	Vector2 second_player_coords;
@@ -152,6 +163,14 @@ int main(void)
 		nunchuk_state nunchuk = get_nunchuk_state(NUNCHUK_ADDRESS);
 		nunchuk_joystick_state y_val = nunchuk.nunchuk_y;
 		nunchuk_joystick_state x_val = nunchuk.nunchuk_x;
+
+		if (global_time >= next_second)
+		{
+			next_second = global_time + SECOND;
+			char time_buffer[6];
+			uint16_to_string(time_buffer, (uint16_t)(global_time / 1000));
+			draw_string({20 + 12 * 10, 22}, time_buffer);
+		}
 
 		if (global_time >= next_moveable_tick)
 		{
@@ -169,7 +188,7 @@ int main(void)
 			});
 
 			// Move the position of the enemy frog by using the received coordinates
-			move_image_check(&players[1].image, &second_player_coords);
+			// move_image_check(&players[1].image, &second_player_coords);
 		}
 
 		// Constantly send IR messages

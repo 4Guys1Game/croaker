@@ -2,6 +2,8 @@
 #ifndef __GLOBAL_TIME__
 #define __GLOBAL_TIME__
 
+#define SECOND 1000
+
 // Time since startup
 // This is stored as a 32 bit number, meaning it would only overflow after 49.7 days
 // Which is more than enough tbh
