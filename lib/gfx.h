@@ -66,8 +66,11 @@ void draw_movingtilemap(TileMap *map);
 void draw_tile(TileMap *map, Vector2 pos);
 // The same as draw_tile, but it doesn't draw tiles with id 0 (=no texture)
 void draw_tile_checked(TileMap *map, Vector2 pos);
-
+// Draws a string on the screen
 void draw_string(Vector2 position, char *string);
+// Draws a single char on the screen, dimensions are 10x14 per char
 void draw_char(Vector2 *position, char c);
+// Fill a rectangle on the screen with a single color
+void draw_rect(Vector2 *position, Vector2 *width, uint16_t color);
 
 #endif
