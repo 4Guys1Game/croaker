@@ -16,6 +16,7 @@
 #include "ir.h"
 #include "conversion.h"
 #include "nunchuk_frogger.h"
+#include "segment_display.h"
 
 // Baudrate for Serial communication
 #define BAUDRATE 9600
@@ -170,6 +171,8 @@ int main(void)
 			char time_buffer[6];
 			uint16_to_string(time_buffer, (uint16_t)(global_time / 1000));
 			draw_string({20 + 12 * 10, 22}, time_buffer);
+
+			show_on_segment_display((global_time / 1000) % 10);
 		}
 
 		if (global_time >= next_moveable_tick)
