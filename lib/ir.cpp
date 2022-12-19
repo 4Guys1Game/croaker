@@ -5,6 +5,7 @@
 
 #include <avr/io.h>
 #include <util/delay.h>
+#include <HardwareSerial.h>
 
 #include "global_time.h"
 #include "ir.h"
@@ -18,7 +19,7 @@ volatile uint32_t ir_receive_buffer = 0;
 // The current fully recieved packet
 volatile uint16_t received_ir_packet = 0;
 volatile uint8_t previous_state = 0;
-volatile uint8_t time_since_pulse_end = 0;
+volatile uint8_t time_since_state_change = 0;
 volatile uint32_t previous_time_value = 0;
 
 // Package metadata
@@ -35,16 +36,10 @@ uint8_t packet_sent = 0;
 // Convert a data packet to only the data itself
 IRData convert_packet_to_irdata(uint16_t packet)
 {
-	// char buffer0[24];
-	// uint16_to_string(buffer0, packet);
-	// draw_string({10,10}, buffer0);
 	// Shift the bits 1 to the right to get rid of the parity bit
 	packet >>= 1;
 	// Use a mask to set the 2 message start bits (which are now moved to the right by 1) to 0, meaning only the data remains
 	packet &= 0b0000000011111111;
-	// char buffer[24];
-	// uint16_to_string(buffer, packet);
-	// draw_string({20,20}, buffer);
 	return packet;
 }
 
@@ -87,10 +82,6 @@ void ir_convert_received_data_to_packet(uint32_t buffer_data)
 		}
 	}
 	received_ir_packet = packet_to_return;
-	// char buffer[34];
-	// uint32_to_binary_str(buffer, buffer_data);
-	// //uint32_to_string(buffer, buffer_data);
-	// draw_string({40,20}, buffer);
 	// Reset the buffer for receiving data
 	// ir_receive_buffer = 0;
 }
@@ -120,37 +111,22 @@ void ir_receive_pulse()
 {
 	uint8_t ir_status = !((PIND & (1 << DDD2)) >> DDD2);
 
-	// char buffer_status[3];
-	// uint8_to_string(buffer_status, ir_status);
-	// draw_string({200,0}, buffer_status);
 	if (ir_status != previous_state)
 	{
-		if (previous_state == 0)
-		{
-			uint8_t amount_of_bits_to_draw = time_since_pulse_end / 487; // 3.9 * 125
-			ir_receive_buffer <<= amount_of_bits_to_draw;
-			ir_receive_buffer |= ir_status << 0;
-			time_since_pulse_end = 0;
-		}
-		else
-		{
+		Serial.println(time_since_state_change);
+		if(time_since_state_change >= 1){
 			ir_receive_buffer <<= 1;
 			ir_receive_buffer |= ir_status << 0;
+			time_since_state_change = 0;
 		}
-		previous_state = !previous_state;
+		previous_state = ir_status;
 	}
-	else if (ir_status == 0 && global_time_tiny != previous_time_value)
+	else if (global_time != previous_time_value)
 	{
-		time_since_pulse_end++;
+		time_since_state_change++;
+		previous_time_value = global_time;
 	}
-	previous_time_value = global_time_tiny;
-	// uint8_t ir_status = (PIND & (1 << DDD2)) >> DDD2;
 
-	// Shift the existing bits in the buffer by 1 to the left. This sets the newest least significant bit to 0
-	// ir_receive_buffer <<= 1;
-
-	// Set the new least significant bit to the new value
-	// ir_receive_buffer |= !(ir_status) << 0;
 	char buffer[34];
 	uint16_to_binary_str(buffer, ir_receive_buffer & 0x0000FFFFF);
 	draw_string({0, 0}, buffer);

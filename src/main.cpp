@@ -9,6 +9,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/delay.h>
+#include <HardwareSerial.h>
 
 #include "prelude.h"
 #include "global_time.h"
@@ -145,6 +146,8 @@ int main(void)
 
 	// Array for positions of the other player
 	Vector2 second_player_coords;
+
+	Serial.begin(BAUDRATE);
 
 	// Main game loop
 	while (1)
