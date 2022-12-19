@@ -2,7 +2,7 @@
 #include <Wire.h>
 
 // The IO expander address
-#define IO_EXPANDER_ADDR 0x39
+#define IO_EXPANDER_ADDR 0x21 // 0x21 for non A version, 0x39 for A versions
 #define MAX_DISPLAY_RANGE 16
 
 volatile uint8_t numbers[MAX_DISPLAY_RANGE] = {
