@@ -10,6 +10,7 @@
 #define ONE_MS_COMP_VAL 125
 
 uint32_t global_time = 0;
+uint32_t global_time_tiny = 0;
 
 // This invokes every MS, so we increment the global_time by one
 ISR(TIMER2_COMPA_vect)
