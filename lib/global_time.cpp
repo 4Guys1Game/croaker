@@ -14,7 +14,11 @@ uint32_t global_time = 0;
 // This invokes every MS, so we increment the global_time by one
 ISR(TIMER2_COMPA_vect)
 {
-	global_time += 1;
+	global_time_tiny += 1;
+	if (global_time_tiny % 125 == 0)
+	{
+		global_time += 1;
+	}
 }
 
 void setup_global_timer()
