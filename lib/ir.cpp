@@ -166,7 +166,7 @@ void ir_send_message(Vector2 position)
 
 void ir_heartbeat()
 {
-	if ((global_time + 1) >= next_half_pulse)
+	if (global_time >= next_half_pulse)
 	{
 		// Go through every bit of the packet
 		if (packet_index > 0)
@@ -174,8 +174,13 @@ void ir_heartbeat()
 			// If we're in the second part of the pulse, where it always has to be low
 			if (second_half_of_pulse)
 			{
-				// Set to low if it wasn't already
-				if (is_high)
+				// Manchester encoding, if 1, go from low to high, if 0, go high to low
+				// Inverse of the next if statement
+				if (packet & (1 << (packet_index - 1)))
+				{
+					ir_set_high();
+				}
+				else
 				{
 					ir_set_low();
 				}
@@ -184,14 +189,14 @@ void ir_heartbeat()
 			}
 			else
 			{
-				// Set to high if the bit is a 1, set to low if the bit is a 0
+				// Manchester encoding, if 1, go from low to high, if 0, go high to low
 				if (packet & (1 << (packet_index - 1)))
 				{
-					ir_set_high();
+					ir_set_low();
 				}
 				else
 				{
-					ir_set_low();
+					ir_set_high();
 				}
 				second_half_of_pulse = 1;
 			}
