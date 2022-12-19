@@ -8,6 +8,8 @@
 
 #include "global_time.h"
 #include "ir.h"
+#include "conversion.h"
+#include "gfx.h"
 
 #define HALF_PULSE_WIDTH_MS 5
 
@@ -15,6 +17,9 @@
 volatile uint32_t ir_receive_buffer = 0;
 // The current fully recieved packet
 volatile uint16_t received_ir_packet = 0;
+volatile uint8_t previous_state = 0;
+volatile uint8_t time_since_pulse_end = 0;
+volatile uint32_t previous_time_value = 0;
 
 // Package metadata
 uint16_t packet = 0;
@@ -27,16 +32,18 @@ uint8_t is_high = 0;
 // A bool indicating whenever of not a package has been sent
 uint8_t packet_sent = 0;
 
-#define GET_IR_BIT                            \
-    uint8_t ir_status = (PIND & (1 << DDD2)) >> DDD2; \
-    uint8_t ir_bit = ir_status == 4 ? 0 : 1;
-
 // Convert a data packet to only the data itself
 IRData convert_packet_to_irdata(uint16_t packet){
+	// char buffer0[24];
+	// uint16_to_string(buffer0, packet);
+	// draw_string({10,10}, buffer0);
 	// Shift the bits 1 to the right to get rid of the parity bit
 	packet >>= 1;
 	// Use a mask to set the 2 message start bits (which are now moved to the right by 1) to 0, meaning only the data remains
 	packet &= 0b0000000011111111;
+	// char buffer[24];
+	// uint16_to_string(buffer, packet);
+	// draw_string({20,20}, buffer);
 	return packet;
 } 
 
@@ -46,69 +53,101 @@ void *ir_get_latest_data_packet(Vector2 *coordinates){
 	if(received_ir_packet != 0){
 	// Get the packet and turn it into only the data with the convert_packet_to_irdata function
 	IRData packet_to_return = convert_packet_to_irdata(received_ir_packet);
+	if(packet_to_return > 23 && packet_to_return < 192 && packet_to_return != 128){
 	// Set the x coordinate in the array by bit shifting 4 to the right, only leaving the first 4 bits
 	// Afterwards multiply the value by 20 to get the actual pixel value of the position
 	coordinates->x = (packet_to_return % 12) * 20;
 	// Set the y coordinate in the array by masking the value with 00001111, meaning only the last 4 bits remain
 	// Afterwards multiply the value by 20 to get the actual pixel value of the position
 	// Because of the bar at the top, we must do an offset on the y value
-	coordinates->y = (packet_to_return / 12) * 20 + SCREEN_MIN_TILE_Y;
-
+	coordinates->y = (packet_to_return / 12) * 20;
+	}
 	// Reset received_ir_packet so no duplicate packets can be sent 
 	received_ir_packet = 0;
+	
 	}
 }
 
 // Convert the 16 bits of received data into an 8bit packet that gets used in the program
-void ir_convert_received_data_to_packet(){
+void ir_convert_received_data_to_packet(uint32_t buffer_data){
 	// Create the packet
 	uint16_t packet_to_return = 0;
 	// Loop through the 22 bits of data, starting from position 1 and incrementing by 2 because those positions hold the actual data
 	for (uint32_t idx = 1; idx < 22; idx += 2)
 	{
 		// Check if the data on that bit isn't 0
-		if((ir_receive_buffer & ((uint32_t)1 << idx)) != 0){
+		if((buffer_data & ((uint32_t)1 << idx)) != 0){
 			// Add the bit to the packet in the correct place by dividing the index in 2
 			packet_to_return |= 1 << (idx / 2);
 		}
 	}
 	received_ir_packet = packet_to_return;
+	// char buffer[34];
+	// uint32_to_binary_str(buffer, buffer_data);
+	// //uint32_to_string(buffer, buffer_data);
+	// draw_string({40,20}, buffer);
 	// Reset the buffer for receiving data
-	ir_receive_buffer = 0;
+	//ir_receive_buffer = 0;
 }
 
 // Checks if the given input is valid by checking the parity bit
-void ir_check_input(){
+void ir_check_input(uint32_t buffer){
 	// Calculate what the parity bit should be based on the provided data
 	uint8_t parity = 0x00;
 	// Add the bits from the data to the parity value
-	for (uint16_t idx = 3; idx < 19; idx+= 2)
+	for (uint16_t idx = 8; idx < 24; idx+= 2)
+	//for (uint16_t idx = 3; idx < 19; idx+= 2)
 	{
-		parity += (ir_receive_buffer & (1 << idx)) >> idx;
+		parity += (buffer & (1 << idx)) >> idx;
 	}
 	// Do a modulo 2 to determine of parity is even or uneven
 	parity %= 2;
 
 	// Check if the calculated parity equals the parity bit found in the received packet
-	if(parity == (ir_receive_buffer & (parity << 1))){
-		ir_convert_received_data_to_packet();
+	if(parity == (buffer & (parity << 1))){
+		ir_convert_received_data_to_packet(buffer);
 	}
 }
 
 void ir_receive_pulse(){
-    GET_IR_BIT;
+		uint8_t ir_status = (PIND & (1 << DDD2)) >> DDD2;
+
+		//char buffer_status[3];
+		//uint8_to_string(buffer_status, ir_status);
+		//draw_string({200,0}, buffer_status);
+		if(!(ir_status) != previous_state){
+			if(previous_state == 0){
+				uint8_t amount_of_bits_to_draw = (time_since_pulse_end - 1) / 4;
+				ir_receive_buffer <<= amount_of_bits_to_draw;
+				ir_receive_buffer |= !(ir_status) << 0;
+				time_since_pulse_end = 0;
+			}else{
+				ir_receive_buffer <<= 1;
+				ir_receive_buffer |= !(ir_status) << 0;
+			}
+			previous_state = !previous_state;
+		}else if(previous_state == 0 && global_time != previous_time_value){
+			time_since_pulse_end++;
+		}
+		previous_time_value = global_time;
+    //uint8_t ir_status = (PIND & (1 << DDD2)) >> DDD2;
 
 	// Shift the existing bits in the buffer by 1 to the left. This sets the newest least significant bit to 0
-	ir_receive_buffer <<= 1;
+	//ir_receive_buffer <<= 1;
 
-	// Set the new least significant bit to the new value
-	ir_receive_buffer |= !(ir_status) << 0;
+	//Set the new least significant bit to the new value
+	//ir_receive_buffer |= !(ir_status) << 0;
+	char buffer[34];
+	uint16_to_binary_str(buffer, ir_receive_buffer & 0x0000FFFFF);
+	draw_string({0,0}, buffer);
+	uint16_to_binary_str(buffer, ir_receive_buffer >> 16);
+	draw_string({0,20}, buffer);
 
 	//Serial.println(ir_receive_buffer, BIN);
-	// Check if the buffer & 00000000001111010101010101010101 (3D5555 in hexadecimal) is equal to 00000000001010000000000000000000 (280000 in hexadecimal)
+	// Check if the buffer & 00000000001111010101010101010101 (3D5555 in hexadecimal) 1111010101010101010101is equal to 00000000001010000000000000000000 (280000 in hexadecimal)
 	// With this we know if the start bit was set correctly and that every pulse (which is 2 bits) ends with a 0
 	if((ir_receive_buffer & 0x3D5555) == 0x280000){
-		ir_check_input();
+		ir_check_input(ir_receive_buffer);
 	}
 
 }
@@ -162,12 +201,15 @@ void ir_send_message(Vector2 position)
 	packet = ir_create_packet(position);
 	packet_index = 11;
 	packet_sent = 0;
+	
 }
 
 void ir_heartbeat()
 {
-	if ((global_time + 1) >= next_half_pulse)
+	ir_receive_pulse();
+	/*if ((global_time + 1) >= next_half_pulse)
 	{
+		/*
 		// Go through every bit of the packet
 		if (packet_index > 0)
 		{
@@ -205,9 +247,9 @@ void ir_heartbeat()
 			packet_sent = 1;
 		}
 		next_half_pulse = global_time + HALF_PULSE_WIDTH_MS;
-		// Go receive the pulse from the other game console
-		ir_receive_pulse();
-	}
+		// Go receive the pulse from the other game console*/
+		//ir_receive_pulse();
+	//}
 }
 
 void init_ir(uint8_t frequency)

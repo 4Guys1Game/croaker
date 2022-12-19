@@ -48,3 +48,29 @@ char *uint8_to_string(char* buffer, uint8_t n)
 	buffer[4] = '\0';
 	return buffer;
 }
+
+char* uint32_to_binary_str(char* buffer, uint32_t value) {
+
+
+  for (int i = 33 - 2; i >= 0; i--) {
+    buffer[i] = (value & 1) ? '1' : '0';
+    value >>= 1;
+  }
+  
+  buffer[32] = '\0';
+
+  return buffer;
+}
+
+char* uint16_to_binary_str(char* buffer, uint16_t value) {
+
+
+  for (int i = 17 - 2; i >= 0; i--) {
+    buffer[i] = (value & 1) ? '1' : '0';
+    value >>= 1;
+  }
+  
+  buffer[17] = '\0';
+
+  return buffer;
+}

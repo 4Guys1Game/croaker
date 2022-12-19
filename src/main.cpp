@@ -138,10 +138,10 @@ int main(void)
 
 	draw_image_mask(&players[0].image);
 
-	draw_string({20, 20}, "Hello World");
-	draw_string({20, 40}, "0123456789");
-	draw_string({20, 60}, "abcdefghijklm");
-	draw_string({20, 80}, "nopqrstuvwxyz");
+	//draw_string({20, 20}, "Hello World");
+	// draw_string({20, 40}, "0123456789");
+	// draw_string({20, 60}, "abcdefghijklm");
+	// draw_string({20, 80}, "nopqrstuvwxyz");
 
 	// Array for positions of the other player
 	Vector2 second_player_coords;
@@ -169,13 +169,13 @@ int main(void)
 			});
 
 			// Move the position of the enemy frog by using the received coordinates
-			move_image_check(&players[1].image, &second_player_coords);
+			//move_image(&players[1].image, &second_player_coords);
 		}
 
 		// Constantly send IR messages
 		if (global_time >= next_message)
 		{
-			next_message = global_time + 500;
+			next_message = global_time + 150;
 			ir_send_message(players[0].image.position);
 		}
 
