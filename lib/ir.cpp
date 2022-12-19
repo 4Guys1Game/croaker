@@ -33,7 +33,8 @@ uint8_t is_high = 0;
 uint8_t packet_sent = 0;
 
 // Convert a data packet to only the data itself
-IRData convert_packet_to_irdata(uint16_t packet){
+IRData convert_packet_to_irdata(uint16_t packet)
+{
 	// char buffer0[24];
 	// uint16_to_string(buffer0, packet);
 	// draw_string({10,10}, buffer0);
@@ -45,38 +46,42 @@ IRData convert_packet_to_irdata(uint16_t packet){
 	// uint16_to_string(buffer, packet);
 	// draw_string({20,20}, buffer);
 	return packet;
-} 
+}
 
 // Get the current data packet
 // Returns an array of two IRData values, the first is for the x coordinate, the second one is for the y coordinate
-void *ir_get_latest_data_packet(Vector2 *coordinates){
-	if(received_ir_packet != 0){
-	// Get the packet and turn it into only the data with the convert_packet_to_irdata function
-	IRData packet_to_return = convert_packet_to_irdata(received_ir_packet);
-	if(packet_to_return > 23 && packet_to_return < 192 && packet_to_return != 128){
-	// Set the x coordinate in the array by bit shifting 4 to the right, only leaving the first 4 bits
-	// Afterwards multiply the value by 20 to get the actual pixel value of the position
-	coordinates->x = (packet_to_return % 12) * 20;
-	// Set the y coordinate in the array by masking the value with 00001111, meaning only the last 4 bits remain
-	// Afterwards multiply the value by 20 to get the actual pixel value of the position
-	// Because of the bar at the top, we must do an offset on the y value
-	coordinates->y = (packet_to_return / 12) * 20;
-	}
-	// Reset received_ir_packet so no duplicate packets can be sent 
-	received_ir_packet = 0;
-	
+void *ir_get_latest_data_packet(Vector2 *coordinates)
+{
+	if (received_ir_packet != 0)
+	{
+		// Get the packet and turn it into only the data with the convert_packet_to_irdata function
+		IRData packet_to_return = convert_packet_to_irdata(received_ir_packet);
+		if (packet_to_return > 23 && packet_to_return < 192 && packet_to_return != 128)
+		{
+			// Set the x coordinate in the array by bit shifting 4 to the right, only leaving the first 4 bits
+			// Afterwards multiply the value by 20 to get the actual pixel value of the position
+			coordinates->x = (packet_to_return % 12) * 20;
+			// Set the y coordinate in the array by masking the value with 00001111, meaning only the last 4 bits remain
+			// Afterwards multiply the value by 20 to get the actual pixel value of the position
+			// Because of the bar at the top, we must do an offset on the y value
+			coordinates->y = (packet_to_return / 12) * 20;
+		}
+		// Reset received_ir_packet so no duplicate packets can be sent
+		received_ir_packet = 0;
 	}
 }
 
 // Convert the 16 bits of received data into an 8bit packet that gets used in the program
-void ir_convert_received_data_to_packet(uint32_t buffer_data){
+void ir_convert_received_data_to_packet(uint32_t buffer_data)
+{
 	// Create the packet
 	uint16_t packet_to_return = 0;
 	// Loop through the 22 bits of data, starting from position 1 and incrementing by 2 because those positions hold the actual data
 	for (uint32_t idx = 1; idx < 22; idx += 2)
 	{
 		// Check if the data on that bit isn't 0
-		if((buffer_data & ((uint32_t)1 << idx)) != 0){
+		if ((buffer_data & ((uint32_t)1 << idx)) != 0)
+		{
 			// Add the bit to the packet in the correct place by dividing the index in 2
 			packet_to_return |= 1 << (idx / 2);
 		}
@@ -87,16 +92,17 @@ void ir_convert_received_data_to_packet(uint32_t buffer_data){
 	// //uint32_to_string(buffer, buffer_data);
 	// draw_string({40,20}, buffer);
 	// Reset the buffer for receiving data
-	//ir_receive_buffer = 0;
+	// ir_receive_buffer = 0;
 }
 
 // Checks if the given input is valid by checking the parity bit
-void ir_check_input(uint32_t buffer){
+void ir_check_input(uint32_t buffer)
+{
 	// Calculate what the parity bit should be based on the provided data
 	uint8_t parity = 0x00;
 	// Add the bits from the data to the parity value
-	for (uint16_t idx = 8; idx < 24; idx+= 2)
-	//for (uint16_t idx = 3; idx < 19; idx+= 2)
+	for (uint16_t idx = 8; idx < 24; idx += 2)
+	// for (uint16_t idx = 3; idx < 19; idx+= 2)
 	{
 		parity += (buffer & (1 << idx)) >> idx;
 	}
@@ -104,52 +110,60 @@ void ir_check_input(uint32_t buffer){
 	parity %= 2;
 
 	// Check if the calculated parity equals the parity bit found in the received packet
-	if(parity == (buffer & (parity << 1))){
+	if (parity == (buffer & (parity << 1)))
+	{
 		ir_convert_received_data_to_packet(buffer);
 	}
 }
 
-void ir_receive_pulse(){
-		uint8_t ir_status = (PIND & (1 << DDD2)) >> DDD2;
+void ir_receive_pulse()
+{
+	uint8_t ir_status = !((PIND & (1 << DDD2)) >> DDD2);
 
-		//char buffer_status[3];
-		//uint8_to_string(buffer_status, ir_status);
-		//draw_string({200,0}, buffer_status);
-		if(!(ir_status) != previous_state){
-			if(previous_state == 0){
-				uint8_t amount_of_bits_to_draw = (time_since_pulse_end - 1) / 4;
-				ir_receive_buffer <<= amount_of_bits_to_draw;
-				ir_receive_buffer |= !(ir_status) << 0;
-				time_since_pulse_end = 0;
-			}else{
-				ir_receive_buffer <<= 1;
-				ir_receive_buffer |= !(ir_status) << 0;
-			}
-			previous_state = !previous_state;
-		}else if(previous_state == 0 && global_time != previous_time_value){
-			time_since_pulse_end++;
+	// char buffer_status[3];
+	// uint8_to_string(buffer_status, ir_status);
+	// draw_string({200,0}, buffer_status);
+	if (ir_status != previous_state)
+	{
+		if (previous_state == 0)
+		{
+			uint8_t amount_of_bits_to_draw = time_since_pulse_end / 487; // 3.9 * 125
+			ir_receive_buffer <<= amount_of_bits_to_draw;
+			ir_receive_buffer |= ir_status << 0;
+			time_since_pulse_end = 0;
 		}
-		previous_time_value = global_time;
-    //uint8_t ir_status = (PIND & (1 << DDD2)) >> DDD2;
+		else
+		{
+			ir_receive_buffer <<= 1;
+			ir_receive_buffer |= ir_status << 0;
+		}
+		previous_state = !previous_state;
+	}
+	else if (ir_status == 0 && global_time_tiny != previous_time_value)
+	{
+		time_since_pulse_end++;
+	}
+	previous_time_value = global_time_tiny;
+	// uint8_t ir_status = (PIND & (1 << DDD2)) >> DDD2;
 
 	// Shift the existing bits in the buffer by 1 to the left. This sets the newest least significant bit to 0
-	//ir_receive_buffer <<= 1;
+	// ir_receive_buffer <<= 1;
 
-	//Set the new least significant bit to the new value
-	//ir_receive_buffer |= !(ir_status) << 0;
+	// Set the new least significant bit to the new value
+	// ir_receive_buffer |= !(ir_status) << 0;
 	char buffer[34];
 	uint16_to_binary_str(buffer, ir_receive_buffer & 0x0000FFFFF);
-	draw_string({0,0}, buffer);
+	draw_string({0, 0}, buffer);
 	uint16_to_binary_str(buffer, ir_receive_buffer >> 16);
-	draw_string({0,20}, buffer);
+	draw_string({0, 20}, buffer);
 
-	//Serial.println(ir_receive_buffer, BIN);
-	// Check if the buffer & 00000000001111010101010101010101 (3D5555 in hexadecimal) 1111010101010101010101is equal to 00000000001010000000000000000000 (280000 in hexadecimal)
-	// With this we know if the start bit was set correctly and that every pulse (which is 2 bits) ends with a 0
-	if((ir_receive_buffer & 0x3D5555) == 0x280000){
+	// Serial.println(ir_receive_buffer, BIN);
+	//  Check if the buffer & 00000000001111010101010101010101 (3D5555 in hexadecimal) 1111010101010101010101is equal to 00000000001010000000000000000000 (280000 in hexadecimal)
+	//  With this we know if the start bit was set correctly and that every pulse (which is 2 bits) ends with a 0
+	if ((ir_receive_buffer & 0x3D5555) == 0x280000)
+	{
 		ir_check_input(ir_receive_buffer);
 	}
-
 }
 void ir_set_high()
 {
@@ -175,7 +189,8 @@ void ir_set_low()
 	TCNT0 = 0;
 }
 
-uint16_t ir_create_packet(Vector2 position){
+uint16_t ir_create_packet(Vector2 position)
+{
 
 	uint8_t data = (position.x / 20) + (position.y / 20) * 12;
 	// Calculate the parity
@@ -201,7 +216,6 @@ void ir_send_message(Vector2 position)
 	packet = ir_create_packet(position);
 	packet_index = 11;
 	packet_sent = 0;
-	
 }
 
 void ir_heartbeat()
@@ -248,7 +262,7 @@ void ir_heartbeat()
 		}
 		next_half_pulse = global_time + HALF_PULSE_WIDTH_MS;
 		// Go receive the pulse from the other game console*/
-		//ir_receive_pulse();
+	// ir_receive_pulse();
 	//}
 }
 
