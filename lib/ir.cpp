@@ -111,27 +111,40 @@ void ir_receive_pulse()
 {
 	uint8_t ir_status = !((PIND & (1 << DDD2)) >> DDD2);
 
-	if (ir_status != previous_state)
+	if (ir_status == previous_state)
 	{
-		Serial.print("previous state: ");
-		Serial.println(previous_state);
-		Serial.print("current state: ");
-		Serial.println(ir_status);
-		Serial.print("time: ");
-		Serial.println(time_since_state_change);
-		
-		if(time_since_state_change >= 5){
-			ir_receive_buffer <<= 1;
-			ir_receive_buffer |= ir_status << 0;
-			time_since_state_change = 0;
-		}
+		Serial.print("Previous: ");
+		Serial.print(previous_state);
+		Serial.print(" Now: ");
+		Serial.print(ir_status);
+		Serial.print(" Time Diff: ");
+		Serial.println(previous_time_value - global_time);
+
 		previous_state = ir_status;
-	}
-	else if (global_time != previous_time_value)
-	{
-		time_since_state_change++;
 		previous_time_value = global_time;
 	}
+
+	// if (ir_status != previous_state)
+	// {
+	// 	Serial.print("previous state: ");
+	// 	Serial.println(previous_state);
+	// 	Serial.print("current state: ");
+	// 	Serial.println(ir_status);
+	// 	Serial.print("time: ");
+	// 	Serial.println(time_since_state_change);
+		
+	// 	if(time_since_state_change >= 5){
+	// 		ir_receive_buffer <<= 1;
+	// 		ir_receive_buffer |= ir_status << 0;
+	// 		time_since_state_change = 0;
+	// 	}
+	// 	previous_state = ir_status;
+	// }
+	// else if (global_time != previous_time_value)
+	// {
+	// 	time_since_state_change++;
+	// 	previous_time_value = global_time;
+	// }
 
 	// char buffer[34];
 	// uint16_to_binary_str(buffer, ir_receive_buffer & 0x0000FFFFF);
