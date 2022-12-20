@@ -12,7 +12,7 @@
 #include "conversion.h"
 #include "gfx.h"
 
-#define HALF_PULSE_WIDTH_MS 6
+#define HALF_PULSE_WIDTH_MS 5
 
 // Buffer for receiving data in the 24 bits necessary
 volatile uint16_t ir_receive_buffer = 0;
@@ -160,10 +160,10 @@ void ir_set_low()
 	TCNT0 = 0;
 }
 
-uint16_t ir_create_packet(Vector2 position)
+uint16_t ir_create_packet(Vector2 *position)
 {
 
-	uint8_t data = (position.x / 20) + (position.y / 20) * 12;
+	uint8_t data = (position->x / 20) + (position->y / 20) * 12;
 	// Calculate the parity
 	// 0x01 if uneven
 	// 0x00 if even
@@ -181,7 +181,7 @@ uint16_t ir_create_packet(Vector2 position)
 	return packet;
 }
 
-void ir_send_message(Vector2 position)
+void ir_send_message(Vector2 *position)
 {
 	// Create the packet
 	packet = ir_create_packet(position);

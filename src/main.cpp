@@ -138,12 +138,6 @@ int main(void)
 	draw_tilemap(&background);
 	draw_tilemap(&foreground);
 
-	// Init the game timers
-	uint32_t next_message = 0;
-	uint32_t next_move_tick = 0;
-	uint32_t next_moveable_tick = 0;
-	uint32_t next_second = 0;
-
 	uint8_t is_at_end = false;
 
 	draw_image_mask(&players[0].image);
@@ -169,6 +163,12 @@ int main(void)
 
 	Serial.begin(BAUDRATE);
 
+	// Init the game timers
+	uint32_t next_message = global_time;
+	uint32_t next_move_tick = global_time;
+	uint32_t next_moveable_tick = global_time + 150;
+	uint32_t next_second = global_time;
+
 	// Main game loop
 	while (1)
 	{
@@ -191,7 +191,7 @@ int main(void)
 			next_moveable_tick = global_time + MOVEABLE_MOVE_SPEED;
 			simulate_moveables();
 			// Send the player position after we simulated the cars, this is to prevent it from interferring with the timings
-			ir_send_message(players[0].image.position);
+			ir_send_message(&players[0].image.position);
 		}
 
 		if (global_time >= next_move_tick)
