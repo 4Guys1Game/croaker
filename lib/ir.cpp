@@ -111,7 +111,7 @@ void ir_receive_pulse()
 {
 	uint8_t ir_status = !((PIND & (1 << DDD2)) >> DDD2);
 
-	if (ir_status == previous_state)
+	if (ir_status != previous_state)
 	{
 		Serial.print("Previous: ");
 		Serial.print(previous_state);
