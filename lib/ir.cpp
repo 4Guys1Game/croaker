@@ -12,7 +12,7 @@
 #include "conversion.h"
 #include "gfx.h"
 
-#define HALF_PULSE_WIDTH_MS 5
+#define HALF_PULSE_WIDTH_MS 6
 
 // Buffer for receiving data in the 24 bits necessary
 volatile uint16_t ir_receive_buffer = 0;
@@ -133,6 +133,7 @@ void ir_receive_pulse()
 	// Check if the current status is different form the previous state, so going form 1 to 0 and vice versa
 	if (ir_status != previous_state)
 	{
+		
 		// Check if enough time has passed that this is a pulse different that matters, and not just a set to high or low to start the next bit
 		if (global_time - previous_time_value >= 7) {
 			// Shift the bits to the left by one

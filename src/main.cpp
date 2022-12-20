@@ -166,11 +166,11 @@ int main(void)
 		nunchuk_joystick_state y_val = nunchuk.nunchuk_y;
 		nunchuk_joystick_state x_val = nunchuk.nunchuk_x;
 
-		if (global_time >= next_moveable_tick)
-		{
-			next_moveable_tick = global_time + MOVEABLE_MOVE_SPEED;
-			simulate_moveables();
-		}
+		// if (global_time >= next_moveable_tick)
+		// {
+		// 	next_moveable_tick = global_time + MOVEABLE_MOVE_SPEED;
+		// 	simulate_moveables();
+		// }
 
 		if (global_time >= next_move_tick)
 		{
