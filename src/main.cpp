@@ -74,16 +74,15 @@ void inline simulate_single_log(Vector2 *tile_position, uint8_t middle_length, u
 	tile_position->x = get_simulation_x(offset);
 	set_tile(&foreground, *tile_position, 3);
 	draw_tile(&foreground, *tile_position);
-	tile_position->x = get_simulation_x(offset + middle_length + 2);
-	set_tile(&foreground, *tile_position, 0);
-	draw_tile(&background, *tile_position);
-	uint8_t target = offset + middle_length;
-	for (offset; offset < target; offset++)
+	if (middle_length >= 1)
 	{
 		tile_position->x = get_simulation_x(offset + 1);
 		set_tile(&foreground, *tile_position, 4);
 		draw_tile(&foreground, *tile_position);
 	}
+	tile_position->x = get_simulation_x(offset + middle_length + 2);
+	set_tile(&foreground, *tile_position, 0);
+	draw_tile(&background, *tile_position);
 }
 
 void simulate_moveables()
