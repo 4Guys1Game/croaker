@@ -92,18 +92,11 @@ void ir_check_input(uint16_t buffer)
 	// Check if the calculated parity equals the parity bit found in the received packet
 	if (parity == (buffer & (parity << 1)) && (buffer & ((uint16_t)1 << 9)) == 512 && (buffer & ((uint16_t)1 << 10)) == 1024)
 	{
-		//Serial.println(buffer, BIN);
-		// Serial.print("bit 10 and 11: ");
-		// Serial.print((buffer & ((uint16_t)1 << 9)));
-		// Serial.print(" ");
-		// Serial.print(buffer & ((uint16_t)1 << 10));
-		// Serial.println(" making packet");
 		// Create the packet
 		uint16_t packet_to_return = 0;
 		// Only get the relevant data by masking the buffer with 7FF (0000011111111111 in binary) and only keeping the last 11 bits
 		packet_to_return = (buffer & 0x7FF);
 		received_ir_packet = packet_to_return;
-		//Serial.println(received_ir_packet, BIN);
 	}
 }
 
@@ -115,12 +108,8 @@ void ir_receive_pulse()
 	uint8_t ir_status = !((PIND & (1 << DDD2)) >> DDD2);
 
 	// With this we know enough time has passed for there to be a new message
-	if (global_time - previous_time_value >= 300)
+	if (global_time - previous_time_value >= 100)
 	{
-		// Serial.print("Buffer: ");
-		// Serial.print(ir_receive_buffer, BIN);
-		// Serial.println(";");
-
 		// Go do the checking of the input to see if it is a valid message
 		uint16_t input = ir_receive_buffer;
 		ir_check_input(input);

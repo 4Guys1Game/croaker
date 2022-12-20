@@ -166,11 +166,11 @@ int main(void)
 		nunchuk_joystick_state y_val = nunchuk.nunchuk_y;
 		nunchuk_joystick_state x_val = nunchuk.nunchuk_x;
 
-		// if (global_time >= next_moveable_tick)
-		// {
-		// 	next_moveable_tick = global_time + MOVEABLE_MOVE_SPEED;
-		// 	simulate_moveables();
-		// }
+		if (global_time >= next_moveable_tick)
+		{
+			next_moveable_tick = global_time + MOVEABLE_MOVE_SPEED;
+			simulate_moveables();
+		}
 
 		if (global_time >= next_move_tick)
 		{
@@ -197,7 +197,6 @@ int main(void)
 
 		// Get the latest available data using a vector2 to write to
 		ir_get_latest_data_packet(&second_player_coords);
-		//Serial.println(second_player_coords.x);
 	}
 
 	// This is never reached.
