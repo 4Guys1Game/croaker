@@ -123,7 +123,7 @@ int main(void)
 	// Initialize required functionalities
 	setup_global_timer();
 	init_gfx();
-	init_ir(FREQ_VAL_38KHZ);
+	init_ir(FREQ_VAL_56KHZ);
 	init_nunchuk(NUNCHUK_ADDRESS);
 
 	// Draw the background & foreground
