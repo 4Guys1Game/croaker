@@ -113,8 +113,14 @@ void ir_receive_pulse()
 
 	if (ir_status != previous_state)
 	{
+		Serial.print("previous state: ");
+		Serial.println(previous_state);
+		Serial.print("current state: ");
+		Serial.println(ir_status);
+		Serial.print("time: ");
 		Serial.println(time_since_state_change);
-		if(time_since_state_change >= 1){
+		
+		if(time_since_state_change >= 5){
 			ir_receive_buffer <<= 1;
 			ir_receive_buffer |= ir_status << 0;
 			time_since_state_change = 0;
@@ -127,11 +133,11 @@ void ir_receive_pulse()
 		previous_time_value = global_time;
 	}
 
-	char buffer[34];
-	uint16_to_binary_str(buffer, ir_receive_buffer & 0x0000FFFFF);
-	draw_string({0, 0}, buffer);
-	uint16_to_binary_str(buffer, ir_receive_buffer >> 16);
-	draw_string({0, 20}, buffer);
+	// char buffer[34];
+	// uint16_to_binary_str(buffer, ir_receive_buffer & 0x0000FFFFF);
+	// draw_string({0, 0}, buffer);
+	// uint16_to_binary_str(buffer, ir_receive_buffer >> 16);
+	// draw_string({0, 20}, buffer);
 
 	// Serial.println(ir_receive_buffer, BIN);
 	//  Check if the buffer & 00000000001111010101010101010101 (3D5555 in hexadecimal) 1111010101010101010101is equal to 00000000001010000000000000000000 (280000 in hexadecimal)

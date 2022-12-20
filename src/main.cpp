@@ -115,6 +115,14 @@ void simulate_moveables()
 	simulate_single_log(&vec, 0, 6);
 	simulate_single_log(&vec, 0, 10);
 }
+/*
+int main(void){
+	Serial.begin(BAUDRATE);
+	while(1){
+		Serial.println(PIND, BIN);
+	}
+	return 0;
+}*/
 
 int main(void)
 {
@@ -156,7 +164,7 @@ int main(void)
 		nunchuk_joystick_state y_val = nunchuk.nunchuk_y;
 		nunchuk_joystick_state x_val = nunchuk.nunchuk_x;
 
-		if (global_time >= next_moveable_tick)
+		/*if (global_time >= next_moveable_tick)
 		{
 			next_moveable_tick = global_time + MOVEABLE_MOVE_SPEED;
 			simulate_moveables();
@@ -180,7 +188,7 @@ int main(void)
 		{
 			next_message = global_time + 150;
 			ir_send_message(players[0].image.position);
-		}
+		}*/
 
 		// Update the IR
 		ir_heartbeat();
