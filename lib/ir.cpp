@@ -51,7 +51,7 @@ void *ir_get_latest_data_packet(Vector2 *coordinates)
 	{
 		// Get the packet and turn it into only the data with the convert_packet_to_irdata function
 		IRData packet_to_return = convert_packet_to_irdata(received_ir_packet);
-		if (packet_to_return > 23 && packet_to_return < 192 && packet_to_return != 128)
+		if (packet_to_return > 23 && packet_to_return < 208)
 		{
 			// Set the x coordinate in the array by bit shifting 4 to the right, only leaving the first 4 bits
 			// Afterwards multiply the value by 20 to get the actual pixel value of the position
@@ -67,33 +67,22 @@ void *ir_get_latest_data_packet(Vector2 *coordinates)
 }
 
 // Convert the 16 bits of received data into an 8bit packet that gets used in the program
-void ir_convert_received_data_to_packet(uint32_t buffer_data)
+void ir_convert_received_data_to_packet(uint16_t buffer_data)
 {
 	// Create the packet
 	uint16_t packet_to_return = 0;
-	// Loop through the 22 bits of data, starting from position 1 and incrementing by 2 because those positions hold the actual data
-	for (uint32_t idx = 1; idx < 22; idx += 2)
-	{
-		// Check if the data on that bit isn't 0
-		if ((buffer_data & ((uint32_t)1 << idx)) != 0)
-		{
-			// Add the bit to the packet in the correct place by dividing the index in 2
-			packet_to_return |= 1 << (idx / 2);
-		}
-	}
+	// Only get the relevant data by masking the buffer with 7FF (0000011111111111 in binary) and only keeping the last 11 bits
+	packet_to_return = buffer_data & 0x7FF;
 	received_ir_packet = packet_to_return;
-	// Reset the buffer for receiving data
-	// ir_receive_buffer = 0;
 }
 
-// Checks if the given input is valid by checking the parity bit
-void ir_check_input(uint32_t buffer)
+// Checks if the given input is valid by checking the parity bit and the starting bits
+void ir_check_input(uint16_t buffer)
 {
 	// Calculate what the parity bit should be based on the provided data
-	uint8_t parity = 0x00;
+	uint16_t parity = 0x00;
 	// Add the bits from the data to the parity value
-	for (uint16_t idx = 8; idx < 24; idx += 2)
-	// for (uint16_t idx = 3; idx < 19; idx+= 2)
+	for (uint16_t idx = 1; idx < 9; idx++)
 	{
 		parity += (buffer & (1 << idx)) >> idx;
 	}
@@ -101,73 +90,61 @@ void ir_check_input(uint32_t buffer)
 	parity %= 2;
 
 	// Check if the calculated parity equals the parity bit found in the received packet
-	if (parity == (buffer & (parity << 1)))
+	if (parity == (buffer & (parity << 1)) && (buffer & ((uint16_t)1 << 9)) == 512 && (buffer & ((uint16_t)1 << 10)) == 1024)
 	{
-		ir_convert_received_data_to_packet(buffer);
+		//Serial.println(buffer, BIN);
+		// Serial.print("bit 10 and 11: ");
+		// Serial.print((buffer & ((uint16_t)1 << 9)));
+		// Serial.print(" ");
+		// Serial.print(buffer & ((uint16_t)1 << 10));
+		// Serial.println(" making packet");
+		// Create the packet
+		uint16_t packet_to_return = 0;
+		// Only get the relevant data by masking the buffer with 7FF (0000011111111111 in binary) and only keeping the last 11 bits
+		packet_to_return = (buffer & 0x7FF);
+		received_ir_packet = packet_to_return;
+		//Serial.println(received_ir_packet, BIN);
 	}
 }
 
 void ir_receive_pulse()
 {
+	// Get the current status by checking the D2 bit of PIND
+	// Starting from 0 that is the second bit, so we need to shift that bit to the right to get the correct value
+	// Lastly because of the way the receiver works we need to invert the bit to get the correct data
 	uint8_t ir_status = !((PIND & (1 << DDD2)) >> DDD2);
 
+	// With this we know enough time has passed for there to be a new message
 	if (global_time - previous_time_value >= 300)
 	{
 		// Serial.print("Buffer: ");
 		// Serial.print(ir_receive_buffer, BIN);
 		// Serial.println(";");
 
+		// Go do the checking of the input to see if it is a valid message
+		uint16_t input = ir_receive_buffer;
+		ir_check_input(input);
+
+		// Reset the buffer to have room te receive a new message
 		ir_receive_buffer = 0;
 		previous_time_value = global_time;
 	}
 
+	// Check if the current status is different form the previous state, so going form 1 to 0 and vice versa
 	if (ir_status != previous_state)
 	{
-		
+		// Check if enough time has passed that this is a pulse different that matters, and not just a set to high or low to start the next bit
 		if (global_time - previous_time_value >= 7) {
+			// Shift the bits to the left by one
 			ir_receive_buffer <<= 1;
+			// Set the new least significant bit
 			ir_receive_buffer |= ir_status;
 			previous_time_value = global_time;
 		}
 
+		// Set the previous state to the current state, so the new comparison will be correct
 		previous_state = ir_status;
 	}
-
-	// if (ir_status != previous_state)
-	// {
-	// 	Serial.print("previous state: ");
-	// 	Serial.println(previous_state);
-	// 	Serial.print("current state: ");
-	// 	Serial.println(ir_status);
-	// 	Serial.print("time: ");
-	// 	Serial.println(time_since_state_change);
-		
-	// 	if(time_since_state_change >= 5){
-	// 		ir_receive_buffer <<= 1;
-	// 		ir_receive_buffer |= ir_status << 0;
-	// 		time_since_state_change = 0;
-	// 	}
-	// 	previous_state = ir_status;
-	// }
-	// else if (global_time != previous_time_value)
-	// {
-	// 	time_since_state_change++;
-	// 	previous_time_value = global_time;
-	// }
-
-	// char buffer[34];
-	// uint16_to_binary_str(buffer, ir_receive_buffer & 0x0000FFFFF);
-	// draw_string({0, 0}, buffer);
-	// uint16_to_binary_str(buffer, ir_receive_buffer >> 16);
-	// draw_string({0, 20}, buffer);
-
-	// Serial.println(ir_receive_buffer, BIN);
-	//  Check if the buffer & 00000000001111010101010101010101 (3D5555 in hexadecimal) 1111010101010101010101is equal to 00000000001010000000000000000000 (280000 in hexadecimal)
-	//  With this we know if the start bit was set correctly and that every pulse (which is 2 bits) ends with a 0
-	/*if ((ir_receive_buffer & 0x3D5555) == 0x280000)
-	{
-		ir_check_input(ir_receive_buffer);
-	}*/
 }
 void ir_set_high()
 {
