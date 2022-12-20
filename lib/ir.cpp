@@ -210,8 +210,6 @@ void ir_heartbeat()
 			packet_sent = 1;
 		}
 		next_half_pulse = global_time + HALF_PULSE_WIDTH_MS;
-		// Go receive the pulse from the other game console
-		ir_receive_pulse();
 	}
 }
 

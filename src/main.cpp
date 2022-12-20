@@ -179,6 +179,8 @@ int main(void)
 		{
 			next_moveable_tick = global_time + MOVEABLE_MOVE_SPEED;
 			simulate_moveables();
+			// Send the player position after we simulated the cars, this is to prevent it from interferring with the timings
+			ir_send_message(players[0].image.position);
 		}
 
 		if (global_time >= next_move_tick)
@@ -192,13 +194,6 @@ int main(void)
 
 			// Move the position of the enemy frog by using the received coordinates
 			// move_image_check(&players[1].image, &second_player_coords);
-		}
-
-		// Constantly send IR messages
-		if (global_time >= next_message)
-		{
-			next_message = global_time + 500;
-			ir_send_message(players[0].image.position);
 		}
 
 		// Update the IR
