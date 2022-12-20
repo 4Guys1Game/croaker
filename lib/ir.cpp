@@ -15,7 +15,7 @@
 #define HALF_PULSE_WIDTH_MS 5
 
 // Buffer for receiving data in the 24 bits necessary
-volatile uint32_t ir_receive_buffer = 0;
+volatile uint16_t ir_receive_buffer = 0;
 // The current fully recieved packet
 volatile uint16_t received_ir_packet = 0;
 volatile uint8_t previous_state = 0;
@@ -111,17 +111,26 @@ void ir_receive_pulse()
 {
 	uint8_t ir_status = !((PIND & (1 << DDD2)) >> DDD2);
 
+	if (global_time - previous_time_value >= 300)
+	{
+		// Serial.print("Buffer: ");
+		// Serial.print(ir_receive_buffer, BIN);
+		// Serial.println(";");
+
+		ir_receive_buffer = 0;
+		previous_time_value = global_time;
+	}
+
 	if (ir_status != previous_state)
 	{
-		Serial.print("Previous: ");
-		Serial.print(previous_state);
-		Serial.print(" Now: ");
-		Serial.print(ir_status);
-		Serial.print(" Time Diff: ");
-		Serial.println(previous_time_value - global_time);
+		
+		if (global_time - previous_time_value >= 7) {
+			ir_receive_buffer <<= 1;
+			ir_receive_buffer |= ir_status;
+			previous_time_value = global_time;
+		}
 
 		previous_state = ir_status;
-		previous_time_value = global_time;
 	}
 
 	// if (ir_status != previous_state)
@@ -155,10 +164,10 @@ void ir_receive_pulse()
 	// Serial.println(ir_receive_buffer, BIN);
 	//  Check if the buffer & 00000000001111010101010101010101 (3D5555 in hexadecimal) 1111010101010101010101is equal to 00000000001010000000000000000000 (280000 in hexadecimal)
 	//  With this we know if the start bit was set correctly and that every pulse (which is 2 bits) ends with a 0
-	if ((ir_receive_buffer & 0x3D5555) == 0x280000)
+	/*if ((ir_receive_buffer & 0x3D5555) == 0x280000)
 	{
 		ir_check_input(ir_receive_buffer);
-	}
+	}*/
 }
 void ir_set_high()
 {
