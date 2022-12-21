@@ -101,16 +101,16 @@ void simulate_moveables()
 	// Update the simulation
 	simulation_x = (simulation_x + 1) % SCREEN_WIDTH_TILE;
 
-	Vector2 vec = {0, levels->cars.start_y};
-	for (uint8_t car_idx = 0; car_idx < levels->cars.position_len; car_idx++) {
-		simulate_single_car(&vec, levels->cars.positions[car_idx].x);
-		vec.y += levels->cars.positions[car_idx].increment_y;
+	Vector2 vec = {0, levels[current_level].cars.start_y};
+	for (uint8_t car_idx = 0; car_idx < levels[current_level].cars.position_len; car_idx++) {
+		simulate_single_car(&vec, levels[current_level].cars.positions[car_idx].x);
+		vec.y += levels[current_level].cars.positions[car_idx].increment_y;
 	}
 
-	vec.y = levels->logs.start_y;
-	for (uint8_t log_idx = 0; log_idx < levels->logs.position_len; log_idx++) {
-		simulate_single_log(&vec, levels->logs.positions[log_idx].w, levels->logs.positions[log_idx].x);
-		vec.y += levels->logs.positions[log_idx].increment_y;
+	vec.y = levels[current_level].logs.start_y;
+	for (uint8_t log_idx = 0; log_idx < levels[current_level].logs.position_len; log_idx++) {
+		simulate_single_log(&vec, levels[current_level].logs.positions[log_idx].w, levels[current_level].logs.positions[log_idx].x);
+		vec.y += levels[current_level].logs.positions[log_idx].increment_y;
 	}
 }
 
