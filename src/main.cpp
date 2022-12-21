@@ -31,6 +31,10 @@
 #define load_value(address) eeprom_read_byte((uint8_t *)address)
 #define save_value(address, value) eeprom_write_byte((uint8_t *)address, value)
 
+// Values to determine if the player has won or if the other player has won
+volatile uint8_t player_1_has_won = 0;
+volatile uint8_t player_2_has_won = 0;
+
 // An enum for the different addresses to read or write to/from on the EEPROM
 enum eeprom_location
 {
@@ -118,6 +122,8 @@ void simulate_moveables()
 int main(void)
 {
 	sei();
+
+	// Highest value for an IR message is 11001111, which is 207, so we can use 208 until 255 for win states etc.
 
 	// Initialize required functionalities
 	setup_global_timer();

@@ -15,6 +15,8 @@ IRData convert_packet_to_irdata(uint16_t packet);
 
 void *ir_get_latest_data_packet(Vector2 *coordinates);
 
+void *ir_get_current_status(uint8_t *status);
+
 uint16_t ir_create_packet(IRData data);
 
 void ir_send_message(Vector2 *position);

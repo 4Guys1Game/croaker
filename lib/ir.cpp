@@ -67,6 +67,22 @@ void *ir_get_latest_data_packet(Vector2 *coordinates)
 	}
 }
 
+void *ir_get_current_status(uint8_t *status){
+	if (received_ir_packet != 0)
+	{
+		// Get the packet and turn it into only the data with the convert_packet_to_irdata function
+		IRData packet_to_return = convert_packet_to_irdata(received_ir_packet);
+		if (packet_to_return > 208)
+		{
+			*status = packet_to_return;
+			// Reset received_ir_packet so no duplicate packets can be sent
+			received_ir_packet = 0;
+		}else{
+			*status = 0;
+		}
+	}
+}
+
 // Convert the 16 bits of received data into an 8bit packet that gets used in the program
 void ir_convert_received_data_to_packet(uint16_t buffer_data)
 {
