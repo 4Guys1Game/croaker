@@ -185,7 +185,7 @@ int main(void)
 			ir_send_message(&players[0].image.position);
 		}
 
-		if (global_time >= next_move_tick)
+		if (global_time >= next_move_tick && (x_val != MIDDLE || y_val != MIDDLE))
 		{
 			next_move_tick = global_time + MOVEMENT_INTERVAL;
 
