@@ -19,27 +19,39 @@ volatile uint8_t player_1_win = 0;
 volatile uint8_t player_2_win = 0;
 volatile uint8_t next_level = 0;
 
-void *check_for_win(Vector2 *player_1_pos, uint8_t *player_1_win)
+void *check_for_win(Vector2 *player_1_pos, uint8_t *player_1_win_main)
 {
     if(player_1_pos->y < 50)
     {
-        *player_1_win = 1;
+        player_1_win = 1;
     }
     else
     {
-        *player_1_win = 0;
+        player_1_win = 0;
     }
+    *player_1_win_main = player_1_win;
 }
 
 void *set_status_to_send(uint8_t *status)
 {
     uint8_t current_status = 0;
     ir_get_current_status(&current_status);
-}
-
-void *check_for_game_start(uint8_t *status)
-{
-
+    if(player_1_win == 1 && current_status != ACKNOWLEDGEMENT_STATUS)
+    {
+        *status = WIN_STATUS;
+    }
+    else if(player_1_win == 1 && current_status == ACKNOWLEDGEMENT_STATUS)
+    {
+        *status = NEXT_LEVEL_STATUS;
+    }
+    else if(player_2_win == 1 && current_status != NEXT_LEVEL_STATUS)
+    {
+        *status = ACKNOWLEDGEMENT_STATUS;
+    }
+    else if(player_2_win == 1 && current_status == NEXT_LEVEL_STATUS)
+    {
+        *status = 0;
+    }
 }
 
 void *check_for_next_level(uint8_t *status)
