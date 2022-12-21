@@ -9,7 +9,6 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/delay.h>
-#include <HardwareSerial.h>
 
 #include "prelude.h"
 #include "global_time.h"
@@ -115,14 +114,6 @@ void simulate_moveables()
 	simulate_single_log(&vec, 0, 6);
 	simulate_single_log(&vec, 0, 10);
 }
-/*
-int main(void){
-	Serial.begin(BAUDRATE);
-	while(1){
-		Serial.println(PIND, BIN);
-	}
-	return 0;
-}*/
 
 int main(void)
 {
@@ -160,8 +151,6 @@ int main(void)
 	Vector2 second_player_coords;
 	second_player_coords.x = players[1].spawn.x;
 	second_player_coords.y = players[1].spawn.y;
-
-	Serial.begin(BAUDRATE);
 
 	// Init the game timers
 	uint32_t next_message = global_time;

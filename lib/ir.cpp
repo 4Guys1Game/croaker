@@ -5,7 +5,6 @@
 
 #include <avr/io.h>
 #include <util/delay.h>
-#include <HardwareSerial.h>
 
 #include "global_time.h"
 #include "ir.h"
@@ -13,8 +12,9 @@
 #include "gfx.h"
 
 #define HALF_PULSE_WIDTH_MS 5
+#define MASK_16_TO_11_BIT 0x7FF
 
-// Buffer for receiving data in the 24 bits necessary
+// Buffer for receiving data in the 11 bits necessary
 volatile uint16_t ir_receive_buffer = 0;
 // The current fully recieved packet
 volatile uint16_t received_ir_packet = 0;
@@ -72,7 +72,7 @@ void ir_convert_received_data_to_packet(uint16_t buffer_data)
 	// Create the packet
 	uint16_t packet_to_return = 0;
 	// Only get the relevant data by masking the buffer with 7FF (0000011111111111 in binary) and only keeping the last 11 bits
-	packet_to_return = buffer_data & 0x7FF;
+	packet_to_return = buffer_data & MASK_16_TO_11_BIT;
 	received_ir_packet = packet_to_return;
 }
 
@@ -95,7 +95,7 @@ void ir_check_input(uint16_t buffer)
 		// Create the packet
 		uint16_t packet_to_return = 0;
 		// Only get the relevant data by masking the buffer with 7FF (0000011111111111 in binary) and only keeping the last 11 bits
-		packet_to_return = (buffer & 0x7FF);
+		packet_to_return = (buffer & MASK_16_TO_11_BIT);
 		received_ir_packet = packet_to_return;
 	}
 }
@@ -124,7 +124,8 @@ void ir_receive_pulse()
 	{
 		
 		// Check if enough time has passed that this is a pulse different that matters, and not just a set to high or low to start the next bit
-		if (global_time - previous_time_value >= 7) {
+		if (global_time - previous_time_value >= 7) 
+		{
 			// Shift the bits to the left by one
 			ir_receive_buffer <<= 1;
 			// Set the new least significant bit
