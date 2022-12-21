@@ -444,3 +444,17 @@ void draw_char(Vector2 *position, char chr)
 		break;
 	}
 }
+
+void draw_rect(Vector2 *position, Vector2 *width, register uint16_t color)
+{
+	spi_begin_write();
+	set_address_window(position, width);
+
+	uint16_t count_to = width->x * width->y;
+	for (uint16_t count = 0; count < count_to; count++)
+	{
+		spi_write16(color);
+	}
+
+	spi_end_write();
+}

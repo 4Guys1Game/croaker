@@ -16,6 +16,7 @@
 #include "ir.h"
 #include "conversion.h"
 #include "nunchuk_frogger.h"
+#include "segment_display.h"
 
 // Baudrate for Serial communication
 #define BAUDRATE 9600
@@ -73,16 +74,15 @@ void inline simulate_single_log(Vector2 *tile_position, uint8_t middle_length, u
 	tile_position->x = get_simulation_x(offset);
 	set_tile(&foreground, *tile_position, 3);
 	draw_tile(&foreground, *tile_position);
-	tile_position->x = get_simulation_x(offset + middle_length + 2);
-	set_tile(&foreground, *tile_position, 0);
-	draw_tile(&background, *tile_position);
-	uint8_t target = offset + middle_length;
-	for (offset; offset < target; offset++)
+	if (middle_length >= 1)
 	{
 		tile_position->x = get_simulation_x(offset + 1);
 		set_tile(&foreground, *tile_position, 4);
 		draw_tile(&foreground, *tile_position);
 	}
+	tile_position->x = get_simulation_x(offset + middle_length + 2);
+	set_tile(&foreground, *tile_position, 0);
+	draw_tile(&background, *tile_position);
 }
 
 void simulate_moveables()
@@ -122,29 +122,41 @@ int main(void)
 	// Initialize required functionalities
 	setup_global_timer();
 	init_gfx();
-	init_ir(FREQ_VAL_38KHZ);
+	init_ir(FREQ_VAL_56KHZ);
 	init_nunchuk(NUNCHUK_ADDRESS);
 
 	// Draw the background & foreground
 	draw_tilemap(&background);
 	draw_tilemap(&foreground);
 
-	// Init the game timers
-	uint32_t next_message = 0;
-	uint32_t next_move_tick = 0;
-	uint32_t next_moveable_tick = 0;
-
 	uint8_t is_at_end = false;
 
 	draw_image_mask(&players[0].image);
 
-	draw_string({20, 20}, "Hello World");
-	draw_string({20, 40}, "0123456789");
-	draw_string({20, 60}, "abcdefghijklm");
-	draw_string({20, 80}, "nopqrstuvwxyz");
+	Vector2 topbar_begin = {0, 0};
+	Vector2 topbar_end = {240, 40};
+
+	draw_rect(&topbar_begin, &topbar_end, text_color[0]);
+	draw_string({10, 2}, "Highscore");
+	{
+		uint8_t highscore = load_value(eeprom_location::HIGH_SCORE);
+		char score_buffer[4];
+		uint8_to_string(score_buffer, highscore);
+		draw_string({20 + 10 * 10, 2}, score_buffer);
+	}
+	draw_string({10, 22}, "Current Time");
+	draw_string({20 + 12 * 10, 22}, "00000");
 
 	// Array for positions of the other player
 	Vector2 second_player_coords;
+	second_player_coords.x = players[1].spawn.x;
+	second_player_coords.y = players[1].spawn.y;
+
+	// Init the game timers
+	uint32_t next_message = global_time;
+	uint32_t next_move_tick = global_time;
+	uint32_t next_moveable_tick = global_time + 150;
+	uint32_t next_second = global_time;
 
 	// Main game loop
 	while (1)
@@ -153,10 +165,22 @@ int main(void)
 		nunchuk_joystick_state y_val = nunchuk.nunchuk_y;
 		nunchuk_joystick_state x_val = nunchuk.nunchuk_x;
 
+		if (global_time >= next_second)
+		{
+			next_second = global_time + SECOND;
+			char time_buffer[6];
+			uint16_to_string(time_buffer, (uint16_t)(global_time / 1000));
+			draw_string({20 + 12 * 10, 22}, time_buffer);
+
+			show_on_segment_display((global_time / 1000) % 10);
+		}
+
 		if (global_time >= next_moveable_tick)
 		{
 			next_moveable_tick = global_time + MOVEABLE_MOVE_SPEED;
 			simulate_moveables();
+			// Send the player position after we simulated the cars, this is to prevent it from interferring with the timings
+			ir_send_message(&players[0].image.position);
 		}
 
 		if (global_time >= next_move_tick)
@@ -169,14 +193,7 @@ int main(void)
 			});
 
 			// Move the position of the enemy frog by using the received coordinates
-			move_image_check(&players[1].image, &second_player_coords);
-		}
-
-		// Constantly send IR messages
-		if (global_time >= next_message)
-		{
-			next_message = global_time + 500;
-			ir_send_message(players[0].image.position);
+			move_image(&players[1].image, &second_player_coords);
 		}
 
 		// Update the IR
