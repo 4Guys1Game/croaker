@@ -13,6 +13,7 @@
 
 #define HALF_PULSE_WIDTH_MS 5
 #define MASK_16_TO_11_BIT 0x7FF
+#define MASK_16_TO_8_BIT 0xFF
 
 // Buffer for receiving data in the 11 bits necessary
 volatile uint16_t ir_receive_buffer = 0;
@@ -39,7 +40,7 @@ IRData convert_packet_to_irdata(uint16_t packet)
 	// Shift the bits 1 to the right to get rid of the parity bit
 	packet >>= 1;
 	// Use a mask to set the 2 message start bits (which are now moved to the right by 1) to 0, meaning only the data remains
-	packet &= 0b0000000011111111;
+	packet &= MASK_16_TO_8_BIT;
 	return packet;
 }
 
