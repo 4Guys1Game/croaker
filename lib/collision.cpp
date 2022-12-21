@@ -17,8 +17,6 @@ RawImage *foreground_whitelist[] = {
 // All the tiles which make the player respawn in the background
 RawImage *background_blacklist[] = {
 	&image_lake,
-	&image_grass_lake,
-	&image_lake_sand,
 	0};
 
 // Compare a tilemap to a raw image, intended only to be used in this file
