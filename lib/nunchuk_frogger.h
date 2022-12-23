@@ -30,6 +30,7 @@ struct nunchuk_state
     nunchuk_joystick_state nunchuk_y;
     nunchuk_button_state nunchuk_z;
     nunchuk_button_state nunchuk_c;
+    bool connected;
 };
 
 // A function for initializing contact with the Nunchuk

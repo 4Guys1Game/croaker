@@ -56,7 +56,11 @@ bool init_nunchuk(uint8_t address)
     Wire.write(0x00);
     Wire.endTransmission(true);
 
-    return calibrate(address);
+    if (!calibrate(address))
+    {
+        Wire.end();
+        return false;
+    } return true;
 }
 
 // Read the value of the Nunchuk
@@ -64,7 +68,7 @@ nunchuk_state get_nunchuk_state(uint8_t address)
 {
     // Check first to see if the Nunchuk is still connected and reset state if not
     if (!update_nunchuk_state(address))
-        state = {MIDDLE, MIDDLE, RELEASED, RELEASED};
+        state = {MIDDLE, MIDDLE, RELEASED, RELEASED, false};
 
     // Return the state
     return state;
@@ -79,7 +83,7 @@ inline bool update_nunchuk_state(uint8_t address, bool calibrate)
 {
     // Get the state from the provided address
     if (read(address, NCSTATE, STATELEN) != STATELEN)
-        return (false);
+        return false;
 
     uint8_t x_val = buffer[0];
     uint8_t y_val = buffer[1];
@@ -102,6 +106,8 @@ inline bool update_nunchuk_state(uint8_t address, bool calibrate)
     // Read the button values
     state.nunchuk_z = z_val == 1 ? PRESSED : RELEASED;
     state.nunchuk_c = c_val == 1 ? PRESSED : RELEASED;
+
+    state.connected = true;
 
     return true;
 }
