@@ -5,6 +5,11 @@
 #include <avr/delay.h>
 #include "spi_basics.h"
 
+#define TFT_DC 9
+#define TFT_CS 10
+#define TFT_DC_PORT PB1
+#define TFT_CS_PORT PB2
+
 // Doesn't do anything until CMD_MEMORY_WRITE gets sent
 #define CMD_COLUMN_ADDRESS_SET 0x2a
 // Doesn't do anything until CMD_MEMORY_WRITE gets sent
@@ -39,9 +44,9 @@
 #define CMD_DISPLAY_ON 0x29
 #define CMD_NOP 0x00
 
-void spi_begin_write();
-void spi_end_write();
-void spi_send_command(uint8_t command);
-void init_spi();
+void display_begin_write();
+void display_end_write();
+void display_send_command(uint8_t command);
+void init_display();
 
 #endif

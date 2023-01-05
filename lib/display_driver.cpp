@@ -1,17 +1,49 @@
 
 #include "display_driver.h"
 
-static inline void spi_begin_write()
+inline void output_dc_cs()
+{
+	DDRB |= (1 << TFT_CS_PORT);
+	DDRB |= (1 << TFT_DC_PORT);
+}
+
+inline void input_dc_cs()
+{
+	DDRB &= ~(1 << TFT_CS_PORT);
+	DDRB &= ~(1 << TFT_DC_PORT);
+}
+
+inline void set_dc_high()
+{
+	PORTB |= (1 << TFT_DC_PORT);
+}
+
+inline void set_dc_low()
+{
+	PORTB &= ~(1 << TFT_DC_PORT);
+}
+
+inline void set_cs_high()
+{
+	PORTB |= (1 << TFT_CS_PORT);
+}
+
+inline void set_cs_low()
+{
+	PORTB &= ~(1 << TFT_CS_PORT);
+}
+
+static inline void display_begin_write()
 {
 	set_cs_low();
 }
 
-static inline void spi_end_write()
+static inline void display_end_write()
 {
 	set_cs_high();
 }
 
-static inline void spi_send_command(uint8_t cmd)
+static inline void display_send_command(uint8_t cmd)
 {
 	set_dc_low();
 	spi_write(cmd);
@@ -21,7 +53,7 @@ static inline void spi_send_command(uint8_t cmd)
 // Private function; only used to send the initial commands to the screen
 void spi_send_command_args(uint8_t cmd, uint8_t *args, uint8_t len)
 {
-	spi_begin_write();
+	display_begin_write();
 
 	set_dc_low();
 	spi_write(cmd);
@@ -33,10 +65,10 @@ void spi_send_command_args(uint8_t cmd, uint8_t *args, uint8_t len)
 		args++;
 	}
 
-	spi_end_write();
+	display_end_write();
 }
 
-void init_spi()
+void init_display()
 {
 	output_dc_cs();
 
@@ -54,7 +86,7 @@ void init_spi()
 	DDRB |= (1 << PB1) | (1 << PB2) | (1 << PB3) | (1 << PB5);
 
 	// Force a software reset
-	spi_send_command(0x01);
+	display_send_command(0x01);
 	_delay_ms(150);
 
 	// Copied from Adafruit ILI9341

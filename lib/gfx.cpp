@@ -14,15 +14,15 @@ uint16_t text_color[] = {
 
 void set_address_window(Vector2 *position, Vector2 *size)
 {
-	spi_send_command(CMD_COLUMN_ADDRESS_SET);
+	display_send_command(CMD_COLUMN_ADDRESS_SET);
 	spi_write16(position->x);
 	spi_write16(position->x + size->x - 1);
 
-	spi_send_command(CMD_PAGE_ADDRESS_SET);
+	display_send_command(CMD_PAGE_ADDRESS_SET);
 	spi_write16(position->y);
 	spi_write16(position->y + size->y - 1);
 
-	spi_send_command(CMD_MEMORY_WRITE);
+	display_send_command(CMD_MEMORY_WRITE);
 }
 
 void draw_bitmap_P(ImageBytes image, ImageLength image_len, Vector2 *position, Vector2 *size)
@@ -40,7 +40,7 @@ void draw_bitmap_P(ImageBytes image, ImageLength image_len, Vector2 *position, V
 	};
 
 	// Start a write message
-	spi_begin_write();
+	display_begin_write();
 	set_address_window(position, size);
 
 	for (uint16_t idx = 16; idx < image_len; idx++)
@@ -75,7 +75,7 @@ void draw_bitmap_P(ImageBytes image, ImageLength image_len, Vector2 *position, V
 	}
 
 	// Send the transmittion
-	spi_end_write();
+	display_end_write();
 }
 
 void draw_bitmap_mask_P(ImageBytes image, ImageLength image_len, Vector2 *position, Vector2 *size)
@@ -104,7 +104,7 @@ void draw_bitmap_mask_P(ImageBytes image, ImageLength image_len, Vector2 *positi
 	};
 
 	// Start a write message
-	spi_begin_write();
+	display_begin_write();
 	set_address_window(position, size);
 
 	Vector2 cursor = Vector2{position->x, position->y};
@@ -176,12 +176,12 @@ void draw_bitmap_mask_P(ImageBytes image, ImageLength image_len, Vector2 *positi
 	}
 
 	// Send the transmittion
-	spi_end_write();
+	display_end_write();
 }
 
 void init_gfx()
 {
-	init_spi(); // Initialize the tft
+	init_display(); // Initialize the tft
 }
 
 void draw_image(BasicImage *img)
@@ -328,7 +328,7 @@ void draw_font_image_P(ImageBytes image, Vector2 *position, Vector2 *size)
 	uint8_t image_len = pgm_read_byte(image) + 1;
 
 	// Start a write message
-	spi_begin_write();
+	display_begin_write();
 	set_address_window(position, size);
 
 	for (uint16_t idx = 1; idx < image_len; idx++)
@@ -363,7 +363,7 @@ void draw_font_image_P(ImageBytes image, Vector2 *position, Vector2 *size)
 	}
 
 	// Send the transmittion
-	spi_end_write();
+	display_end_write();
 }
 
 void draw_string(Vector2 position, char *string)
@@ -447,7 +447,7 @@ void draw_char(Vector2 *position, char chr)
 
 void draw_rect(Vector2 *position, Vector2 *width, register uint16_t color)
 {
-	spi_begin_write();
+	display_begin_write();
 	set_address_window(position, width);
 
 	uint16_t count_to = width->x * width->y;
@@ -456,5 +456,5 @@ void draw_rect(Vector2 *position, Vector2 *width, register uint16_t color)
 		spi_write16(color);
 	}
 
-	spi_end_write();
+	display_end_write();
 }
