@@ -1,53 +1,6 @@
 
 #include "display_driver.h"
 
-inline void output_dc_cs()
-{
-	DDRB |= (1 << TFT_CS_PORT);
-	DDRB |= (1 << TFT_DC_PORT);
-}
-
-inline void input_dc_cs()
-{
-	DDRB &= ~(1 << TFT_CS_PORT);
-	DDRB &= ~(1 << TFT_DC_PORT);
-}
-
-inline void set_dc_high()
-{
-	PORTB |= (1 << TFT_DC_PORT);
-}
-
-inline void set_dc_low()
-{
-	PORTB &= ~(1 << TFT_DC_PORT);
-}
-
-inline void set_cs_high()
-{
-	PORTB |= (1 << TFT_CS_PORT);
-}
-
-inline void set_cs_low()
-{
-	PORTB &= ~(1 << TFT_CS_PORT);
-}
-
-static inline void spi_write(uint8_t data)
-{
-	SPDR = data;
-	// Wait until write is finished
-	asm volatile("nop");
-	while (!(SPSR & _BV(SPIF)))
-		;
-}
-
-static inline void spi_write16(uint16_t data)
-{
-	spi_write(data >> 8);
-	spi_write(data);
-}
-
 static inline void spi_begin_write()
 {
 	set_cs_low();

@@ -39,8 +39,6 @@
 #define CMD_DISPLAY_ON 0x29
 #define CMD_NOP 0x00
 
-void spi_write(uint8_t data);
-void spi_write16(uint16_t data);
 void spi_begin_write();
 void spi_end_write();
 void spi_send_command(uint8_t command);
