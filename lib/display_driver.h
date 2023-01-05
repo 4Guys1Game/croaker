@@ -2,13 +2,8 @@
 #ifndef __ILI3941_DISPLAY_DRIVER__
 #define __ILI3941_DISPLAY_DRIVER__
 
-#include <avr/io.h>
 #include <avr/delay.h>
-
-#define TFT_DC 9
-#define TFT_CS 10
-#define TFT_DC_PORT PB1
-#define TFT_CS_PORT PB2
+#include "spi_basics.h"
 
 // Doesn't do anything until CMD_MEMORY_WRITE gets sent
 #define CMD_COLUMN_ADDRESS_SET 0x2a
