@@ -70,22 +70,22 @@ void init_touch()
     // Serial.println(screen_version);
 
     // Reset
-    touch_write(0x03, 0x02); // Reset 1
+    touch_write(TS_CMD_RESET1, TS_RESET1_SOFTRESET); // Reset 1
     _delay_ms(10);
-    touch_write(0x04, 0x00); // Reset 2
+    touch_write(TS_CMD_RESET2, 0x00); // Reset 2
 
     // Enable touch
-    touch_write(0x40, 0x00 | 0x01);
+    touch_write(TS_CMD_TSC_CTRL, TS_TSC_CTRL_EN);
     // ADC
-    touch_write(0x20, 0x00 | (0x06 << 4));
-    touch_write(0x21, 0x02);
+    touch_write(TS_CMD_ADC_CTRL1, TS_ADC_CTRL1_SAMPLE0 | TS_ADC_CTRL1_SAMPLE2);
+    touch_write(TS_CMD_ADC_CTRL2, TS_ADC_CTRL2_FREQ1);
     // Touchscreen config
-    touch_write(0x41, 0x80 | 0x20 | 0x04);
-    touch_write(0x56, 0x06);
-    touch_write(0x58, 0x01);
+    touch_write(TS_CMD_TSC_CFG, TS_TSC_CFG_AVG_CTRL1 | TS_TSC_CFG_TOUCH_DELAY2 | TS_TSC_CFG_SETTLING2);
+    touch_write(TS_CMD_TSC_FRACT, TS_TSC_FRACT0 | TS_TSC_FRACT2);
+    touch_write(TS_CMD_I_DRIVE, TS_I_DRIVE1);
 
     while (true) {
-        uint8_t val = touch_read(0x40);
+        uint8_t val = touch_read(TS_CMD_TSC_CTRL);
         Serial.print("returned: ");
         Serial.println(val);
 
