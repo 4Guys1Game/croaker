@@ -214,8 +214,8 @@ void draw_behind(BasicImage *img)
 	{
 		for (uint8_t y = begin_y; y <= end_y; y++)
 		{
-			draw_tile(&background, {x, y});
-			draw_tile_checked(&foreground, {x, y});
+			draw_tile(&levels[current_level].background, {x, y});
+			draw_tile_checked(&levels[current_level].foreground, {x, y});
 		}
 	}
 }
