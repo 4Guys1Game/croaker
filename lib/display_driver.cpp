@@ -44,8 +44,8 @@ static inline void spi_write(uint8_t data)
 
 static inline void spi_write16(uint16_t data)
 {
-	spi_write(data >> 8);
-	spi_write(data);
+	display_write(data >> 8);
+	display_write(data);
 }
 
 static inline void display_begin_write()
@@ -61,7 +61,7 @@ static inline void display_end_write()
 static inline void display_send_command(uint8_t cmd)
 {
 	set_dc_low();
-	spi_write(cmd);
+	display_write(cmd);
 	set_dc_high();
 }
 
@@ -71,12 +71,12 @@ void spi_send_command_args(uint8_t cmd, uint8_t *args, uint8_t len)
 	display_begin_write();
 
 	set_dc_low();
-	spi_write(cmd);
+	display_write(cmd);
 	set_dc_high();
 
 	for (uint8_t idx = 0; idx < len; idx++)
 	{
-		spi_write(*args);
+		display_write(*args);
 		args++;
 	}
 

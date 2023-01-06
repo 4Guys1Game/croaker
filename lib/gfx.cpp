@@ -15,12 +15,12 @@ uint16_t text_color[] = {
 void set_address_window(Vector2 *position, Vector2 *size)
 {
 	display_send_command(CMD_COLUMN_ADDRESS_SET);
-	spi_write16(position->x);
-	spi_write16(position->x + size->x - 1);
+	display_write16(position->x);
+	display_write16(position->x + size->x - 1);
 
 	display_send_command(CMD_PAGE_ADDRESS_SET);
-	spi_write16(position->y);
-	spi_write16(position->y + size->y - 1);
+	display_write16(position->y);
+	display_write16(position->y + size->y - 1);
 
 	display_send_command(CMD_MEMORY_WRITE);
 }
@@ -54,7 +54,7 @@ void draw_bitmap_P(ImageBytes image, ImageLength image_len, Vector2 *position, V
 			// Save on creating an extra variable by reusing the range var
 			for (range + 1; range > 0; range--)
 			{
-				spi_write16(color_palette[col_idx]);
+				display_write16(color_palette[col_idx]);
 			}
 		}
 		// Case 2: COLOR_BYTE
@@ -63,13 +63,13 @@ void draw_bitmap_P(ImageBytes image, ImageLength image_len, Vector2 *position, V
 			// Retrieve the colors & write to screen
 			uint8_t col_idx_1 = (byte & (0b111 << COLOR_FIRST_COL_OFFSET)) >> COLOR_FIRST_COL_OFFSET;
 			uint8_t col_idx_2 = (byte & (0b111 << COLOR_SECOND_COL_OFFSET)) >> COLOR_SECOND_COL_OFFSET;
-			spi_write16(color_palette[col_idx_1]);
-			spi_write16(color_palette[col_idx_2]);
+			display_write16(color_palette[col_idx_1]);
+			display_write16(color_palette[col_idx_2]);
 			// If the copy bit is set, write again
 			if (byte & (1 << COLOR_COPY_OFFSET))
 			{
-				spi_write16(color_palette[col_idx_1]);
-				spi_write16(color_palette[col_idx_2]);
+				display_write16(color_palette[col_idx_1]);
+				display_write16(color_palette[col_idx_2]);
 			}
 		}
 	}
@@ -126,7 +126,7 @@ void draw_bitmap_mask_P(ImageBytes image, ImageLength image_len, Vector2 *positi
 				{
 
 					set_address_window(&cursor, &addr_size);
-					spi_write16(color_palette[col_idx]);
+					display_write16(color_palette[col_idx]);
 					INCR_CURSOR;
 				}
 			}
@@ -147,13 +147,13 @@ void draw_bitmap_mask_P(ImageBytes image, ImageLength image_len, Vector2 *positi
 			if (col_idx_1 != 0)
 			{
 				set_address_window(&cursor, &addr_size);
-				spi_write16(color_palette[col_idx_1]);
+				display_write16(color_palette[col_idx_1]);
 			}
 			INCR_CURSOR;
 			if (col_idx_2 != 0)
 			{
 				set_address_window(&cursor, &addr_size);
-				spi_write16(color_palette[col_idx_2]);
+				display_write16(color_palette[col_idx_2]);
 			}
 			INCR_CURSOR;
 			// If the copy bit is set, write again
@@ -162,13 +162,13 @@ void draw_bitmap_mask_P(ImageBytes image, ImageLength image_len, Vector2 *positi
 				if (col_idx_1 != 0)
 				{
 					set_address_window(&cursor, &addr_size);
-					spi_write16(color_palette[col_idx_1]);
+					display_write16(color_palette[col_idx_1]);
 				}
 				INCR_CURSOR;
 				if (col_idx_2 != 0)
 				{
 					set_address_window(&cursor, &addr_size);
-					spi_write16(color_palette[col_idx_2]);
+					display_write16(color_palette[col_idx_2]);
 				}
 				INCR_CURSOR;
 			}
@@ -342,7 +342,7 @@ void draw_font_image_P(ImageBytes image, Vector2 *position, Vector2 *size)
 			// Save on creating an extra variable by reusing the range var
 			for (range + 1; range > 0; range--)
 			{
-				spi_write16(text_color[col_idx]);
+				display_write16(text_color[col_idx]);
 			}
 		}
 		// Case 2: COLOR_BYTE
@@ -351,13 +351,13 @@ void draw_font_image_P(ImageBytes image, Vector2 *position, Vector2 *size)
 			// Retrieve the colors & write to screen
 			uint8_t col_idx_1 = (byte & (0b111 << COLOR_FIRST_COL_OFFSET)) >> COLOR_FIRST_COL_OFFSET;
 			uint8_t col_idx_2 = (byte & (0b111 << COLOR_SECOND_COL_OFFSET)) >> COLOR_SECOND_COL_OFFSET;
-			spi_write16(text_color[col_idx_1]);
-			spi_write16(text_color[col_idx_2]);
+			display_write16(text_color[col_idx_1]);
+			display_write16(text_color[col_idx_2]);
 			// If the copy bit is set, write again
 			if (byte & (1 << COLOR_COPY_OFFSET))
 			{
-				spi_write16(text_color[col_idx_1]);
-				spi_write16(text_color[col_idx_2]);
+				display_write16(text_color[col_idx_1]);
+				display_write16(text_color[col_idx_2]);
 			}
 		}
 	}
@@ -453,7 +453,7 @@ void draw_rect(Vector2 *position, Vector2 *width, register uint16_t color)
 	uint16_t count_to = width->x * width->y;
 	for (uint16_t count = 0; count < count_to; count++)
 	{
-		spi_write16(color);
+		display_write16(color);
 	}
 
 	display_end_write();

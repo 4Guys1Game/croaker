@@ -48,7 +48,7 @@ void display_begin_write();
 void display_end_write();
 void display_send_command(uint8_t command);
 void init_display();
-void spi_write(uint8_t data);
-void spi_write16(uint16_t data);
+void display_write(uint8_t data);
+void display_write16(uint16_t data);
 
 #endif
