@@ -33,7 +33,7 @@ inline void set_cs_low()
 	PORTB &= ~(1 << TFT_CS_PORT);
 }
 
-static inline void spi_write(uint8_t data)
+static inline void display_write(uint8_t data)
 {
 	SPDR = data;
 	// Wait until write is finished
@@ -42,7 +42,7 @@ static inline void spi_write(uint8_t data)
 		;
 }
 
-static inline void spi_write16(uint16_t data)
+static inline void display_write16(uint16_t data)
 {
 	display_write(data >> 8);
 	display_write(data);
