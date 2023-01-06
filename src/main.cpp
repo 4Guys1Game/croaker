@@ -17,6 +17,7 @@
 #include "nunchuk_frogger.h"
 #include "prelude.h"
 #include "segment_display.h"
+#include "touch_driver.h"
 
 // Baudrate for Serial communication
 #define BAUDRATE 9600
@@ -176,6 +177,8 @@ inline void nunchuk_disconnected(nunchuk_screen screen)
 int main(void)
 {
 	sei();
+
+    init_touch();
 
 	// Initialize required functionalities
 	init_gfx();
