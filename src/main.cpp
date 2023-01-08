@@ -4,6 +4,7 @@
 // keep intellisense satisfied
 #ifndef __AVR_ATmega328P__
 #define __AVR_ATmega328P__
+#include "display_driver.h"
 #endif
 
 #include <avr/delay.h>
@@ -140,14 +141,18 @@ inline void draw_start_screen()
 	BasicImage logo = { {34, 75}, &image_croaker_logo };
 	black_screen();
 	draw_image(&logo);
-	draw_string({40, 220}, (char *) "Press C to start");
-	bool is_pressed = get_nunchuk_state(NUNCHUK_ADDRESS).nunchuk_c == PRESSED;
+	draw_string({20, 220}, (char *) "Touch screen to start");
+    // Done drawing, setup the touch
+    touch_setup_registers();
+    uint8_t is_pressed = is_screen_being_touched();
 	while(!is_pressed)
 	{
 		nunchuk_state nunchuk = get_nunchuk_state(NUNCHUK_ADDRESS);
 		if (!nunchuk.connected) nunchuk_disconnected(START_SCREEN);
-		is_pressed = nunchuk.nunchuk_c == PRESSED;
+        is_pressed = is_screen_being_touched();
 	}
+    // Make sure we re-enable drawing again!
+    display_setup_registers();
 }
 
 inline void nunchuk_disconnected(nunchuk_screen screen)
@@ -178,10 +183,9 @@ int main(void)
 {
 	sei();
 
-    init_touch();
-
 	// Initialize required functionalities
-	init_gfx();
+    init_touch(); // Important we do this before gfx!
+	init_gfx(); // Do this after the touch! If you don't, then call display_setup_registers() afterwards!
 
 	if (!init_nunchuk(NUNCHUK_ADDRESS))
 		nunchuk_disconnected(START_SCREEN);
