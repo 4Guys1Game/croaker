@@ -148,7 +148,12 @@ inline void draw_start_screen()
 	while(!is_pressed)
 	{
 		nunchuk_state nunchuk = get_nunchuk_state(NUNCHUK_ADDRESS);
-		if (!nunchuk.connected) nunchuk_disconnected(START_SCREEN);
+		if (!nunchuk.connected)
+        {
+            display_setup_registers();
+            nunchuk_disconnected(START_SCREEN);
+            touch_setup_registers();
+        };
         is_pressed = is_screen_being_touched();
 	}
     // Make sure we re-enable drawing again!
@@ -183,6 +188,7 @@ int main(void)
 {
 	sei();
 
+    Serial.begin(9600);
 	// Initialize required functionalities
     init_touch(); // Important we do this before gfx!
 	init_gfx(); // Do this after the touch! If you don't, then call display_setup_registers() afterwards!

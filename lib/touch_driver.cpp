@@ -68,7 +68,7 @@ void touch_setup_registers()
     // Set MISO to input
 	DDRB &= ~(1 << PB4);
     // Set the touchscreen SPI pin to output
-    DDRB |= 1 << TS_CS_PORT; 
+    DDRB |= (1 << TS_CS_PORT);
 }
 
 void init_touch()
