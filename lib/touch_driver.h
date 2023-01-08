@@ -29,6 +29,7 @@
 #define TS_RESET2_TSC_OFF (1 << 1)
 #define TS_RESET2_GPIO_OFF (1 << 2)
 #define TS_TSC_CTRL_EN (1 << 0)
+#define TS_TSC_CTRL_TOUCHED (1 << 7)
 #define TS_ADC_CTRL1_SAMPLE0 (1 << 4)
 #define TS_ADC_CTRL1_SAMPLE1 (1 << 5)
 #define TS_ADC_CTRL1_SAMPLE2 (1 << 6)
@@ -58,5 +59,13 @@ uint8_t touch_read(uint8_t reg);
 
 // Init the touchscreen
 void init_touch();
+// Setup the registers, this is done during init_touch as well
+// However, if the SPI registers have changed, you need to call this function again
+// Just to be sure the commands send correctly
+void touch_setup_registers();
+// Checks if the screen is being touched
+// Returns a zero if the screen is not being touched.
+// Returns a non-zero if it is being touched
+uint8_t is_screen_being_touched();
 
 #endif

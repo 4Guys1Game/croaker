@@ -1,6 +1,4 @@
 
-// TODO: Remove these two
-#include <HardwareSerial.h>
 #include <avr/delay.h>
 
 #include "touch_driver.h"
@@ -36,13 +34,22 @@ static inline uint8_t touch_read(uint8_t reg)
 {
     set_cs_low();
     touch_transfer(TS_READ_BIT | reg);
+    // I'm not sure why we send two zeroes when trying to read a register when the documentation says we only need one
+    // But the official driver does this as well? So it's fine I suppose?
+    // But it doesn't seem to work otherwise
     touch_transfer(0);
     uint8_t data = touch_transfer(0);
     set_cs_high();
     return data;
 }
 
-void init_touch()
+inline static uint8_t is_screen_being_touched()
+{
+    uint8_t touch_register = touch_read(TS_CMD_TSC_CTRL);
+    return touch_register & TS_TSC_CTRL_TOUCHED;
+}
+
+void touch_setup_registers()
 {
 	// Enable SPI and set to master mode
 	SPCR |= (1 << SPE) | (1 << MSTR);
@@ -62,8 +69,11 @@ void init_touch()
 	DDRB &= ~(1 << PB4);
     // Set the touchscreen SPI pin to output
     DDRB |= 1 << TS_CS_PORT; 
+}
 
-    Serial.begin(9600);
+void init_touch()
+{
+    touch_setup_registers();
 
     // Print screen version, comment this out during production
     // uint16_t screen_version = (touch_read8(0) << 8) + touch_read8(1);
@@ -71,7 +81,7 @@ void init_touch()
 
     // Reset
     touch_write(TS_CMD_RESET1, TS_RESET1_SOFTRESET); // Reset 1
-    _delay_ms(10);
+    _delay_ms(10); // Give it time to reset
     touch_write(TS_CMD_RESET2, 0x00); // Reset 2
 
     // Enable touch
@@ -83,14 +93,6 @@ void init_touch()
     touch_write(TS_CMD_TSC_CFG, TS_TSC_CFG_AVG_CTRL1 | TS_TSC_CFG_TOUCH_DELAY2 | TS_TSC_CFG_SETTLING2);
     touch_write(TS_CMD_TSC_FRACT, TS_TSC_FRACT0 | TS_TSC_FRACT2);
     touch_write(TS_CMD_I_DRIVE, TS_I_DRIVE1);
-
-    while (true) {
-        uint8_t val = touch_read(TS_CMD_TSC_CTRL);
-        Serial.print("returned: ");
-        Serial.println(val);
-
-        _delay_ms(500);
-    }
 }
 
 
