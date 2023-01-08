@@ -5,6 +5,7 @@
 #include <avr/delay.h>
 #include <avr/io.h>
 
+// Ports
 #define TFT_DC 9
 #define TFT_CS 10
 #define TFT_DC_PORT PB1
@@ -18,6 +19,8 @@
 // This command is followed by as many pixels as the user wants to send
 #define CMD_MEMORY_WRITE 0x2c
 
+// Other display screen registers
+// There are taken from the default driver
 #define CMD_POWER_ON_SEQUENCE 0xed
 #define CMD_UNDOCUMENTED_PREBOOT1 0xef
 #define CMD_UNDOCUMENTED_PREBOOT2 0xcf
@@ -44,11 +47,19 @@
 #define CMD_DISPLAY_ON 0x29
 #define CMD_NOP 0x00
 
+// End a display transmittion
 void display_begin_write();
+// Begin a display transmittion
 void display_end_write();
+// Send a command to the screen
 void display_send_command(uint8_t command);
+// Setup the display
 void init_display();
+// Setup the registers, this is done by init_display as well, but if the SPI registers change, this must be called again
+void display_setup_registers();
+// Write a 8 bit value to the display
 void display_write(uint8_t data);
+// Write a 16 bit value to the display
 void display_write16(uint16_t data);
 
 #endif

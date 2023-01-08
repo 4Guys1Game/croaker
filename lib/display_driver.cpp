@@ -83,10 +83,8 @@ void spi_send_command_args(uint8_t cmd, uint8_t *args, uint8_t len)
 	display_end_write();
 }
 
-void init_display()
+void display_setup_registers()
 {
-	output_dc_cs();
-
 	// Enable SPI and set to master mode
 	SPCR |= (1 << SPE) | (1 << MSTR);
 	// Set clock divider to 2
@@ -101,6 +99,12 @@ void init_display()
 	// Make sure the correct pins are set to output (CLK, MOSI, SS)
 	DDRB |= (1 << PB2) | (1 << PB3) | (1 << PB5);
     DDRB |= (1 << TFT_DC_PORT);
+}
+
+void init_display()
+{
+	output_dc_cs();
+    display_setup_registers();
 
 	// Force a software reset
 	display_send_command(0x01);
