@@ -13,22 +13,22 @@ inline void input_dc_cs()
 	DDRB &= ~(1 << TFT_DC_PORT);
 }
 
-inline void set_dc_high()
+inline void display_set_dc_high()
 {
 	PORTB |= (1 << TFT_DC_PORT);
 }
 
-inline void set_dc_low()
+inline void display_set_dc_low()
 {
 	PORTB &= ~(1 << TFT_DC_PORT);
 }
 
-inline void set_cs_high()
+inline void display_set_cs_high()
 {
 	PORTB |= (1 << TFT_CS_PORT);
 }
 
-inline void set_cs_low()
+inline void display_set_cs_low()
 {
 	PORTB &= ~(1 << TFT_CS_PORT);
 }
@@ -50,19 +50,19 @@ static inline void display_write16(uint16_t data)
 
 static inline void display_begin_write()
 {
-	set_cs_low();
+	display_set_cs_low();
 }
 
 static inline void display_end_write()
 {
-	set_cs_high();
+	display_set_cs_high();
 }
 
 static inline void display_send_command(uint8_t cmd)
 {
-	set_dc_low();
+	display_set_dc_low();
 	display_write(cmd);
-	set_dc_high();
+	display_set_dc_high();
 }
 
 // Private function; only used to send the initial commands to the screen
@@ -70,9 +70,9 @@ void spi_send_command_args(uint8_t cmd, uint8_t *args, uint8_t len)
 {
 	display_begin_write();
 
-	set_dc_low();
+	display_set_dc_low();
 	display_write(cmd);
-	set_dc_high();
+	display_set_dc_high();
 
 	for (uint8_t idx = 0; idx < len; idx++)
 	{
@@ -91,14 +91,16 @@ void init_display()
 	SPCR |= (1 << SPE) | (1 << MSTR);
 	// Set clock divider to 2
 	SPSR |= (1 << SPI2X);
+	SPCR &= ~((1 << SPR0) | (1 << SPR1));
 	// Set bit order (MSBFirst)
 	SPCR &= ~(1 << DORD);
 	// Set data mode (mode 0)
 	SPCR &= ~((1 << CPOL) | (1 << CPHA));
 	// Enable the internal pull-ups of SS
-	PORTB |= (1 << PB1) | (1 << PB2);
+	PORTB |= (1 << PB2);
 	// Make sure the correct pins are set to output (CLK, MOSI, SS)
-	DDRB |= (1 << PB1) | (1 << PB2) | (1 << PB3) | (1 << PB5);
+	DDRB |= (1 << PB2) | (1 << PB3) | (1 << PB5);
+    DDRB |= (1 << TFT_DC_PORT);
 
 	// Force a software reset
 	display_send_command(0x01);

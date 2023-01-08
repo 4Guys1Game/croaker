@@ -3,12 +3,12 @@
 
 #include "touch_driver.h"
 
-inline void set_cs_high()
+inline void touch_set_cs_high()
 {
 	PORTB |= (1 << TS_CS_PORT);
 }
 
-inline void set_cs_low()
+inline void touch_set_cs_low()
 {
 	PORTB &= ~(1 << TS_CS_PORT);
 }
@@ -24,22 +24,22 @@ static inline uint8_t touch_transfer(uint8_t data)
 
 static inline void touch_write(uint8_t reg, uint8_t data)
 {
-    set_cs_low();
+    touch_set_cs_low();
     touch_transfer(TS_WRITE_BIT | reg);
     touch_transfer(data);
-    set_cs_high();
+    touch_set_cs_high();
 }
 
 static inline uint8_t touch_read(uint8_t reg)
 {
-    set_cs_low();
+    touch_set_cs_low();
     touch_transfer(TS_READ_BIT | reg);
     // I'm not sure why we send two zeroes when trying to read a register when the documentation says we only need one
     // But the official driver does this as well? So it's fine I suppose?
     // But it doesn't seem to work otherwise
     touch_transfer(0);
     uint8_t data = touch_transfer(0);
-    set_cs_high();
+    touch_set_cs_high();
     return data;
 }
 
