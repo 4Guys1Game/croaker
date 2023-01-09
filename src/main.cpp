@@ -188,7 +188,6 @@ int main(void)
 {
 	sei();
 
-    Serial.begin(9600);
 	// Initialize required functionalities
     init_touch(); // Important we do this before gfx!
 	init_gfx(); // Do this after the touch! If you don't, then call display_setup_registers() afterwards!
