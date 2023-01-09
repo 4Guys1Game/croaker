@@ -42,7 +42,7 @@ uint8_t is_position_standable(Vector2 position)
 	RawImage **ptr = foreground_whitelist;
 	while (*ptr != 0)
 	{
-		if (compare_tile(&foreground, &position, *ptr))
+		if (compare_tile(&levels[current_level].foreground, &position, *ptr))
 		{
 			return 2; // Since we're on a log, return 2, signifying that we force a redraw of the players
 		};
@@ -52,7 +52,7 @@ uint8_t is_position_standable(Vector2 position)
 	ptr = foreground_blacklist;
 	while (*ptr != 0)
 	{
-		if (compare_tile(&foreground, &position, *ptr))
+		if (compare_tile(&levels[current_level].foreground, &position, *ptr))
 		{
 			return 0;
 		};
@@ -62,7 +62,7 @@ uint8_t is_position_standable(Vector2 position)
 	ptr = background_blacklist;
 	while (*ptr != 0)
 	{
-		if (compare_tile(&background, &position, *ptr))
+		if (compare_tile(&levels[current_level].background, &position, *ptr))
 		{
 			return 0;
 		};
