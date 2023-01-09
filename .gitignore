@@ -2,3 +2,4 @@ CMakeLists.txt
 /.vscode
 /build
 /images/*.opt
+CMakeLists.txt:Zone.Identifier
