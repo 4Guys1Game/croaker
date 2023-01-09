@@ -17,6 +17,7 @@
 #include "conversion.h"
 #include "nunchuk_frogger.h"
 #include "segment_display.h"
+#include "game_states.h"
 
 // Baudrate for Serial communication
 #define BAUDRATE 9600
@@ -31,9 +32,9 @@
 #define load_value(address) eeprom_read_byte((uint8_t *)address)
 #define save_value(address, value) eeprom_write_byte((uint8_t *)address, value)
 
-// Values to determine if the player has won or if the other player has won
-volatile uint8_t player_1_has_won = 0;
-volatile uint8_t player_2_has_won = 0;
+// Value to determine who won, 0 if nobody, 1 if player 1, 2 if player 2
+volatile uint8_t winner = 0;
+volatile uint16_t current_score = 0;
 
 // An enum for the different addresses to read or write to/from on the EEPROM
 enum eeprom_location
@@ -158,6 +159,15 @@ int main(void)
 	second_player_coords.x = players[1].spawn.x;
 	second_player_coords.y = players[1].spawn.y;
 
+	// Value for received status
+	uint8_t status = 0;
+	uint8_t status_to_send = 0;
+
+	uint8_t player_1_end = 0;
+	uint8_t player_2_end = 0;
+
+	uint16_t player_time_faster_than_enemy = 0;
+
 	// Init the game timers
 	uint32_t next_message = global_time;
 	uint32_t next_move_tick = global_time;
@@ -205,8 +215,22 @@ int main(void)
 		// Update the IR
 		ir_heartbeat();
 
-		// Get the latest available data using a vector2 to write to
-		ir_get_latest_data_packet(&second_player_coords);
+		// Get the current status
+		gamestate_get_status(&status);
+
+		// Get player 2 movement info if the status isn't a valid one
+		if(status == 0)
+		{
+			// Get the latest available data using a vector2 to write to
+			ir_get_latest_data_packet(&second_player_coords);
+		}
+
+		// Check if the game has ended, and determine the winner and the time by which they won
+		uint8_t winner_copy = winner;
+		check_for_end(&players[0].image.position, &player_1_end, &status, &player_2_end, &winner_copy, &player_time_faster_than_enemy);
+		winner = winner_copy;
+
+		gamestate_set_new_send_status(&winner_copy, &player_1_end, &player_2_end, &status_to_send);
 	}
 
 	// This is never reached.
