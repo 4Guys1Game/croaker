@@ -137,11 +137,6 @@ inline void black_screen()
 void draw_start_screen();
 void nunchuk_disconnected(nunchuk_screen screen);
 
-inline void update_brightness()
-{
-    OCR2B = ADC/4;
-}
-
 inline void draw_start_screen()
 {
 	BasicImage logo = { {34, 75}, &image_croaker_logo };

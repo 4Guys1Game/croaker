@@ -30,3 +30,8 @@ void init_pwm()
     TCCR2B |= (1 << CS21); // Set prescaler to 256
     TCCR2B |= (1 << CS22); // Set prescaler to 256
 }
+
+static inline void update_brightness()
+{
+    OCR2B = ADC/4;
+}
