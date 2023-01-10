@@ -20,6 +20,7 @@
 #include "segment_display.h"
 #include "game_states.h"
 #include "touch_driver.h"
+#include "brightness.h"
 
 // Baudrate for Serial communication
 #define BAUDRATE 9600
@@ -153,6 +154,7 @@ inline void draw_start_screen()
     uint8_t is_pressed = is_screen_being_touched();
 	while(!is_pressed)
 	{
+        update_brightness();
 		nunchuk_state nunchuk = get_nunchuk_state(NUNCHUK_ADDRESS);
 		if (!nunchuk.connected)
         {
@@ -173,17 +175,17 @@ inline void nunchuk_disconnected(nunchuk_screen screen)
 	{
 		case START_UP:
 			draw_string({35, 150}, (char *) "ATTACH A NUNCHUK");
-			while (!init_nunchuk(NUNCHUK_ADDRESS)) { _delay_ms(100); }
+			while (!init_nunchuk(NUNCHUK_ADDRESS)) { _delay_ms(100); update_brightness(); }
 			break;
 		case START_SCREEN:
 			draw_string({35, 150}, (char *) "ATTACH A NUNCHUK");
-			while (!init_nunchuk(NUNCHUK_ADDRESS)) { _delay_ms(100); }
+			while (!init_nunchuk(NUNCHUK_ADDRESS)) { _delay_ms(100); update_brightness(); }
 			draw_start_screen();
 			break;
 		case GAME_SCREEN:
 			draw_string({55, 140}, (char *) "PLEASE RESET");
 			draw_string({15, 160}, (char *) "NUNCHUK DISCONNECTED");
-			while(true) {}
+			while(true) { update_brightness(); }
 			break;
 		default:
 			break;
@@ -193,8 +195,9 @@ inline void nunchuk_disconnected(nunchuk_screen screen)
 int main(void)
 {
 	sei();
-
-	// Highest value for an IR message is 11001111, which is 207, so we can use 208 until 255 for win states etc.
+  
+    init_adc();
+    init_pwm();
 
 	// Initialize required functionalities
     init_touch(); // Important we do this before gfx!
@@ -340,6 +343,6 @@ int main(void)
 		}
 	}
 
-	// This is never reached.
-	return 0;
+        update_brightness();
+	}
 }
