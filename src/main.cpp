@@ -37,7 +37,7 @@
 
 // Value to determine who won, 0 if nobody, 1 if player 1, 2 if player 2
 uint8_t winner = 0;
-uint16_t current_score = 0;
+uint32_t current_score = 0;
 uint8_t status_to_send = 0;
 
 // An enum for the different addresses to read or write to/from on the EEPROM
@@ -286,7 +286,9 @@ int main(void)
 			uint16_to_string(time_buffer, (uint16_t)(global_time / 1000));
 			draw_string({20 + 12 * 10, 22}, time_buffer);
 
-			show_on_segment_display((global_time / 1000) % 10);
+			uint8_t wins;
+			gamestate_get_wins(&wins);
+			show_on_segment_display(wins);
 		}
 
 		if (global_time >= next_moveable_tick)
