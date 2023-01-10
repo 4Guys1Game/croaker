@@ -7,6 +7,7 @@
 #define __GFX_BACKGROUND__
 
 #include "gfx.h"
+#include "images.h"
 #include <avr/pgmspace.h>
 
 // clang-format off
@@ -21,6 +22,9 @@ Level current_level; // Make sure to initialize this in main using set_current_l
 void set_current_level(uint8_t level)
 {
     memcpy_P(&current_level, &levels[level], sizeof(Level));
+    draw_tilemap(&current_level.background);
+    draw_tilemap(&current_level.foreground);
+    // TODO: endscreen here, make a different branch for this
 }
 
 const PROGMEM Level levels[] = {
@@ -117,10 +121,10 @@ const PROGMEM Level levels[] = {
                 &image_grass_bland,
                 &image_water_sand_grass,
                 &image_lake,
-                &image_road_sand_water,
+                &image_road_grass,
                 &image_road,
                 &image_grass_road,
-                &image_grass_flower
+                &image_grass_flower,
             }
         },
         {
@@ -193,17 +197,18 @@ const PROGMEM Level levels[] = {
 				__BG_ROW(3)
                 __BG_ROW(3)
 				__BG_ROW(3)
-				__BG_ROW(5)
-                __BG_ROW(6)
+				__BG_ROW(8)
+                __BG_GRASS_2(1, 7)
             },
             {
                 &image_grass_bland,
                 &image_water_sand_grass,
                 &image_lake,
-                &image_road_sand_water,
+                &image_road_grass,
                 &image_road,
                 &image_grass_road,
-                &image_grass_flower
+                &image_grass_flower,
+                &image_grass_water
             }
         },
         {
@@ -252,7 +257,7 @@ const PROGMEM Level levels[] = {
             {
                 __BG_ROW(0)
 				__BG_ROW(0)
-				__BG_ROW(6)
+				__BG_GRASS_1(1, 7)
 				__BG_ROW(2)
                 __BG_ROW(3)
 				__BG_ROW(3)
@@ -264,14 +269,14 @@ const PROGMEM Level levels[] = {
 				__BG_ROW(3)
                 __BG_ROW(3)
 				__BG_ROW(3)
-				__BG_ROW(6)
+				__BG_ROW(4)
                 __BG_GRASS_2(1, 7)
             },
             {
                 &image_grass_bland,
                 &image_water_sand_grass,
                 &image_lake,
-                &image_road_sand_water,
+                &image_grass_water,
                 &image_road,
                 &image_grass_road,
                 &image_grass_flower

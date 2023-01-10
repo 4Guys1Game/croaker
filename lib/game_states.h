@@ -1,5 +1,9 @@
 #include "prelude.h"
 
+void gamestate_get_wins(uint8_t *wins);
+
+void gamestate_calculate_score(uint32_t *score_in_ms, uint32_t *score_to_return);
+
 void gamestate_get_status(uint8_t *status);
 
 // Check if the game has ended, who won and by how much

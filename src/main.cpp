@@ -37,14 +37,16 @@
 
 // Value to determine who won, 0 if nobody, 1 if player 1, 2 if player 2
 uint8_t winner = 0;
-uint16_t current_score = 0;
+uint32_t current_score = 0;
 uint8_t status_to_send = 0;
 
 // An enum for the different addresses to read or write to/from on the EEPROM
 enum eeprom_location
 {
-	HIGH_SCORE = EEAR0,
-	OPPONENT_HIGH_SCORE = EEAR0
+	HIGH_SCORE_0 = EEAR0,
+	HIGH_SCORE_1 = EEAR1,
+	HIGH_SCORE_2 = EEAR2,
+	HIGH_SCORE_3 = EEAR3
 };
 
 enum nunchuk_screen
@@ -203,7 +205,7 @@ int main(void)
     init_touch(); // Important we do this before gfx!
 	init_gfx(); // Do this after the touch! If you don't, then call display_setup_registers() afterwards!
 
-    set_current_level(3);
+    set_current_level(0);
 
 	if (!init_nunchuk(NUNCHUK_ADDRESS))
 		nunchuk_disconnected(START_SCREEN);
@@ -227,9 +229,19 @@ int main(void)
 	draw_rect(&topbar_begin, &topbar_end, text_color[0]);
 	draw_string({10, 2}, (char*)"Highscore");
 	{
-		uint8_t highscore = load_value(eeprom_location::HIGH_SCORE);
-		char score_buffer[4];
-		uint8_to_string(score_buffer, highscore);
+		uint8_t highscore_0 = load_value(eeprom_location::HIGH_SCORE_0);
+		uint8_t highscore_1 = load_value(eeprom_location::HIGH_SCORE_1);
+		uint8_t highscore_2 = load_value(eeprom_location::HIGH_SCORE_2);
+		uint8_t highscore_3 = load_value(eeprom_location::HIGH_SCORE_3);
+		uint32_t highscore = highscore_0;
+		highscore <<= 8;
+		highscore |= highscore_1;
+		highscore <<= 8;
+		highscore |= highscore_2;
+		highscore <<= 8;
+		highscore |= highscore_3;
+		char score_buffer[11];
+		uint32_to_string(score_buffer, highscore);
 		draw_string({20 + 10 * 10, 2}, score_buffer);
 	}
 	draw_string({10, 22}, (char*)"Current Time");
@@ -250,8 +262,8 @@ int main(void)
 
 	uint8_t times_status_set = 0;
 
-	uint8_t current_level = 0;
 	uint8_t level_changed = 0;
+    uint8_t current_level_index = 3;
 
 	// Init the game timers
 	uint32_t next_message = global_time;
@@ -274,7 +286,9 @@ int main(void)
 			uint16_to_string(time_buffer, (uint16_t)(global_time / 1000));
 			draw_string({20 + 12 * 10, 22}, time_buffer);
 
-			show_on_segment_display((global_time / 1000) % 10);
+			uint8_t wins;
+			gamestate_get_wins(&wins);
+			show_on_segment_display(wins);
 		}
 
 		if (global_time >= next_moveable_tick)
@@ -319,18 +333,24 @@ int main(void)
 			// Get the latest available data using a vector2 to write to
 			ir_get_latest_data_packet(&second_player_coords);
 		}
-		if((player_1_end == 1 && player_2_end == 1 && winner == 1 && status == ACKNOWLEDGEMENT_STATUS && level_changed == 0)||(player_1_end == 1 && player_2_end == 1 && winner == 2 && status == NEXT_LEVEL_STATUS && level_changed == 0 && times_status_set > 66))
+		if ((player_1_end == 1 && player_2_end == 1 && winner == 1 && status == ACKNOWLEDGEMENT_STATUS && level_changed == 0) || (player_1_end == 1 && player_2_end == 1 && winner == 2 && status == NEXT_LEVEL_STATUS && level_changed == 0 && times_status_set > 66))
 		{
-			current_level++;
+            current_level_index++;
+            set_current_level(current_level_index);
+			move_image(&players[0].image, &players[0].spawn);
 			level_changed = 1;
 			status_to_send = 0;
+            times_status_set = 0;
+
+            player_1_end = 0;
+            player_2_end = 0;
+			winner = 0;
 		}
 		else
 		{
 			// Check if the game has ended, and determine the winner and the time by which they won
-			uint8_t winner_copy = winner;
 			check_for_end(&players[0].image.position, &player_1_end, &status, &player_2_end, &winner, &player_time_faster_than_enemy);
-			if(winner != winner_copy)
+			if(winner == 0)
 			{
 				level_changed = 0;
 			}
@@ -341,7 +361,34 @@ int main(void)
 				times_status_set++;
 			}
 		}
-	}
+
+		if(current_level_index == 4)
+		{
+			uint32_t calculated_score = 0;
+			gamestate_calculate_score(&current_score, &calculated_score);
+			uint8_t highscore_0 = load_value(eeprom_location::HIGH_SCORE_0);
+			uint8_t highscore_1 = load_value(eeprom_location::HIGH_SCORE_1);
+			uint8_t highscore_2 = load_value(eeprom_location::HIGH_SCORE_2);
+			uint8_t highscore_3 = load_value(eeprom_location::HIGH_SCORE_3);
+			uint32_t previous_highscore = highscore_0;
+			previous_highscore <<= 8;
+			previous_highscore |= highscore_1;
+			previous_highscore <<= 8;
+			previous_highscore |= highscore_2;
+			previous_highscore <<= 8;
+			previous_highscore |= highscore_3;
+			if(calculated_score > previous_highscore)
+			{
+				uint8_t highscore_save_0 = calculated_score >> 24;
+				uint8_t highscore_save_1 = calculated_score >> 16;
+				uint8_t highscore_save_2 = calculated_score >> 8;
+				uint8_t highscore_save_3 = calculated_score;
+				save_value(eeprom_location::HIGH_SCORE_0, highscore_save_0);
+				save_value(eeprom_location::HIGH_SCORE_1, highscore_save_1);
+				save_value(eeprom_location::HIGH_SCORE_2, highscore_save_2);
+				save_value(eeprom_location::HIGH_SCORE_3, highscore_save_3);
+			}
+		}
 
         update_brightness();
 	}
