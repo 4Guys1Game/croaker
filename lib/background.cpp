@@ -16,7 +16,7 @@
 #define __BG_GRASS_1(a, b) __BG_TILE(a, a), __BG_TILE(a, a), __BG_TILE(b, a), __BG_TILE(a, a), __BG_TILE(a, a), __BG_TILE(a, b),
 #define __BG_GRASS_2(a, b)  __BG_TILE(b, a), __BG_TILE(a, a), __BG_TILE(a, a), __BG_TILE(b, b), __BG_TILE(a, a), __BG_TILE(a, a),
 
-Level current_level; // Make sure to update this in main!
+Level current_level; // Make sure to initialize this in main using set_current_level(), otherwise bad things will happen.
 
 void set_current_level(uint8_t level)
 {
