@@ -2,6 +2,6 @@ CMakeLists.txt
 /.vscode
 /build
 /images/*.opt
-CMakeCache.txt
-CMakeFiles
 .cache/clangd/index
+CMakeFiles
+CMakeCache.txt

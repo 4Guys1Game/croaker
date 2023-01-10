@@ -59,7 +59,7 @@ Player players[] = {
 		{6 * 20, 15 * 20},
 		{
 			{6 * 20, 15 * 20},
-			&image_frogge}
+			&image_frogge_2}
 	}
 };
 
@@ -74,33 +74,33 @@ uint8_t inline get_simulation_x(int8_t tile_offset)
 void inline simulate_single_car(Vector2 *tile_position, uint8_t offset)
 {
 	tile_position->x = get_simulation_x(offset + 2);
-	set_tile(&levels[current_level].foreground, *tile_position, 2);
-	draw_tile(&levels[current_level].foreground, *tile_position);
+	set_tile(&current_level.foreground, *tile_position, 2);
+	draw_tile(&current_level.foreground, *tile_position);
 	tile_position->x = get_simulation_x(offset + 1);
-	set_tile(&levels[current_level].foreground, *tile_position, 1);
-	draw_tile(&levels[current_level].foreground, *tile_position);
+	set_tile(&current_level.foreground, *tile_position, 1);
+	draw_tile(&current_level.foreground, *tile_position);
 	tile_position->x = get_simulation_x(offset + 3);
-	set_tile(&levels[current_level].foreground, *tile_position, 0);
-	draw_tile(&levels[current_level].background, *tile_position);
+	set_tile(&current_level.foreground, *tile_position, 0);
+	draw_tile(&current_level.background, *tile_position);
 }
 
 void inline simulate_single_log(Vector2 *tile_position, uint8_t middle_length, uint8_t offset)
 {
 	tile_position->x = get_simulation_x(offset + middle_length + 1);
-	set_tile(&levels[current_level].foreground, *tile_position, 5);
-	draw_tile(&levels[current_level].foreground, *tile_position);
+	set_tile(&current_level.foreground, *tile_position, 5);
+	draw_tile(&current_level.foreground, *tile_position);
 	tile_position->x = get_simulation_x(offset);
-	set_tile(&levels[current_level].foreground, *tile_position, 3);
-	draw_tile(&levels[current_level].foreground, *tile_position);
+	set_tile(&current_level.foreground, *tile_position, 3);
+	draw_tile(&current_level.foreground, *tile_position);
 	if (middle_length >= 1)
 	{
 		tile_position->x = get_simulation_x(offset + 1);
-		set_tile(&levels[current_level].foreground, *tile_position, 4);
-		draw_tile(&levels[current_level].foreground, *tile_position);
+		set_tile(&current_level.foreground, *tile_position, 4);
+		draw_tile(&current_level.foreground, *tile_position);
 	}
 	tile_position->x = get_simulation_x(offset + middle_length + 2);
-	set_tile(&levels[current_level].foreground, *tile_position, 0);
-	draw_tile(&levels[current_level].background, *tile_position);
+	set_tile(&current_level.foreground, *tile_position, 0);
+	draw_tile(&current_level.background, *tile_position);
 }
 
 void simulate_moveables()
@@ -108,16 +108,16 @@ void simulate_moveables()
 	// Update the simulation
 	simulation_x = (simulation_x + 1) % SCREEN_WIDTH_TILE;
 
-	Vector2 vec = {0, levels->cars.start_y};
-	for (uint8_t car_idx = 0; car_idx < levels->cars.position_len; car_idx++) {
-		simulate_single_car(&vec, levels->cars.positions[car_idx].x);
-		vec.y += levels->cars.positions[car_idx].increment_y;
+	Vector2 vec = {0, current_level.cars.start_y};
+	for (uint8_t car_idx = 0; car_idx < current_level.cars.position_len; car_idx++) {
+		simulate_single_car(&vec, current_level.cars.positions[car_idx].x);
+		vec.y += current_level.cars.positions[car_idx].increment_y;
 	}
 
-	vec.y = levels->logs.start_y;
-	for (uint8_t log_idx = 0; log_idx < levels->logs.position_len; log_idx++) {
-		simulate_single_log(&vec, levels->logs.positions[log_idx].w, levels->logs.positions[log_idx].x);
-		vec.y += levels->logs.positions[log_idx].increment_y;
+	vec.y = current_level.logs.start_y;
+	for (uint8_t log_idx = 0; log_idx < current_level.logs.position_len; log_idx++) {
+		simulate_single_log(&vec, current_level.logs.positions[log_idx].w, current_level.logs.positions[log_idx].x);
+		vec.y += current_level.logs.positions[log_idx].increment_y;
 	}
 }
 
@@ -192,6 +192,8 @@ int main(void)
     init_touch(); // Important we do this before gfx!
 	init_gfx(); // Do this after the touch! If you don't, then call display_setup_registers() afterwards!
 
+    set_current_level(3);
+
 	if (!init_nunchuk(NUNCHUK_ADDRESS))
 		nunchuk_disconnected(START_SCREEN);
 
@@ -201,8 +203,8 @@ int main(void)
 	init_ir(FREQ_VAL_56KHZ);
 	
 	// Draw the background & foreground
-	draw_tilemap(&levels[current_level].background);
-	draw_tilemap(&levels[current_level].foreground);
+	draw_tilemap(&current_level.background);
+	draw_tilemap(&current_level.foreground);
 
 	uint8_t is_at_end = false;
 
@@ -212,15 +214,15 @@ int main(void)
 	Vector2 topbar_end = {240, 40};
 
 	draw_rect(&topbar_begin, &topbar_end, text_color[0]);
-	draw_string({10, 2}, "Highscore");
+	draw_string({10, 2}, (char*)"Highscore");
 	{
 		uint8_t highscore = load_value(eeprom_location::HIGH_SCORE);
 		char score_buffer[4];
 		uint8_to_string(score_buffer, highscore);
 		draw_string({20 + 10 * 10, 2}, score_buffer);
 	}
-	draw_string({10, 22}, "Current Time");
-	draw_string({20 + 12 * 10, 22}, "00000");
+	draw_string({10, 22}, (char*)"Current Time");
+	draw_string({20 + 12 * 10, 22}, (char*)"00000");
 
 	// Array for positions of the other player
 	Vector2 second_player_coords;
@@ -260,7 +262,7 @@ int main(void)
 			ir_send_message(&players[0].image.position);
 		}
 
-		if (global_time >= next_move_tick)
+		if (global_time >= next_move_tick && (x_val != MIDDLE || y_val != MIDDLE))
 		{
 			next_move_tick = global_time + MOVEMENT_INTERVAL;
 
