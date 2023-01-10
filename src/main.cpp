@@ -286,7 +286,9 @@ int main(void)
 			uint16_to_string(time_buffer, (uint16_t)(global_time / 1000));
 			draw_string({20 + 12 * 10, 22}, time_buffer);
 
-			show_on_segment_display((global_time / 1000) % 10);
+			uint8_t wins;
+			gamestate_get_wins(&wins);
+			show_on_segment_display(wins);
 		}
 
 		if (global_time >= next_moveable_tick)
