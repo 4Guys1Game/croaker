@@ -7,6 +7,7 @@
 #define __GFX_BACKGROUND__
 
 #include "gfx.h"
+#include "images.h"
 #include <avr/pgmspace.h>
 
 // clang-format off
@@ -253,7 +254,7 @@ const PROGMEM Level levels[] = {
             {
                 __BG_ROW(0)
 				__BG_ROW(0)
-				__BG_ROW(6)
+				__BG_GRASS_1(1, 7)
 				__BG_ROW(2)
                 __BG_ROW(3)
 				__BG_ROW(3)
@@ -265,14 +266,14 @@ const PROGMEM Level levels[] = {
 				__BG_ROW(3)
                 __BG_ROW(3)
 				__BG_ROW(3)
-				__BG_ROW(6)
+				__BG_ROW(4)
                 __BG_GRASS_2(1, 7)
             },
             {
                 &image_grass_bland,
                 &image_water_sand_grass,
                 &image_lake,
-                &image_road_sand_water,
+                &image_grass_water,
                 &image_road,
                 &image_grass_road,
                 &image_grass_flower
