@@ -35,9 +35,9 @@
 #define save_value(address, value) eeprom_write_byte((uint8_t *)address, value)
 
 // Value to determine who won, 0 if nobody, 1 if player 1, 2 if player 2
-volatile uint8_t winner = 0;
-volatile uint16_t current_score = 0;
-volatile uint8_t status_to_send = 0;
+uint8_t winner = 0;
+uint16_t current_score = 0;
+uint8_t status_to_send = 0;
 
 // An enum for the different addresses to read or write to/from on the EEPROM
 enum eeprom_location
