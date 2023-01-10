@@ -24,7 +24,6 @@ void set_current_level(uint8_t level)
     memcpy_P(&current_level, &levels[level], sizeof(Level));
     draw_tilemap(&current_level.background);
     draw_tilemap(&current_level.foreground);
-    // TODO: endscreen here, make a different branch for this
 }
 
 const PROGMEM Level levels[] = {

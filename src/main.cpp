@@ -37,7 +37,8 @@
 
 // Value to determine who won, 0 if nobody, 1 if player 1, 2 if player 2
 uint8_t winner = 0;
-uint32_t current_score = 0;
+uint32_t current_score = 0; // The time score in MS
+uint32_t calculated_score = 0; // The actual score
 uint8_t status_to_send = 0;
 
 // An enum for the different addresses to read or write to/from on the EEPROM
@@ -263,7 +264,7 @@ int main(void)
 	uint8_t times_status_set = 0;
 
 	uint8_t level_changed = 0;
-    uint8_t current_level_index = 3;
+    uint8_t current_level_index = 0;
 
 	// Init the game timers
 	uint32_t next_message = global_time;
@@ -328,7 +329,7 @@ int main(void)
 		gamestate_get_status(&status);
 
 		// Get player 2 movement info if the status isn't a valid one
-		if(status == 0)
+		if (status == 0)
 		{
 			// Get the latest available data using a vector2 to write to
 			ir_get_latest_data_packet(&second_player_coords);
@@ -336,8 +337,11 @@ int main(void)
 		if ((player_1_end == 1 && player_2_end == 1 && winner == 1 && status == ACKNOWLEDGEMENT_STATUS && level_changed == 0) || (player_1_end == 1 && player_2_end == 1 && winner == 2 && status == NEXT_LEVEL_STATUS && level_changed == 0 && times_status_set > 66))
 		{
             current_level_index++;
-            set_current_level(current_level_index);
-			move_image(&players[0].image, &players[0].spawn);
+            if (current_level_index != 4)
+            {
+                set_current_level(current_level_index);
+                move_image(&players[0].image, &players[0].spawn);
+            }
 			level_changed = 1;
 			status_to_send = 0;
             times_status_set = 0;
@@ -349,14 +353,14 @@ int main(void)
 		else
 		{
 			// Check if the game has ended, and determine the winner and the time by which they won
-			check_for_end(&players[0].image.position, &player_1_end, &status, &player_2_end, &winner, &player_time_faster_than_enemy);
-			if(winner == 0)
+			check_for_end(&players[0].image.position, &player_1_end, &status, &player_2_end, &winner, &current_score);
+			if (winner == 0)
 			{
 				level_changed = 0;
 			}
 
 			gamestate_set_new_send_status(&winner, &player_1_end, &player_2_end, &status_to_send, &status);
-			if(status_to_send == ACKNOWLEDGEMENT_STATUS)
+			if (status_to_send == ACKNOWLEDGEMENT_STATUS)
 			{
 				times_status_set++;
 			}
@@ -364,7 +368,6 @@ int main(void)
 
 		if(current_level_index == 4)
 		{
-			uint32_t calculated_score = 0;
 			gamestate_calculate_score(&current_score, &calculated_score);
 			uint8_t highscore_0 = load_value(eeprom_location::HIGH_SCORE_0);
 			uint8_t highscore_1 = load_value(eeprom_location::HIGH_SCORE_1);
@@ -388,8 +391,28 @@ int main(void)
 				save_value(eeprom_location::HIGH_SCORE_2, highscore_save_2);
 				save_value(eeprom_location::HIGH_SCORE_3, highscore_save_3);
 			}
+            break;
 		}
 
         update_brightness();
 	}
+
+    // The end screen, this should idealy be put in it's own function, however, since it's the end of the file
+    // I don't really think it's needed
+    black_screen();
+    draw_string({30, 55}, (char*)"thanks for playing");
+	BasicImage logo = { {34, 75}, &image_croaker_logo };
+    draw_image(&logo);
+    if (amount_of_wins >= 2)
+    {
+        draw_string({85, 160}, (char*)"victory");
+    }
+    else
+    {
+        draw_string({80, 160}, (char*)"defeated");
+    }
+    draw_string({65, 200}, (char*)"final score");
+    char score_text_buffer[11];
+    uint32_to_string(score_text_buffer, calculated_score);
+    draw_string({65, 220}, score_text_buffer);
 }
