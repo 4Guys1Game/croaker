@@ -1,5 +1,7 @@
 #include "prelude.h"
 
+extern uint8_t amount_of_wins;
+
 void gamestate_get_wins(uint8_t *wins);
 
 void gamestate_calculate_score(uint32_t *score_in_ms, uint32_t *score_to_return);

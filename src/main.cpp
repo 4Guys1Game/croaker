@@ -399,8 +399,22 @@ int main(void)
         update_brightness();
 	}
 
+    // The end screen, this should idealy be put in it's own function, however, since it's the end of the file
+    // I don't really think it's needed
     black_screen();
     draw_string({30, 55}, (char*)"thanks for playing");
 	BasicImage logo = { {34, 75}, &image_croaker_logo };
     draw_image(&logo);
+    if (amount_of_wins >= 2)
+    {
+        draw_string({85, 160}, (char*)"victory");
+    }
+    else
+    {
+        draw_string({80, 160}, (char*)"defeated");
+    }
+    draw_string({65, 200}, (char*)"final score");
+    char score_text_buffer[11];
+    uint32_to_string(score_text_buffer, current_score);
+    draw_string({65, 220}, score_text_buffer);
 }
