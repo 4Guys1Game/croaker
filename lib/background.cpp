@@ -21,6 +21,7 @@ Level current_level; // Make sure to initialize this in main using set_current_l
 void set_current_level(uint8_t level)
 {
     memcpy_P(&current_level, &levels[level], sizeof(Level));
+    // TODO: endscreen here, make a different branch for this
 }
 
 const PROGMEM Level levels[] = {

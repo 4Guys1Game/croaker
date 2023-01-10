@@ -250,8 +250,8 @@ int main(void)
 
 	uint8_t times_status_set = 0;
 
-	uint8_t current_level = 0;
 	uint8_t level_changed = 0;
+    uint8_t current_level_index = 0;
 
 	// Init the game timers
 	uint32_t next_message = global_time;
@@ -321,7 +321,8 @@ int main(void)
 		}
 		if((player_1_end == 1 && player_2_end == 1 && winner == 1 && status == ACKNOWLEDGEMENT_STATUS && level_changed == 0)||(player_1_end == 1 && player_2_end == 1 && winner == 2 && status == NEXT_LEVEL_STATUS && level_changed == 0 && times_status_set > 66))
 		{
-			current_level++;
+            current_level_index++;
+            set_current_level(current_level_index);
 			level_changed = 1;
 			status_to_send = 0;
 		}
