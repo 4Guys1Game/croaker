@@ -263,7 +263,7 @@ int main(void)
 	uint8_t times_status_set = 0;
 
 	uint8_t level_changed = 0;
-    uint8_t current_level_index = 0;
+    uint8_t current_level_index = 4;
 
 	// Init the game timers
 	uint32_t next_message = global_time;
@@ -326,7 +326,7 @@ int main(void)
 		gamestate_get_status(&status);
 
 		// Get player 2 movement info if the status isn't a valid one
-		if(status == 0)
+		if (status == 0)
 		{
 			// Get the latest available data using a vector2 to write to
 			ir_get_latest_data_packet(&second_player_coords);
@@ -334,8 +334,11 @@ int main(void)
 		if ((player_1_end == 1 && player_2_end == 1 && winner == 1 && status == ACKNOWLEDGEMENT_STATUS && level_changed == 0) || (player_1_end == 1 && player_2_end == 1 && winner == 2 && status == NEXT_LEVEL_STATUS && level_changed == 0 && times_status_set > 66))
 		{
             current_level_index++;
-            set_current_level(current_level_index);
-			move_image(&players[0].image, &players[0].spawn);
+            if (current_level_index == 4)
+            {
+                set_current_level(current_level_index);
+                move_image(&players[0].image, &players[0].spawn);
+            }
 			level_changed = 1;
 			status_to_send = 0;
             times_status_set = 0;
@@ -348,46 +351,54 @@ int main(void)
 		{
 			// Check if the game has ended, and determine the winner and the time by which they won
 			check_for_end(&players[0].image.position, &player_1_end, &status, &player_2_end, &winner, &player_time_faster_than_enemy);
-			if(winner == 0)
+			if (winner == 0)
 			{
 				level_changed = 0;
 			}
 
 			gamestate_set_new_send_status(&winner, &player_1_end, &player_2_end, &status_to_send, &status);
-			if(status_to_send == ACKNOWLEDGEMENT_STATUS)
+			if (status_to_send == ACKNOWLEDGEMENT_STATUS)
 			{
 				times_status_set++;
 			}
 		}
 
-		if(current_level_index == 4)
-		{
-			uint32_t calculated_score = 0;
-			gamestate_calculate_score(&current_score, &calculated_score);
-			uint8_t highscore_0 = load_value(eeprom_location::HIGH_SCORE_0);
-			uint8_t highscore_1 = load_value(eeprom_location::HIGH_SCORE_1);
-			uint8_t highscore_2 = load_value(eeprom_location::HIGH_SCORE_2);
-			uint8_t highscore_3 = load_value(eeprom_location::HIGH_SCORE_3);
-			uint32_t previous_highscore = highscore_0;
-			previous_highscore <<= 8;
-			previous_highscore |= highscore_1;
-			previous_highscore <<= 8;
-			previous_highscore |= highscore_2;
-			previous_highscore <<= 8;
-			previous_highscore |= highscore_3;
-			if(calculated_score > previous_highscore)
-			{
-				highscore_0 = calculated_score >> 24;
-				highscore_1 = calculated_score >> 16;
-				highscore_2 = calculated_score >> 8;
-				highscore_3 = calculated_score;
-				save_value(eeprom_location::HIGH_SCORE_0, highscore_0);
-				save_value(eeprom_location::HIGH_SCORE_1, highscore_1);
-				save_value(eeprom_location::HIGH_SCORE_2, highscore_2);
-				save_value(eeprom_location::HIGH_SCORE_3, highscore_3);
-			}
-		}
+		if (current_level_index == 4)
+        {
+            break; // Exit the main loop (we're finished)
+        }
+		// {
+		// 	uint32_t calculated_score = 0;
+		// 	gamestate_calculate_score(&current_score, &calculated_score);
+		// 	uint8_t highscore_0 = load_value(eeprom_location::HIGH_SCORE_0);
+		// 	uint8_t highscore_1 = load_value(eeprom_location::HIGH_SCORE_1);
+		// 	uint8_t highscore_2 = load_value(eeprom_location::HIGH_SCORE_2);
+		// 	uint8_t highscore_3 = load_value(eeprom_location::HIGH_SCORE_3);
+		// 	uint32_t previous_highscore = highscore_0;
+		// 	previous_highscore <<= 8;
+		// 	previous_highscore |= highscore_1;
+		// 	previous_highscore <<= 8;
+		// 	previous_highscore |= highscore_2;
+		// 	previous_highscore <<= 8;
+		// 	previous_highscore |= highscore_3;
+		// 	if(calculated_score > previous_highscore)
+		// 	{
+		// 		highscore_0 = calculated_score >> 24;
+		// 		highscore_1 = calculated_score >> 16;
+		// 		highscore_2 = calculated_score >> 8;
+		// 		highscore_3 = calculated_score;
+		// 		save_value(eeprom_location::HIGH_SCORE_0, highscore_0);
+		// 		save_value(eeprom_location::HIGH_SCORE_1, highscore_1);
+		// 		save_value(eeprom_location::HIGH_SCORE_2, highscore_2);
+		// 		save_value(eeprom_location::HIGH_SCORE_3, highscore_3);
+		// 	}
+		// }
 
         update_brightness();
 	}
+
+    black_screen();
+    draw_string({30, 55}, (char*)"thanks for playing");
+	BasicImage logo = { {34, 75}, &image_croaker_logo };
+    draw_image(&logo);
 }
