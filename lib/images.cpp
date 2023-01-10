@@ -8,6 +8,12 @@ RawImage image_frogge {
 	Vector2 { 20, 20 }
 };
 // AUTO GENERATED IMAGE, PUT ME IN images.cpp
+RawImage image_frogge_2 {
+	GET_IMAGE(frogge_2),
+	123,
+	Vector2 { 20, 20 }
+};
+// AUTO GENERATED IMAGE, PUT ME IN images.cpp
 RawImage image_lake {
 	GET_IMAGE(lake),
 	43,
@@ -83,5 +89,17 @@ RawImage image_grass_flower {
 RawImage image_grass_bland {
 	GET_IMAGE(grass_bland),
 	43,
+	Vector2 { 20, 20 }
+};
+// AUTO GENERATED IMAGE, PUT ME IN images.cpp
+RawImage image_grass_water {
+	GET_IMAGE(grass_water),
+	51,
+	Vector2 { 20, 20 }
+};
+// AUTO GENERATED IMAGE, PUT ME IN images.cpp
+RawImage image_road_grass {
+	GET_IMAGE(road_grass),
+	67,
 	Vector2 { 20, 20 }
 };
