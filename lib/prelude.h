@@ -56,4 +56,9 @@ typedef struct {
 		vec.y = CLAMP_SCREEN_X(vec.y); \
 	}
 
+#define END_STATUS 222
+#define ACKNOWLEDGEMENT_STATUS 233
+#define NEXT_LEVEL_STATUS 244
+#define DISCONNECT_STATUS 250
+
 #endif

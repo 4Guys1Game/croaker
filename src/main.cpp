@@ -35,6 +35,7 @@
 // Value to determine who won, 0 if nobody, 1 if player 1, 2 if player 2
 volatile uint8_t winner = 0;
 volatile uint16_t current_score = 0;
+volatile uint8_t status_to_send = 0;
 
 // An enum for the different addresses to read or write to/from on the EEPROM
 enum eeprom_location
@@ -161,12 +162,16 @@ int main(void)
 
 	// Value for received status
 	uint8_t status = 0;
-	uint8_t status_to_send = 0;
 
 	uint8_t player_1_end = 0;
 	uint8_t player_2_end = 0;
 
 	uint16_t player_time_faster_than_enemy = 0;
+
+	uint8_t times_status_set = 0;
+
+	uint8_t current_level = 0;
+	uint8_t level_changed = 0;
 
 	// Init the game timers
 	uint32_t next_message = global_time;
@@ -196,7 +201,14 @@ int main(void)
 			next_moveable_tick = global_time + MOVEABLE_MOVE_SPEED;
 			simulate_moveables();
 			// Send the player position after we simulated the cars, this is to prevent it from interferring with the timings
-			ir_send_message(&players[0].image.position);
+			if(status_to_send == 0)
+			{
+				ir_send_message_position(&players[0].image.position);
+			}
+			else
+			{
+				ir_send_message_status(&status_to_send);
+			}
 		}
 
 		if (global_time >= next_move_tick)
@@ -224,13 +236,24 @@ int main(void)
 			// Get the latest available data using a vector2 to write to
 			ir_get_latest_data_packet(&second_player_coords);
 		}
+		if((player_1_end == 1 && player_2_end == 1 && winner == 1 && status == ACKNOWLEDGEMENT_STATUS && level_changed == 0)||(player_1_end == 1 && player_2_end == 1 && winner == 2 && status == NEXT_LEVEL_STATUS && level_changed == 0 && times_status_set > 10))
+		{
+			current_level++;
+			level_changed = 1;
+			status_to_send = 0;
+		}else{
+			// Check if the game has ended, and determine the winner and the time by which they won
+			uint8_t winner_copy = winner;
+			check_for_end(&players[0].image.position, &player_1_end, &status, &player_2_end, &winner, &player_time_faster_than_enemy);
+			if(winner != winner_copy){
+				level_changed = 0;
+			}
 
-		// Check if the game has ended, and determine the winner and the time by which they won
-		uint8_t winner_copy = winner;
-		check_for_end(&players[0].image.position, &player_1_end, &status, &player_2_end, &winner_copy, &player_time_faster_than_enemy);
-		winner = winner_copy;
-
-		gamestate_set_new_send_status(&winner_copy, &player_1_end, &player_2_end, &status_to_send);
+			gamestate_set_new_send_status(&winner, &player_1_end, &player_2_end, &status_to_send, &status);
+			if(status_to_send == ACKNOWLEDGEMENT_STATUS){
+				times_status_set++;
+			}
+		}
 	}
 
 	// This is never reached.

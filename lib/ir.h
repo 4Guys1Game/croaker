@@ -13,13 +13,17 @@ extern uint8_t packet_sent;
 
 IRData convert_packet_to_irdata(uint16_t packet);
 
-void *ir_get_latest_data_packet(Vector2 *coordinates);
+void ir_get_latest_data_packet(Vector2 *coordinates);
 
-void *ir_get_current_status(uint8_t *status);
+void ir_get_current_status(uint8_t *status);
 
 uint16_t ir_create_packet(IRData data);
 
-void ir_send_message(Vector2 *position);
+uint16_t ir_create_packet_status(volatile uint8_t data);
+
+void ir_send_message_position(Vector2 *position);
+
+void ir_send_message_status(volatile uint8_t *status);
 
 // Initializes the pins for generating IR signals
 // You have to give a frequency to configure it properly

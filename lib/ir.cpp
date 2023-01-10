@@ -46,7 +46,7 @@ IRData convert_packet_to_irdata(uint16_t packet)
 
 // Get the current data packet
 // Returns an array of two IRData values, the first is for the x coordinate, the second one is for the y coordinate
-void *ir_get_latest_data_packet(Vector2 *coordinates)
+void ir_get_latest_data_packet(Vector2 *coordinates)
 {
 	if (received_ir_packet != 0)
 	{
@@ -67,7 +67,7 @@ void *ir_get_latest_data_packet(Vector2 *coordinates)
 	}
 }
 
-void *ir_get_current_status(uint8_t *status){
+void ir_get_current_status(uint8_t *status){
 	if (received_ir_packet != 0)
 	{
 		// Get the packet and turn it into only the data with the convert_packet_to_irdata function
@@ -199,10 +199,37 @@ uint16_t ir_create_packet(Vector2 *position)
 	return packet;
 }
 
-void ir_send_message(Vector2 *position)
+uint16_t ir_create_packet_status(volatile uint8_t *data)
+{
+	// Calculate the parity
+	// 0x01 if uneven
+	// 0x00 if even
+	uint8_t parity = 0x00;
+	// Add the bits from the data to the parity value
+	for (uint8_t idx = 0; idx < 8; idx++)
+	{
+		parity += (*data & (1 << idx)) >> idx;
+	}
+	// Do a modulo 2 to determine of parity is even or uneven
+	parity %= 2;
+
+	// Config data
+	packet = 0x600 | ((*data & 0xFF) << 1) | parity;
+	return packet;
+}
+
+void ir_send_message_position(Vector2 *position)
 {
 	// Create the packet
 	packet = ir_create_packet(position);
+	packet_index = 11;
+	packet_sent = 0;
+}
+
+void ir_send_message_status(volatile uint8_t *position)
+{
+	// Create the packet
+	packet = ir_create_packet_status(position);
 	packet_index = 11;
 	packet_sent = 0;
 }

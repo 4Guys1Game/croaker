@@ -11,11 +11,7 @@
 #include "ir.h"
 #include "gfx.h"
 #include "game_states.h"
-
-#define END_STATUS 222
-#define ACKNOWLEDGEMENT_STATUS 233
-#define NEXT_LEVEL_STATUS 244
-#define DISCONNECT_STATUS 250
+#include "prelude.h"
 
 volatile uint8_t current_status = 0;
 volatile uint8_t player_1_end = 0;
@@ -51,7 +47,7 @@ void check_for_time_difference(uint16_t *time)
     }
 }
 
-void get_win_time_if_applicable(uint8_t *winner, uint16_t *current_score)
+void get_win_time_if_applicable(volatile uint8_t *winner, uint16_t *current_score)
 {
     if(*winner == 1)
     {
@@ -59,20 +55,38 @@ void get_win_time_if_applicable(uint8_t *winner, uint16_t *current_score)
         check_for_time_difference(&win_time);
         current_score += win_time;
     }
-
 }
 
-void gamestate_set_new_send_status(uint8_t *winner, uint8_t *player_1_end_main, uint8_t *player_2_end_main, uint8_t *status_to_send)
+void gamestate_set_new_send_status(volatile uint8_t *winner, uint8_t *player_1_end_main, uint8_t *player_2_end_main, volatile uint8_t *status_to_send, uint8_t *received_status)
 {
-    if(*player_1_end_main == 1 && *player_2_end_main == 0){
+    if(*received_status == NEXT_LEVEL_STATUS)
+    {
+        *status_to_send = ACKNOWLEDGEMENT_STATUS;
+    }
+    else if(*player_1_end_main == 1 && *player_2_end_main == 0)
+    {
         *status_to_send = END_STATUS;
-    }else if(*player_1_end_main == 0 && *player_2_end_main == 1)
+    }
+    // DELETE THIS BLOCK
+    else if(*player_1_end_main == 0 && *player_2_end_main == 1)
     {
         // Do nothing because of the fact player 1 hasn't finished yet
     }
+    else if(*player_1_end_main == 1 && *player_2_end_main == 1 && *winner == 2)
+    {
+        *status_to_send = END_STATUS;
+    }
+    else if(*player_1_end_main == 1 && *player_2_end_main == 1 && *winner == 1)
+    {
+        *status_to_send = NEXT_LEVEL_STATUS;
+    }
+    else
+    {
+        *status_to_send = 0;
+    }
 }
 
-void check_for_end(Vector2 *player_1_pos, uint8_t *player_1_end_main, uint8_t *status, uint8_t *player_2_end_main, uint8_t *winner, uint16_t *time_faster_than_enemy)
+void check_for_end(Vector2 *player_1_pos, uint8_t *player_1_end_main, uint8_t *status, uint8_t *player_2_end_main, volatile uint8_t *winner, uint16_t *time_faster_than_enemy)
 {
     // Check if the game has ended by way of player 1 reaching the end
     check_if_player_1_end(player_1_pos, player_1_end_main);
