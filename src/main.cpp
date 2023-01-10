@@ -59,7 +59,7 @@ Player players[] = {
 		{6 * 20, 15 * 20},
 		{
 			{6 * 20, 15 * 20},
-			&image_frogge}
+			&image_frogge_2}
 	}
 };
 

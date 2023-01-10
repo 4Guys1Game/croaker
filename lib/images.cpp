@@ -8,6 +8,12 @@ RawImage image_frogge {
 	Vector2 { 20, 20 }
 };
 // AUTO GENERATED IMAGE, PUT ME IN images.cpp
+RawImage image_frogge_2 {
+	GET_IMAGE(frogge_2),
+	123,
+	Vector2 { 20, 20 }
+};
+// AUTO GENERATED IMAGE, PUT ME IN images.cpp
 RawImage image_lake {
 	GET_IMAGE(lake),
 	43,
