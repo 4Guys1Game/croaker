@@ -13,12 +13,12 @@
 #include "game_states.h"
 #include "prelude.h"
 
-volatile uint8_t current_status = 0;
-volatile uint8_t player_1_end = 0;
-volatile uint8_t player_2_end = 0;
-volatile uint8_t next_level = 0;
-volatile uint32_t time_when_won = 0;
-volatile uint32_t time_difference_in_ms = 0;
+uint8_t current_status = 0;
+uint8_t player_1_end = 0;
+uint8_t player_2_end = 0;
+uint8_t next_level = 0;
+uint32_t time_when_won = 0;
+uint32_t time_difference_in_ms = 0;
 
 void gamestate_get_status(uint8_t *status)
 {
@@ -54,7 +54,7 @@ void check_for_time_difference(uint16_t *time)
     time_when_won = 0;
 }
 
-void get_win_time_if_applicable(volatile uint8_t *winner, uint16_t *current_score)
+void get_win_time_if_applicable(uint8_t *winner, uint16_t *current_score)
 {
     // If player 1 won
     if(*winner == 1)
@@ -65,7 +65,7 @@ void get_win_time_if_applicable(volatile uint8_t *winner, uint16_t *current_scor
     }
 }
 
-void gamestate_set_new_send_status(volatile uint8_t *winner, uint8_t *player_1_end_main, uint8_t *player_2_end_main, volatile uint8_t *status_to_send, uint8_t *received_status)
+void gamestate_set_new_send_status(uint8_t *winner, uint8_t *player_1_end_main, uint8_t *player_2_end_main, uint8_t *status_to_send, uint8_t *received_status)
 {
     // Send acknowledgement that we're going to the next level
     if(*received_status == NEXT_LEVEL_STATUS)
@@ -94,7 +94,7 @@ void gamestate_set_new_send_status(volatile uint8_t *winner, uint8_t *player_1_e
     }
 }
 
-void check_for_end(Vector2 *player_1_pos, uint8_t *player_1_end_main, uint8_t *status, uint8_t *player_2_end_main, volatile uint8_t *winner, uint16_t *time_faster_than_enemy)
+void check_for_end(Vector2 *player_1_pos, uint8_t *player_1_end_main, uint8_t *status, uint8_t *player_2_end_main, uint8_t *winner, uint16_t *time_faster_than_enemy)
 {
     // Check if the game has ended by way of player 1 reaching the end
     check_if_player_1_end(player_1_pos, player_1_end_main);
