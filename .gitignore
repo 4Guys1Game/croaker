@@ -3,6 +3,6 @@ CMakeLists.txt
 /build
 /images/*.opt
 CMakeLists.txt:Zone.Identifier
-CMakeCache.txt
-CMakeFiles
 .cache/clangd/index
+CMakeFiles
+CMakeCache.txt

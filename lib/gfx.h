@@ -59,10 +59,12 @@ typedef struct
 	} logs;
 } Level;
 
-// An array containing all the levels in the game
-extern Level levels[];
-// The index of the current level we're in
-extern uint8_t current_level;
+// An array containing all the levels in the game, this is stored inside PROGMEM
+const extern PROGMEM Level levels[];
+// The current level
+extern Level current_level;
+// Set the current level that we're in
+void set_current_level(uint8_t);
 
 // The background is index 0
 // The foreground is index 1
