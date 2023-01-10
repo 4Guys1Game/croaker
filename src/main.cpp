@@ -241,16 +241,20 @@ int main(void)
 			current_level++;
 			level_changed = 1;
 			status_to_send = 0;
-		}else{
+		}
+		else
+		{
 			// Check if the game has ended, and determine the winner and the time by which they won
 			uint8_t winner_copy = winner;
 			check_for_end(&players[0].image.position, &player_1_end, &status, &player_2_end, &winner, &player_time_faster_than_enemy);
-			if(winner != winner_copy){
+			if(winner != winner_copy)
+			{
 				level_changed = 0;
 			}
 
 			gamestate_set_new_send_status(&winner, &player_1_end, &player_2_end, &status_to_send, &status);
-			if(status_to_send == ACKNOWLEDGEMENT_STATUS){
+			if(status_to_send == ACKNOWLEDGEMENT_STATUS)
+			{
 				times_status_set++;
 			}
 		}

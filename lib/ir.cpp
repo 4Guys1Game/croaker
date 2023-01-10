@@ -77,7 +77,9 @@ void ir_get_current_status(uint8_t *status){
 			*status = packet_to_return;
 			// Reset received_ir_packet so no duplicate packets can be sent
 			received_ir_packet = 0;
-		}else{
+		}
+		else
+		{
 			*status = 0;
 		}
 	}
