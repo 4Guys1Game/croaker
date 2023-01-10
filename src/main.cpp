@@ -43,8 +43,10 @@ uint8_t status_to_send = 0;
 // An enum for the different addresses to read or write to/from on the EEPROM
 enum eeprom_location
 {
-	HIGH_SCORE = EEAR0,
-	OPPONENT_HIGH_SCORE = EEAR0
+	HIGH_SCORE_0 = EEAR0,
+	HIGH_SCORE_1 = EEAR1,
+	HIGH_SCORE_2 = EEAR2,
+	HIGH_SCORE_3 = EEAR3
 };
 
 enum nunchuk_screen
@@ -345,6 +347,34 @@ int main(void)
 			if(status_to_send == ACKNOWLEDGEMENT_STATUS)
 			{
 				times_status_set++;
+			}
+		}
+
+		if(current_level_index == 4)
+		{
+			uint32_t calculated_score = 0;
+			gamestate_calculate_score(&current_score, &calculated_score);
+			uint8_t highscore_0 = load_value(eeprom_location::HIGH_SCORE_0);
+			uint8_t highscore_1 = load_value(eeprom_location::HIGH_SCORE_1);
+			uint8_t highscore_2 = load_value(eeprom_location::HIGH_SCORE_2);
+			uint8_t highscore_3 = load_value(eeprom_location::HIGH_SCORE_3);
+			uint32_t previous_highscore = highscore_0;
+			previous_highscore <<= 8;
+			previous_highscore |= highscore_1;
+			previous_highscore <<= 8;
+			previous_highscore |= highscore_2;
+			previous_highscore <<= 8;
+			previous_highscore |= highscore_3;
+			if(calculated_score > previous_highscore)
+			{
+				highscore_0 = calculated_score >> 24;
+				highscore_1 = calculated_score >> 16;
+				highscore_2 = calculated_score >> 8;
+				highscore_3 = calculated_score;
+				save_value(eeprom_location::HIGH_SCORE_0, highscore_0);
+				save_value(eeprom_location::HIGH_SCORE_1, highscore_1);
+				save_value(eeprom_location::HIGH_SCORE_2, highscore_2);
+				save_value(eeprom_location::HIGH_SCORE_3, highscore_3);
 			}
 		}
 
