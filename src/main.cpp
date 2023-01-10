@@ -263,7 +263,7 @@ int main(void)
 	uint8_t times_status_set = 0;
 
 	uint8_t level_changed = 0;
-    uint8_t current_level_index = 0;
+    uint8_t current_level_index = 3;
 
 	// Init the game timers
 	uint32_t next_message = global_time;
@@ -379,14 +379,14 @@ int main(void)
 			previous_highscore |= highscore_3;
 			if(calculated_score > previous_highscore)
 			{
-				highscore_0 = calculated_score >> 24;
-				highscore_1 = calculated_score >> 16;
-				highscore_2 = calculated_score >> 8;
-				highscore_3 = calculated_score;
-				save_value(eeprom_location::HIGH_SCORE_0, highscore_0);
-				save_value(eeprom_location::HIGH_SCORE_1, highscore_1);
-				save_value(eeprom_location::HIGH_SCORE_2, highscore_2);
-				save_value(eeprom_location::HIGH_SCORE_3, highscore_3);
+				uint8_t highscore_save_0 = calculated_score >> 24;
+				uint8_t highscore_save_1 = calculated_score >> 16;
+				uint8_t highscore_save_2 = calculated_score >> 8;
+				uint8_t highscore_save_3 = calculated_score;
+				save_value(eeprom_location::HIGH_SCORE_0, highscore_save_0);
+				save_value(eeprom_location::HIGH_SCORE_1, highscore_save_1);
+				save_value(eeprom_location::HIGH_SCORE_2, highscore_save_2);
+				save_value(eeprom_location::HIGH_SCORE_3, highscore_save_3);
 			}
 		}
 
