@@ -19,11 +19,11 @@ void ir_get_current_status(uint8_t *status);
 
 uint16_t ir_create_packet(IRData data);
 
-uint16_t ir_create_packet_status(volatile uint8_t data);
+uint16_t ir_create_packet_status(uint8_t data);
 
 void ir_send_message_position(Vector2 *position);
 
-void ir_send_message_status(volatile uint8_t *status);
+void ir_send_message_status(uint8_t *status);
 
 // Initializes the pins for generating IR signals
 // You have to give a frequency to configure it properly
