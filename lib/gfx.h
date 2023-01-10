@@ -79,7 +79,7 @@ void set_address_window(Vector2 *position, Vector2 *size);
 // Draws the tiles behind this image
 void draw_behind(BasicImage *img);
 void move_image(BasicImage *img, Vector2 *new_position);
-// Move the sepcified image, and check if the current position is different from
+// Move the specified image, and check if the current position is different from
 // the new positions to prevent needlessly running the code
 void move_image_check(BasicImage *img, Vector2 *new_position);
 

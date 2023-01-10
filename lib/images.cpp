@@ -85,3 +85,15 @@ RawImage image_grass_bland {
 	43,
 	Vector2 { 20, 20 }
 };
+// AUTO GENERATED IMAGE, PUT ME IN images.cpp
+RawImage image_grass_water {
+	GET_IMAGE(grass_water),
+	51,
+	Vector2 { 20, 20 }
+};
+// AUTO GENERATED IMAGE, PUT ME IN images.cpp
+RawImage image_road_grass {
+	GET_IMAGE(road_grass),
+	67,
+	Vector2 { 20, 20 }
+};
