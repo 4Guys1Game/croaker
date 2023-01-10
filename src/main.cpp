@@ -330,13 +330,13 @@ int main(void)
 
             player_1_end = 0;
             player_2_end = 0;
+			winner = 0;
 		}
 		else
 		{
 			// Check if the game has ended, and determine the winner and the time by which they won
-			uint8_t winner_copy = winner;
 			check_for_end(&players[0].image.position, &player_1_end, &status, &player_2_end, &winner, &player_time_faster_than_enemy);
-			if(winner != winner_copy)
+			if(winner == 0)
 			{
 				level_changed = 0;
 			}

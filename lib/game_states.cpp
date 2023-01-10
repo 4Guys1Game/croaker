@@ -14,8 +14,6 @@
 #include "prelude.h"
 
 uint8_t current_status = 0;
-uint8_t player_1_end = 0;
-uint8_t player_2_end = 0;
 uint8_t next_level = 0;
 uint32_t time_when_won = 0;
 uint32_t time_difference_in_ms = 0;
@@ -31,14 +29,13 @@ void check_if_player_1_end(Vector2 *player_1_pos, uint8_t *player_1_end_main)
     // Check if player 1 has reached the top of the screen
     if(player_1_pos->y < 50)
     {
-        player_1_end = 1;
+        *player_1_end_main = 1;
         time_when_won = global_time;
     }
     else
     {
-        player_1_end = 0;
+        *player_1_end_main = 0;
     }
-    *player_1_end_main = player_1_end;
 }
 
 void check_for_time_difference(uint16_t *time)
@@ -98,19 +95,17 @@ void check_for_end(Vector2 *player_1_pos, uint8_t *player_1_end_main, uint8_t *s
 {
     // Check if the game has ended by way of player 1 reaching the end
     check_if_player_1_end(player_1_pos, player_1_end_main);
-    player_1_end = *player_1_end_main;
     // Check if the game has ended by way of player 2 reaching the end
     if(current_status == END_STATUS)
     {
-        player_2_end = 1;
         *player_2_end_main = 1;
     }
     // Check to see if a winner has been decided
-    if(player_1_end == 1 && player_2_end == 0)
+    if(*player_1_end_main == 1 && *player_2_end_main == 0)
     {
         *winner = 1;
     }
-    else if(player_1_end == 0 && player_2_end == 1)
+    else if(*player_1_end_main == 0 && *player_2_end_main == 1)
     {
         *winner = 2;
     }
