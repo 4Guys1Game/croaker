@@ -295,7 +295,7 @@ const PROGMEM Level levels[] = {
         },
         {
             4,
-            13,
+            14,
 			{
                 { 0, 1, 0 },
                 { 1, 0, 5 },
