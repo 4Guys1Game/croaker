@@ -37,7 +37,7 @@
 
 // Value to determine who won, 0 if nobody, 1 if player 1, 2 if player 2
 uint8_t winner = 0;
-uint16_t current_score = 0;
+uint32_t current_score = 0;
 uint8_t status_to_send = 0;
 
 // An enum for the different addresses to read or write to/from on the EEPROM

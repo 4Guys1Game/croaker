@@ -17,6 +17,7 @@ uint8_t current_status = 0;
 uint8_t next_level = 0;
 uint32_t time_when_won = 0;
 uint32_t time_difference_in_ms = 0;
+uint8_t amount_of_wins = 0;
 
 void gamestate_get_wins(uint8_t *wins)
 {
