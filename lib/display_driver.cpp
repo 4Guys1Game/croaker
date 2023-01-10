@@ -13,27 +13,27 @@ inline void input_dc_cs()
 	DDRB &= ~(1 << TFT_DC_PORT);
 }
 
-inline void set_dc_high()
+inline void display_set_dc_high()
 {
 	PORTB |= (1 << TFT_DC_PORT);
 }
 
-inline void set_dc_low()
+inline void display_set_dc_low()
 {
 	PORTB &= ~(1 << TFT_DC_PORT);
 }
 
-inline void set_cs_high()
+inline void display_set_cs_high()
 {
 	PORTB |= (1 << TFT_CS_PORT);
 }
 
-inline void set_cs_low()
+inline void display_set_cs_low()
 {
 	PORTB &= ~(1 << TFT_CS_PORT);
 }
 
-static inline void spi_write(uint8_t data)
+static inline void display_write(uint8_t data)
 {
 	SPDR = data;
 	// Wait until write is finished
@@ -42,67 +42,72 @@ static inline void spi_write(uint8_t data)
 		;
 }
 
-static inline void spi_write16(uint16_t data)
+static inline void display_write16(uint16_t data)
 {
-	spi_write(data >> 8);
-	spi_write(data);
+	display_write(data >> 8);
+	display_write(data);
 }
 
-static inline void spi_begin_write()
+static inline void display_begin_write()
 {
-	set_cs_low();
+	display_set_cs_low();
 }
 
-static inline void spi_end_write()
+static inline void display_end_write()
 {
-	set_cs_high();
+	display_set_cs_high();
 }
 
-static inline void spi_send_command(uint8_t cmd)
+static inline void display_send_command(uint8_t cmd)
 {
-	set_dc_low();
-	spi_write(cmd);
-	set_dc_high();
+	display_set_dc_low();
+	display_write(cmd);
+	display_set_dc_high();
 }
 
 // Private function; only used to send the initial commands to the screen
 void spi_send_command_args(uint8_t cmd, uint8_t *args, uint8_t len)
 {
-	spi_begin_write();
+	display_begin_write();
 
-	set_dc_low();
-	spi_write(cmd);
-	set_dc_high();
+	display_set_dc_low();
+	display_write(cmd);
+	display_set_dc_high();
 
 	for (uint8_t idx = 0; idx < len; idx++)
 	{
-		spi_write(*args);
+		display_write(*args);
 		args++;
 	}
 
-	spi_end_write();
+	display_end_write();
 }
 
-void init_spi()
+void display_setup_registers()
 {
-	output_dc_cs();
-
 	// Enable SPI and set to master mode
 	SPCR |= (1 << SPE) | (1 << MSTR);
 	// Set clock divider to 2
 	SPSR |= (1 << SPI2X);
+	SPCR &= ~((1 << SPR0) | (1 << SPR1));
 	// Set bit order (MSBFirst)
 	SPCR &= ~(1 << DORD);
 	// Set data mode (mode 0)
 	SPCR &= ~((1 << CPOL) | (1 << CPHA));
 	// Enable the internal pull-ups of SS
-	PORTB |= (1 << PB1) | (1 << PB2);
+	PORTB |= (1 << PB2);
 	// Make sure the correct pins are set to output (CLK, MOSI, SS)
-	// idk what PB1 does
-	DDRB |= (1 << PB1) | (1 << PB2) | (1 << PB3) | (1 << PB5);
+	DDRB |= (1 << PB2) | (1 << PB3) | (1 << PB5);
+    DDRB |= (1 << TFT_DC_PORT);
+}
+
+void init_display()
+{
+	output_dc_cs();
+    display_setup_registers();
 
 	// Force a software reset
-	spi_send_command(0x01);
+	display_send_command(0x01);
 	_delay_ms(150);
 
 	// Copied from Adafruit ILI9341

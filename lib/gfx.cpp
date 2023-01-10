@@ -14,15 +14,15 @@ uint16_t text_color[] = {
 
 void set_address_window(Vector2 *position, Vector2 *size)
 {
-	spi_send_command(CMD_COLUMN_ADDRESS_SET);
-	spi_write16(position->x);
-	spi_write16(position->x + size->x - 1);
+	display_send_command(CMD_COLUMN_ADDRESS_SET);
+	display_write16(position->x);
+	display_write16(position->x + size->x - 1);
 
-	spi_send_command(CMD_PAGE_ADDRESS_SET);
-	spi_write16(position->y);
-	spi_write16(position->y + size->y - 1);
+	display_send_command(CMD_PAGE_ADDRESS_SET);
+	display_write16(position->y);
+	display_write16(position->y + size->y - 1);
 
-	spi_send_command(CMD_MEMORY_WRITE);
+	display_send_command(CMD_MEMORY_WRITE);
 }
 
 void draw_bitmap_P(ImageBytes image, ImageLength image_len, Vector2 *position, Vector2 *size)
@@ -40,7 +40,7 @@ void draw_bitmap_P(ImageBytes image, ImageLength image_len, Vector2 *position, V
 	};
 
 	// Start a write message
-	spi_begin_write();
+	display_begin_write();
 	set_address_window(position, size);
 
 	for (uint16_t idx = 16; idx < image_len; idx++)
@@ -54,7 +54,7 @@ void draw_bitmap_P(ImageBytes image, ImageLength image_len, Vector2 *position, V
 			// Save on creating an extra variable by reusing the range var
 			for (range + 1; range > 0; range--)
 			{
-				spi_write16(color_palette[col_idx]);
+				display_write16(color_palette[col_idx]);
 			}
 		}
 		// Case 2: COLOR_BYTE
@@ -63,19 +63,19 @@ void draw_bitmap_P(ImageBytes image, ImageLength image_len, Vector2 *position, V
 			// Retrieve the colors & write to screen
 			uint8_t col_idx_1 = (byte & (0b111 << COLOR_FIRST_COL_OFFSET)) >> COLOR_FIRST_COL_OFFSET;
 			uint8_t col_idx_2 = (byte & (0b111 << COLOR_SECOND_COL_OFFSET)) >> COLOR_SECOND_COL_OFFSET;
-			spi_write16(color_palette[col_idx_1]);
-			spi_write16(color_palette[col_idx_2]);
+			display_write16(color_palette[col_idx_1]);
+			display_write16(color_palette[col_idx_2]);
 			// If the copy bit is set, write again
 			if (byte & (1 << COLOR_COPY_OFFSET))
 			{
-				spi_write16(color_palette[col_idx_1]);
-				spi_write16(color_palette[col_idx_2]);
+				display_write16(color_palette[col_idx_1]);
+				display_write16(color_palette[col_idx_2]);
 			}
 		}
 	}
 
 	// Send the transmittion
-	spi_end_write();
+	display_end_write();
 }
 
 void draw_bitmap_mask_P(ImageBytes image, ImageLength image_len, Vector2 *position, Vector2 *size)
@@ -104,7 +104,7 @@ void draw_bitmap_mask_P(ImageBytes image, ImageLength image_len, Vector2 *positi
 	};
 
 	// Start a write message
-	spi_begin_write();
+	display_begin_write();
 	set_address_window(position, size);
 
 	Vector2 cursor = Vector2{position->x, position->y};
@@ -126,7 +126,7 @@ void draw_bitmap_mask_P(ImageBytes image, ImageLength image_len, Vector2 *positi
 				{
 
 					set_address_window(&cursor, &addr_size);
-					spi_write16(color_palette[col_idx]);
+					display_write16(color_palette[col_idx]);
 					INCR_CURSOR;
 				}
 			}
@@ -147,13 +147,13 @@ void draw_bitmap_mask_P(ImageBytes image, ImageLength image_len, Vector2 *positi
 			if (col_idx_1 != 0)
 			{
 				set_address_window(&cursor, &addr_size);
-				spi_write16(color_palette[col_idx_1]);
+				display_write16(color_palette[col_idx_1]);
 			}
 			INCR_CURSOR;
 			if (col_idx_2 != 0)
 			{
 				set_address_window(&cursor, &addr_size);
-				spi_write16(color_palette[col_idx_2]);
+				display_write16(color_palette[col_idx_2]);
 			}
 			INCR_CURSOR;
 			// If the copy bit is set, write again
@@ -162,13 +162,13 @@ void draw_bitmap_mask_P(ImageBytes image, ImageLength image_len, Vector2 *positi
 				if (col_idx_1 != 0)
 				{
 					set_address_window(&cursor, &addr_size);
-					spi_write16(color_palette[col_idx_1]);
+					display_write16(color_palette[col_idx_1]);
 				}
 				INCR_CURSOR;
 				if (col_idx_2 != 0)
 				{
 					set_address_window(&cursor, &addr_size);
-					spi_write16(color_palette[col_idx_2]);
+					display_write16(color_palette[col_idx_2]);
 				}
 				INCR_CURSOR;
 			}
@@ -176,12 +176,12 @@ void draw_bitmap_mask_P(ImageBytes image, ImageLength image_len, Vector2 *positi
 	}
 
 	// Send the transmittion
-	spi_end_write();
+	display_end_write();
 }
 
 void init_gfx()
 {
-	init_spi(); // Initialize the tft
+	init_display(); // Initialize the tft
 }
 
 void draw_image(BasicImage *img)
@@ -206,21 +206,16 @@ void draw_behind(BasicImage *img)
 {
 	uint8_t begin_x = img->position.x / 20;
 	uint8_t begin_y = img->position.y / 20;
-	uint8_t end_x = (img->position.x + img->raw->size.x) / 20;
-	uint8_t end_y = (img->position.y + img->raw->size.y) / 20;
+	uint8_t end_x = (img->position.x + img->raw->size.x - 1) / 20;
+	uint8_t end_y = (img->position.y + img->raw->size.y - 1) / 20;
 	Vector2 size = {20, 20};
 
-	for (uint8_t x = begin_x; x < end_x; x++)
+	for (uint8_t x = begin_x; x <= end_x; x++)
 	{
-		for (uint8_t y = begin_y; y < end_y; y++)
+		for (uint8_t y = begin_y; y <= end_y; y++)
 		{
-			Vector2 position = {x * 20, y * 20};
-			RawImage *image = background[y * 12 + x];
-			draw_bitmap_P(
-				image->data,
-				image->len,
-				&position,
-				&size);
+			draw_tile(&current_level.background, {x, y});
+			draw_tile_checked(&current_level.foreground, {x, y});
 		}
 	}
 }
@@ -233,38 +228,73 @@ void move_image(BasicImage *img, Vector2 *new_pos)
 	draw_image_mask(img);
 }
 
-#define DRAW_TILEMAP(func)                      \
-	Vector2 position = {0, 0};                  \
-	Vector2 size = {20, 20};                    \
-	for (uint8_t idx = 0; idx < 12 * 16; idx++) \
-	{                                           \
-		if (map[idx])                           \
-		{                                       \
-			position.x = (idx % 12) * 20;       \
-			position.y = (idx / 12) * 20;       \
-			func(                               \
-				map[idx]->data,                 \
-				map[idx]->len,                  \
-				&position,                      \
-				&size);                         \
-		}                                       \
+void move_image_check(BasicImage *img, Vector2 *new_pos)
+{
+	if (new_pos->x != img->position.x || new_pos->y != img->position.y)
+	{
+		draw_behind(img);
+		img->position.x = new_pos->x;
+		img->position.y = new_pos->y;
+		draw_image_mask(img);
 	}
-
-void draw_tilemap(TileMap map)
-{
-	DRAW_TILEMAP(draw_bitmap_P)
 }
 
-void draw_tilemap_mask(TileMap map)
+void draw_tilemap(TileMap *map)
 {
-	DRAW_TILEMAP(draw_bitmap_mask_P)
+	Vector2 position = {0, 0};
+	Vector2 size = {20, 20};
+	for (uint8_t idx = 0; idx < 12 * 16 / 2; idx++)
+	{
+		uint8_t tile1_id = (map->tiles[idx] & 0xf0) >> 4;
+
+		if (tile1_id)
+		{
+			position.x = ((idx * 2) % 12) * 20;
+			position.y = ((idx * 2) / 12) * 20;
+			RawImage *texture = map->sprites[tile1_id - 1];
+			draw_bitmap_P(
+				texture->data,
+				texture->len,
+				&position,
+				&size);
+		}
+		uint8_t tile2_id = map->tiles[idx] & 0x0f;
+		if (tile2_id)
+		{
+			position.x = ((idx * 2 + 1) % 12) * 20;
+			position.y = ((idx * 2 + 1) / 12) * 20;
+			RawImage *texture = map->sprites[tile2_id - 1];
+			draw_bitmap_P(
+				texture->data,
+				texture->len,
+				&position,
+				&size);
+		}
+	}
 }
 
-// This takes a uint8_t and not a Vector2 to reduce memory usage
-void draw_tile(TileMap map, Vector2 pos)
+void set_tile(TileMap *map, Vector2 pos, uint8_t new_id)
 {
 	Vector2 size = {20, 20};
-	RawImage *raw = map[pos.y * 12 + pos.x];
+	uint16_t index = pos.y * 6 + pos.x / 2;
+	if(pos.x % 2)
+	{
+		map->tiles[index] &= ~0x0f;
+		map->tiles[index] |= new_id & 0x0f;
+	}
+	else
+	{
+		map->tiles[index] &= ~0xf0;
+		map->tiles[index] |= new_id << 4;
+	}
+}
+
+void draw_tile(TileMap *map, Vector2 pos)
+{
+	Vector2 size = {20, 20};
+	uint16_t index = pos.y * 6 + pos.x / 2;
+	uint8_t tile_id = (pos.x % 2) ? (map->tiles[index] & 0x0f) : ((map->tiles[index] & 0xf0) >> 4);
+	RawImage *raw = map->sprites[tile_id - 1];
 	pos.x *= 20;
 	pos.y *= 20;
 	draw_bitmap_P(
@@ -274,13 +304,19 @@ void draw_tile(TileMap map, Vector2 pos)
 		&size);
 }
 
-void draw_tile_mask(TileMap map, Vector2 pos)
+void draw_tile_checked(TileMap *map, Vector2 pos)
 {
 	Vector2 size = {20, 20};
-	RawImage *raw = map[pos.y * 12 + pos.x];
+	uint16_t index = pos.y * 6 + pos.x / 2;
+	uint8_t tile_id = (pos.x % 2) ? (map->tiles[index] & 0x0f) : ((map->tiles[index] & 0xf0) >> 4);
+	if (tile_id == 0)
+	{
+		return;
+	}
+	RawImage *raw = map->sprites[tile_id - 1];
 	pos.x *= 20;
 	pos.y *= 20;
-	draw_bitmap_mask_P(
+	draw_bitmap_P(
 		raw->data,
 		raw->len,
 		&pos,
@@ -292,7 +328,7 @@ void draw_font_image_P(ImageBytes image, Vector2 *position, Vector2 *size)
 	uint8_t image_len = pgm_read_byte(image) + 1;
 
 	// Start a write message
-	spi_begin_write();
+	display_begin_write();
 	set_address_window(position, size);
 
 	for (uint16_t idx = 1; idx < image_len; idx++)
@@ -306,7 +342,7 @@ void draw_font_image_P(ImageBytes image, Vector2 *position, Vector2 *size)
 			// Save on creating an extra variable by reusing the range var
 			for (range + 1; range > 0; range--)
 			{
-				spi_write16(text_color[col_idx]);
+				display_write16(text_color[col_idx]);
 			}
 		}
 		// Case 2: COLOR_BYTE
@@ -315,19 +351,19 @@ void draw_font_image_P(ImageBytes image, Vector2 *position, Vector2 *size)
 			// Retrieve the colors & write to screen
 			uint8_t col_idx_1 = (byte & (0b111 << COLOR_FIRST_COL_OFFSET)) >> COLOR_FIRST_COL_OFFSET;
 			uint8_t col_idx_2 = (byte & (0b111 << COLOR_SECOND_COL_OFFSET)) >> COLOR_SECOND_COL_OFFSET;
-			spi_write16(text_color[col_idx_1]);
-			spi_write16(text_color[col_idx_2]);
+			display_write16(text_color[col_idx_1]);
+			display_write16(text_color[col_idx_2]);
 			// If the copy bit is set, write again
 			if (byte & (1 << COLOR_COPY_OFFSET))
 			{
-				spi_write16(text_color[col_idx_1]);
-				spi_write16(text_color[col_idx_2]);
+				display_write16(text_color[col_idx_1]);
+				display_write16(text_color[col_idx_2]);
 			}
 		}
 	}
 
 	// Send the transmittion
-	spi_end_write();
+	display_end_write();
 }
 
 void draw_string(Vector2 position, char *string)
@@ -402,9 +438,23 @@ void draw_char(Vector2 *position, char chr)
 		FONT_SWITCH_CASE(31, v)
 		FONT_SWITCH_CASE(32, w)
 		FONT_SWITCH_CASE(33, x)
-		FONT_SWITCH_CASE(34, x)
+		FONT_SWITCH_CASE(34, y)
 		FONT_SWITCH_CASE(35, z)
 	default:
 		break;
 	}
+}
+
+void draw_rect(Vector2 *position, Vector2 *width, register uint16_t color)
+{
+	display_begin_write();
+	set_address_window(position, width);
+
+	uint16_t count_to = width->x * width->y;
+	for (uint16_t count = 0; count < count_to; count++)
+	{
+		display_write16(color);
+	}
+
+	display_end_write();
 }
