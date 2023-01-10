@@ -229,9 +229,19 @@ int main(void)
 	draw_rect(&topbar_begin, &topbar_end, text_color[0]);
 	draw_string({10, 2}, (char*)"Highscore");
 	{
-		uint8_t highscore = load_value(eeprom_location::HIGH_SCORE);
-		char score_buffer[4];
-		uint8_to_string(score_buffer, highscore);
+		uint8_t highscore_0 = load_value(eeprom_location::HIGH_SCORE_0);
+		uint8_t highscore_1 = load_value(eeprom_location::HIGH_SCORE_1);
+		uint8_t highscore_2 = load_value(eeprom_location::HIGH_SCORE_2);
+		uint8_t highscore_3 = load_value(eeprom_location::HIGH_SCORE_3);
+		uint32_t highscore = highscore_0;
+		highscore <<= 8;
+		highscore |= highscore_1;
+		highscore <<= 8;
+		highscore |= highscore_2;
+		highscore <<= 8;
+		highscore |= highscore_3;
+		char score_buffer[11];
+		uint32_to_string(score_buffer, highscore);
 		draw_string({20 + 10 * 10, 2}, score_buffer);
 	}
 	draw_string({10, 22}, (char*)"Current Time");
