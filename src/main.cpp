@@ -4,6 +4,7 @@
 // keep intellisense satisfied
 #ifndef __AVR_ATmega328P__
 #define __AVR_ATmega328P__
+#include "display_driver.h"
 #endif
 
 #include <avr/delay.h>
@@ -17,6 +18,7 @@
 #include "nunchuk_frogger.h"
 #include "prelude.h"
 #include "segment_display.h"
+#include "touch_driver.h"
 
 // Baudrate for Serial communication
 #define BAUDRATE 9600
@@ -38,7 +40,12 @@ enum eeprom_location
 	OPPONENT_HIGH_SCORE = EEAR0
 };
 
-// clang-format off
+enum nunchuk_screen
+{
+	START_UP,
+	START_SCREEN,
+	GAME_SCREEN
+};
 
 Player players[] = {
 	{
@@ -114,18 +121,85 @@ void simulate_moveables()
 	}
 }
 
-// clang-format on
+inline void black_screen()
+{
+	Vector2 screen_zero = {0, 0};
+	Vector2 screen_max = {SCREEN_WIDTH, SCREEN_HEIGHT / 10};
+	for (int i = 1; i <= 10; i++)
+	{
+		draw_rect(&screen_zero, &screen_max, text_color[0]);
+		screen_zero.y = screen_max.y;
+		screen_max.y = (SCREEN_HEIGHT / 10 * i);
+	}
+}
+
+void draw_start_screen();
+void nunchuk_disconnected(nunchuk_screen screen);
+
+inline void draw_start_screen()
+{
+	BasicImage logo = { {34, 75}, &image_croaker_logo };
+	black_screen();
+	draw_image(&logo);
+	draw_string({20, 220}, (char *) "Touch screen to start");
+    // Done drawing, setup the touch
+    touch_setup_registers();
+    uint8_t is_pressed = is_screen_being_touched();
+	while(!is_pressed)
+	{
+		nunchuk_state nunchuk = get_nunchuk_state(NUNCHUK_ADDRESS);
+		if (!nunchuk.connected)
+        {
+            display_setup_registers();
+            nunchuk_disconnected(START_SCREEN);
+            touch_setup_registers();
+        };
+        is_pressed = is_screen_being_touched();
+	}
+    // Make sure we re-enable drawing again!
+    display_setup_registers();
+}
+
+inline void nunchuk_disconnected(nunchuk_screen screen)
+{
+	black_screen();
+	switch (screen)
+	{
+		case START_UP:
+			draw_string({35, 150}, (char *) "ATTACH A NUNCHUK");
+			while (!init_nunchuk(NUNCHUK_ADDRESS)) { _delay_ms(100); }
+			break;
+		case START_SCREEN:
+			draw_string({35, 150}, (char *) "ATTACH A NUNCHUK");
+			while (!init_nunchuk(NUNCHUK_ADDRESS)) { _delay_ms(100); }
+			draw_start_screen();
+			break;
+		case GAME_SCREEN:
+			draw_string({55, 140}, (char *) "PLEASE RESET");
+			draw_string({15, 160}, (char *) "NUNCHUK DISCONNECTED");
+			while(true) {}
+			break;
+		default:
+			break;
+	}
+}
 
 int main(void)
 {
 	sei();
 
 	// Initialize required functionalities
-	setup_global_timer();
-	init_gfx();
-	init_ir(FREQ_VAL_56KHZ);
-	init_nunchuk(NUNCHUK_ADDRESS);
+    init_touch(); // Important we do this before gfx!
+	init_gfx(); // Do this after the touch! If you don't, then call display_setup_registers() afterwards!
 
+	if (!init_nunchuk(NUNCHUK_ADDRESS))
+		nunchuk_disconnected(START_SCREEN);
+
+	draw_start_screen();
+
+	setup_global_timer();
+	init_ir(FREQ_VAL_56KHZ);
+	
 	// Draw the background & foreground
 	draw_tilemap(&levels[current_level].background);
 	draw_tilemap(&levels[current_level].foreground);
@@ -163,6 +237,7 @@ int main(void)
 	while (1)
 	{
 		nunchuk_state nunchuk = get_nunchuk_state(NUNCHUK_ADDRESS);
+		if(!nunchuk.connected) nunchuk_disconnected(GAME_SCREEN);
 		nunchuk_joystick_state y_val = nunchuk.nunchuk_y;
 		nunchuk_joystick_state x_val = nunchuk.nunchuk_x;
 
