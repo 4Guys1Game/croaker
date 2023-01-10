@@ -155,6 +155,8 @@ int main(void)
 	draw_string({10, 22}, "Current Time");
 	draw_string({20 + 12 * 10, 22}, "00000");
 
+	draw_string({10, 42}, "Current State");
+
 	// Array for positions of the other player
 	Vector2 second_player_coords;
 	second_player_coords.x = players[1].spawn.x;
@@ -192,6 +194,10 @@ int main(void)
 			char time_buffer[6];
 			uint16_to_string(time_buffer, (uint16_t)(global_time / 1000));
 			draw_string({20 + 12 * 10, 22}, time_buffer);
+			// DELETE THIS
+			char level_buffer[6];
+			uint8_to_string(level_buffer, status);
+			draw_string({20 + 12 * 10, 42}, level_buffer);
 
 			show_on_segment_display((global_time / 1000) % 10);
 		}
@@ -236,7 +242,7 @@ int main(void)
 			// Get the latest available data using a vector2 to write to
 			ir_get_latest_data_packet(&second_player_coords);
 		}
-		if((player_1_end == 1 && player_2_end == 1 && winner == 1 && status == ACKNOWLEDGEMENT_STATUS && level_changed == 0)||(player_1_end == 1 && player_2_end == 1 && winner == 2 && status == NEXT_LEVEL_STATUS && level_changed == 0 && times_status_set > 10))
+		if((player_1_end == 1 && player_2_end == 1 && winner == 1 && status == ACKNOWLEDGEMENT_STATUS && level_changed == 0)||(player_1_end == 1 && player_2_end == 1 && winner == 2 && status == NEXT_LEVEL_STATUS && level_changed == 0 && times_status_set > 66))
 		{
 			current_level++;
 			level_changed = 1;
