@@ -201,7 +201,7 @@ uint16_t ir_create_packet(Vector2 *position)
 	return packet;
 }
 
-uint16_t ir_create_packet_status(volatile uint8_t *data)
+uint16_t ir_create_packet_status(uint8_t *data)
 {
 	// Calculate the parity
 	// 0x01 if uneven
@@ -228,7 +228,7 @@ void ir_send_message_position(Vector2 *position)
 	packet_sent = 0;
 }
 
-void ir_send_message_status(volatile uint8_t *position)
+void ir_send_message_status(uint8_t *position)
 {
 	// Create the packet
 	packet = ir_create_packet_status(position);
