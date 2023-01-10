@@ -341,7 +341,6 @@ int main(void)
 				times_status_set++;
 			}
 		}
-	}
 
         update_brightness();
 	}
