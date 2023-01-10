@@ -203,7 +203,7 @@ int main(void)
     init_touch(); // Important we do this before gfx!
 	init_gfx(); // Do this after the touch! If you don't, then call display_setup_registers() afterwards!
 
-    set_current_level(3);
+    set_current_level(2);
 
 	if (!init_nunchuk(NUNCHUK_ADDRESS))
 		nunchuk_disconnected(START_SCREEN);
