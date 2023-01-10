@@ -37,7 +37,8 @@
 
 // Value to determine who won, 0 if nobody, 1 if player 1, 2 if player 2
 uint8_t winner = 0;
-uint32_t current_score = 0;
+uint32_t current_score = 0; // The time score in MS
+uint32_t calculated_score = 0; // The actual score
 uint8_t status_to_send = 0;
 
 // An enum for the different addresses to read or write to/from on the EEPROM
@@ -263,7 +264,7 @@ int main(void)
 	uint8_t times_status_set = 0;
 
 	uint8_t level_changed = 0;
-    uint8_t current_level_index = 3;
+    uint8_t current_level_index = 0;
 
 	// Init the game timers
 	uint32_t next_message = global_time;
@@ -336,7 +337,7 @@ int main(void)
 		if ((player_1_end == 1 && player_2_end == 1 && winner == 1 && status == ACKNOWLEDGEMENT_STATUS && level_changed == 0) || (player_1_end == 1 && player_2_end == 1 && winner == 2 && status == NEXT_LEVEL_STATUS && level_changed == 0 && times_status_set > 66))
 		{
             current_level_index++;
-            if (current_level_index == 4)
+            if (current_level_index != 4)
             {
                 set_current_level(current_level_index);
                 move_image(&players[0].image, &players[0].spawn);
@@ -352,7 +353,7 @@ int main(void)
 		else
 		{
 			// Check if the game has ended, and determine the winner and the time by which they won
-			check_for_end(&players[0].image.position, &player_1_end, &status, &player_2_end, &winner, &player_time_faster_than_enemy);
+			check_for_end(&players[0].image.position, &player_1_end, &status, &player_2_end, &winner, &current_score);
 			if (winner == 0)
 			{
 				level_changed = 0;
@@ -367,7 +368,6 @@ int main(void)
 
 		if(current_level_index == 4)
 		{
-			uint32_t calculated_score = 0;
 			gamestate_calculate_score(&current_score, &calculated_score);
 			uint8_t highscore_0 = load_value(eeprom_location::HIGH_SCORE_0);
 			uint8_t highscore_1 = load_value(eeprom_location::HIGH_SCORE_1);
@@ -391,6 +391,7 @@ int main(void)
 				save_value(eeprom_location::HIGH_SCORE_2, highscore_save_2);
 				save_value(eeprom_location::HIGH_SCORE_3, highscore_save_3);
 			}
+            break;
 		}
 
         update_brightness();
@@ -412,6 +413,6 @@ int main(void)
     }
     draw_string({65, 200}, (char*)"final score");
     char score_text_buffer[11];
-    uint32_to_string(score_text_buffer, current_score);
+    uint32_to_string(score_text_buffer, calculated_score);
     draw_string({65, 220}, score_text_buffer);
 }

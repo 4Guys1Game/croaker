@@ -1,6 +1,7 @@
 
 #ifndef __AVR_ATmega328P__
 #define __AVR_ATmega328P__
+#include <cstdint>
 #endif
 
 #include <avr/io.h>
@@ -26,7 +27,7 @@ void gamestate_get_wins(uint8_t *wins)
 
 void gamestate_calculate_score(uint32_t *score_in_ms, uint32_t *score_to_return)
 {
-    *score_to_return = (*score_in_ms / 300) + 1234;
+    *score_to_return = (*score_in_ms / (uint32_t)300) * 50 + 1250;
 }
 
 void gamestate_get_status(uint8_t *status)
@@ -49,7 +50,7 @@ void check_if_player_1_end(Vector2 *player_1_pos, uint8_t *player_1_end_main)
     }
 }
 
-void check_for_time_difference(uint16_t *time)
+void check_for_time_difference(uint32_t *time)
 {
     // Get the difference between the time when player 1 won and now
     time_difference_in_ms = global_time - time_when_won;
@@ -62,12 +63,12 @@ void check_for_time_difference(uint16_t *time)
     time_when_won = 0;
 }
 
-void get_win_time_if_applicable(uint8_t *winner, uint16_t *current_score)
+void get_win_time_if_applicable(uint8_t *winner, uint32_t *current_score)
 {
     // If player 1 won
     if(*winner == 1)
     {
-        uint16_t win_time = 0;
+        uint32_t win_time = 0;
         check_for_time_difference(&win_time);
         current_score += win_time;
     }
@@ -102,7 +103,7 @@ void gamestate_set_new_send_status(uint8_t *winner, uint8_t *player_1_end_main, 
     }
 }
 
-void check_for_end(Vector2 *player_1_pos, uint8_t *player_1_end_main, uint8_t *status, uint8_t *player_2_end_main, uint8_t *winner, uint16_t *time_faster_than_enemy)
+void check_for_end(Vector2 *player_1_pos, uint8_t *player_1_end_main, uint8_t *status, uint8_t *player_2_end_main, uint8_t *winner, uint32_t *time_faster_than_enemy)
 {
     // Check if the game has ended by way of player 1 reaching the end
     check_if_player_1_end(player_1_pos, player_1_end_main);
