@@ -319,12 +319,17 @@ int main(void)
 			// Get the latest available data using a vector2 to write to
 			ir_get_latest_data_packet(&second_player_coords);
 		}
-		if((player_1_end == 1 && player_2_end == 1 && winner == 1 && status == ACKNOWLEDGEMENT_STATUS && level_changed == 0)||(player_1_end == 1 && player_2_end == 1 && winner == 2 && status == NEXT_LEVEL_STATUS && level_changed == 0 && times_status_set > 66))
+		if ((player_1_end == 1 && player_2_end == 1 && winner == 1 && status == ACKNOWLEDGEMENT_STATUS && level_changed == 0) || (player_1_end == 1 && player_2_end == 1 && winner == 2 && status == NEXT_LEVEL_STATUS && level_changed == 0 && times_status_set > 66))
 		{
             current_level_index++;
             set_current_level(current_level_index);
+			move_image(&players[0].image, &players[0].spawn);
 			level_changed = 1;
 			status_to_send = 0;
+            times_status_set = 0;
+
+            player_1_end = 0;
+            player_2_end = 0;
 		}
 		else
 		{
